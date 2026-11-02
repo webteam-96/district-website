@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rotary District 3141 | Theme samples</title>
+  <meta name="description" content="Four design samples for the Rotary District 3141 home page.">
+  <link rel="icon" href="shared/img/rotary-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/reset.css">
+  <style>
+    :root{
+      --ink:#0E2240; --text:#2B3B55; --muted:#5A6A82; --line:#DCE4EE; --mist:#F1F5FA;
+      --blue:#005DAA; --gold:#F7A81B;
+      --ease:cubic-bezier(.16,1,.3,1);
+      --font:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    }
+    body{background:#fff;color:var(--text);font:400 1rem/1.6 var(--font)}
+    .wrap{max-width:1240px;margin-inline:auto;padding-inline:clamp(16px,4vw,48px)}
+    :focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+    .top{background:var(--mist);border-bottom:1px solid var(--line)}
+    .top-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:20px 48px;align-items:end;padding-block:clamp(28px,4vw,48px) clamp(32px,4.5vw,56px)}
+    .brand img{height:48px;width:auto;margin-bottom:clamp(24px,3.5vw,40px)}
+    h1{color:var(--ink);font-size:clamp(2.1rem,1.4rem + 2.6vw,3.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+    .lede{color:var(--muted);font-size:1.02rem}
+    .lede strong{color:var(--ink);font-weight:600}
+
+    .themes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(20px,3vw,36px);padding-block:clamp(36px,5vw,64px)}
+    .card{position:relative;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:#fff;transition:box-shadow 400ms var(--ease),translate 400ms var(--ease),border-color 300ms}
+    .card:hover{translate:0 -4px;border-color:#C6D3E3;box-shadow:0 28px 50px -30px rgba(14,34,64,.45)}
+    .shot{position:relative;margin:10px 10px 0;border-radius:9px;overflow:hidden;background:var(--mist);aspect-ratio:1200/750}
+    .shot>img{width:100%;height:100%;object-fit:cover;object-position:top;transition:scale 700ms var(--ease)}
+    .card:hover .shot>img{scale:1.03}
+    .phone{position:absolute;right:4%;bottom:-6%;width:21%;aspect-ratio:1/2;border:5px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--ink);box-shadow:0 18px 30px -12px rgba(14,34,64,.55);transition:translate 500ms var(--ease)}
+    .phone img{width:100%;height:100%;object-fit:cover;object-position:top}
+    .card:hover .phone{translate:0 -10px}
+    .body{display:flex;flex-direction:column;gap:10px;flex:1;padding:22px 24px 24px}
+    .tags{display:flex;flex-wrap:wrap;gap:6px}
+    .tags span{padding:3px 10px;border-radius:99px;background:var(--mist);color:var(--muted);font-size:.78rem;font-weight:600}
+    h2{color:var(--ink);font-size:1.6rem;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+    h2 a::after{content:'';position:absolute;inset:0;border-radius:14px}
+    h2 a:focus-visible{outline:0}
+    .card:has(h2 a:focus-visible){outline:3px solid var(--blue);outline-offset:3px}
+    .body p{color:var(--text)}
+    .go{display:inline-flex;align-items:center;gap:.45em;margin-top:auto;padding-top:6px;color:var(--blue);font-weight:700}
+    .go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:translate 300ms var(--ease)}
+    .card:hover .go svg{translate:4px 0}
+    .swatch{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:50%;vertical-align:-1px}
+
+    .foot{border-top:1px solid var(--line)}
+    .foot-in{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 24px;padding-block:20px 28px;font-size:.88rem;color:var(--muted)}
+    .foot b{color:var(--ink);font-weight:700}
+
+    @media (max-width:860px){
+      .top-in{grid-template-columns:minmax(0,1fr)}
+      .themes{grid-template-columns:minmax(0,1fr)}
+    }
+    @media (max-width:480px){
+      .body{padding:18px 18px 20px}
+      h2{font-size:1.4rem}
+      .phone{border-width:4px;border-radius:14px}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .card,.shot>img,.phone,.go svg{transition:none}
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-in">
+      <div>
+        <a class="brand" href="https://rid3141.rotaryindia.org/" aria-label="Rotary District 3141 live website"><img src="shared/img/rotary-logo.png" alt="" width="199" height="74"></a>
+        <h1>Website theme samples</h1>
+      </div>
+      <p class="lede">Four designs for the <strong>Rotary District 3141</strong> home page. All four use the live site’s sections and data; only the layout, type, colour and motion change. Inside any theme, the bar at the bottom left switches between them.</p>
+    </div>
+  </header>
+
+  <main class="wrap themes">
+    <article class="card">
+      <div class="shot"><img src="shared/img/previews/heritage-desktop.jpg" alt="" width="1200" height="750"><span class="phone"><img src="shared/img/previews/heritage-phone.jpg" alt="" width="300" height="600" loading="lazy"></span></div>
+      <div class="body">
+        <div class="tags"><span><i class="swatch" style="background:#0B2D5B"></i>Light, navy hero</span><span>Plus Jakarta Sans</span></div>
+        <h2><a href="heritage/index.html">Heritage</a></h2>
+        <p>Editorial and institutional. A full-width banner, the advertisement as a popup on arrival, snapshot cards resting on the banner, a navy band for the dignitaries and the month calendar beside the day’s list.</p>
+        <span class="go" aria-hidden="true">Open Heritage<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><img src="shared/img/previews/aurora-desktop.jpg" alt="" width="1200" height="750"><span class="phone"><img src="shared/img/previews/aurora-phone.jpg" alt="" width="300" height="600" loading="lazy"></span></div>
+      <div class="body">
+        <div class="tags"><span><i class="swatch" style="background:#141B3A"></i>Dark, with a light mode</span><span>Sora and Manrope</span></div>
+        <h2><a href="aurora/index.html">Aurora</a></h2>
+        <p>Modern glass on deep blue. A floating menu with a club search (Ctrl K), a stacked deck of banners, the advertisement beside the numbers and club events that scroll on their own.</p>
+        <span class="go" aria-hidden="true">Open Aurora<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><img src="shared/img/previews/impact-desktop.jpg" alt="" width="1200" height="750" loading="lazy"><span class="phone"><img src="shared/img/previews/impact-phone.jpg" alt="" width="300" height="600" loading="lazy"></span></div>
+      <div class="body">
+        <div class="tags"><span><i class="swatch" style="background:#0A0D14"></i>High contrast</span><span>Archivo condensed</span></div>
+        <h2><a href="impact/index.html">Impact</a></h2>
+        <p>Cinematic and bold. A giant title over a framed banner with the advertisement beside it, rolling numbers over photos, a photo calendar wall and an events timeline that fills as you scroll.</p>
+        <span class="go" aria-hidden="true">Open Impact<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="shot"><img src="shared/img/previews/wheel-desktop.jpg" alt="" width="1200" height="750" loading="lazy"><span class="phone"><img src="shared/img/previews/wheel-phone.jpg" alt="" width="300" height="600" loading="lazy"></span></div>
+      <div class="body">
+        <div class="tags"><span><i class="swatch" style="background:#005DAA"></i>White and Rotary Blue</span><span>Space Grotesk</span></div>
+        <h2><a href="wheel/index.html">Wheel</a></h2>
+        <p>Swiss and geometric. A strict 12-column grid, flat blue blocks, a checkerboard of numbers, club events that flip in week by week, and a Rotary wheel that turns as you scroll.</p>
+        <span class="go" aria-hidden="true">Open Wheel<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </div>
+    </article>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p>© 2026 Thane Hills. All rights reserved.</p>
+      <p>Powered by <b>Roster On Wheels</b></p>
+    </div>
+  </footer>
+</body>
+</html>

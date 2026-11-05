@@ -1,0 +1,37 @@
+{
+  "name": "rid3141-wow-themes",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Rotary District 3141 homepage themes (React + React Bits). Builds into ../<theme>/ as static pages that open from file:// or any server.",
+  "scripts": {
+    "build:ether": "vite build --mode ether",
+    "watch:ether": "vite build --mode ether --watch",
+    "build:prism": "vite build --mode prism",
+    "build:orbit": "vite build --mode orbit",
+    "build:tide": "vite build --mode tide",
+    "build:transit": "vite build --mode transit",
+    "build:cascade": "vite build --mode cascade",
+    "build": "vite build --mode ether && vite build --mode prism && vite build --mode orbit && vite build --mode tide && vite build --mode transit && vite build --mode cascade"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "@hugeicons/core-free-icons": "^4.3.3",
+    "@hugeicons/react": "^1.1.10",
+    "gsap": "3.15.0",
+    "lenis": "1.3.13",
+    "motion": "12.23.12",
+    "ogl": "1.0.11",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
+    "@types/three": "0.180.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "typescript": "5.7.3",
+    "vite": "5.4.21"
+  }
+}

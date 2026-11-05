@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotary District 3141 — Theme Samples</title>
+<meta name="description" content="Three premium homepage themes for Rotary District 3141: Sovereign, Monolith and Atelier.">
+<link rel="icon" href="shared/img/rotary-wheel.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&f[]=satoshi@400,500,700&display=swap">
+<style>
+  :root {
+    --page: #F1EFEA;          /* stone page */
+    --ink: #17181C;           /* 15.9:1 on page */
+    --ink-2: #55565C;         /* 6.6:1 on page */
+    --line: #D9D6CE;
+    --blue: #005DAA;          /* 6.0:1 on page */
+    --gold: #F7A81B;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+    --ui: 220ms;
+    --reveal: 900ms;
+    --gutter: clamp(16px, 4vw, 64px);
+    --radius: 6px;
+    --sans: "Satoshi", system-ui, sans-serif;
+    --display: "Clash Display", "Satoshi", system-ui, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 400 1rem/1.55 var(--sans); }
+  a { color: inherit; }
+  img { display: block; max-width: 100%; }
+
+  .skip { position: absolute; left: var(--gutter); top: -60px; background: var(--ink); color: var(--page); padding: 10px 14px; border-radius: var(--radius); z-index: 10; }
+  .skip:focus { top: 12px; }
+
+  /* ---------- masthead ---------- */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px var(--gutter) 0; }
+  .top img { width: 132px; height: auto; }
+  .top p { margin: 0; font: 500 .75rem/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
+
+  .intro { padding: clamp(48px, 9vw, 120px) var(--gutter) clamp(32px, 5vw, 64px); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: 32px; align-items: end; }
+  .intro h1 { margin: 0; font: 600 clamp(2.6rem, 6.4vw, 6rem)/.96 var(--display); letter-spacing: -.035em; }
+  .intro h1 em { font-style: normal; color: var(--blue); }
+  .intro p { margin: 0; max-width: 34ch; color: var(--ink-2); font-size: 1.0625rem; }
+  .rule { height: 1px; margin: 0 var(--gutter); background: var(--line); position: relative; overflow: hidden; }
+  .rule::after { content: ""; position: absolute; inset: 0; background: var(--gold); transform: scaleX(0); transform-origin: left; animation: draw 1.4s var(--ease-inout) .2s forwards; }
+  @keyframes draw { to { transform: scaleX(1); } }
+
+  /* ---------- the three themes ---------- */
+  .themes { list-style: none; margin: 0; padding: clamp(32px, 5vw, 64px) var(--gutter) clamp(64px, 8vw, 120px); display: grid; gap: clamp(40px, 6vw, 88px); }
+  .theme { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: clamp(24px, 4vw, 56px); align-items: center; }
+  .theme:nth-child(even) { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
+  .theme:nth-child(even) .shot { order: 2; }
+
+  /* the preview: a long full-page capture panning inside a fixed window */
+  .shot { position: relative; display: block; border-radius: var(--radius); text-decoration: none; isolation: isolate; outline: none; }
+  .window { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius); background: var(--swatch); }
+  .window img { width: 100%; height: auto; min-height: 100%; object-fit: cover; object-position: top; transform: translateY(0); transition: transform 2.6s var(--ease-inout); }
+  .phone { position: absolute; right: clamp(-12px, -1.5vw, -4px); bottom: clamp(-28px, -3vw, -16px); width: clamp(84px, 14%, 150px); aspect-ratio: 390 / 700; overflow: hidden; border-radius: 14px; border: 3px solid var(--ink); background: var(--swatch); }
+  .theme:nth-child(even) .phone { right: auto; left: clamp(-12px, -1.5vw, -4px); }
+  .phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .missing { position: absolute; inset: 0; display: grid; place-items: center; color: var(--on-swatch); font: 500 .75rem/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; }
+  .window img + .missing, .phone img + .missing { display: none; }
+  @media (hover: hover) and (pointer: fine) {
+    .shot:hover .window img { transform: translateY(calc(-100% + var(--win-h, 0px))); }
+  }
+  .shot:focus-visible .window { outline: 2px solid var(--blue); outline-offset: 4px; }
+
+  .meta { display: grid; gap: 16px; align-content: center; }
+  .num { font: 500 .75rem/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); display: flex; gap: 12px; align-items: center; }
+  .num::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .name { margin: 0; font-size: clamp(2.25rem, 4.2vw, 3.75rem); line-height: 1; letter-spacing: -.01em; }
+  .name { font-family: var(--display); font-weight: 600; letter-spacing: -.03em; }
+  .kind { margin: 0; color: var(--ink); font-weight: 500; }
+  .meta ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; color: var(--ink-2); font-size: .9375rem; }
+  .meta li { display: grid; grid-template-columns: 18px 1fr; }
+  .meta li::before { content: ""; width: 8px; height: 1px; margin-top: .8em; background: var(--gold); }
+
+  .open { justify-self: start; display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--ink); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .9375rem; letter-spacing: .01em; transition: background-color var(--ui) var(--ease-out), color var(--ui) var(--ease-out); }
+  .open svg { width: 16px; height: 16px; translate: 0 0; transition: translate var(--ui) var(--ease-out); }
+  .open:hover { background: var(--ink); color: var(--page); }
+  .open:hover svg { translate: 3px 0; }
+  .open:active { scale: .98; }
+  .open:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+  .ether { --swatch: #050B1C; --on-swatch: #B4BFD6; }
+  .prism { --swatch: #F6F8FC; --on-swatch: #5C6984; }
+  .orbit { --swatch: #17103F; --on-swatch: #F7A81B; }
+  .tide { --swatch: #062B33; --on-swatch: #4FDBE6; }
+  .transit { --swatch: #17458F; --on-swatch: #FFC66B; }
+  .cascade { --swatch: #2B0A25; --on-swatch: #FFB199; }
+  .next { margin: 0; padding: 18px 22px; border: 1px dashed var(--line); border-radius: 14px; color: var(--ink-2); font-size: .9375rem; }
+
+  footer { padding: 32px var(--gutter) 48px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; color: var(--ink-2); font-size: .875rem; }
+  footer p { margin: 0; }
+
+  /* entrance */
+  .theme { opacity: 0; translate: 0 24px; transition: opacity var(--reveal) var(--ease-out), translate var(--reveal) var(--ease-out); }
+  .theme.in { opacity: 1; translate: 0 0; }
+
+  .wrapnote { margin: 0 var(--gutter) clamp(64px, 8vw, 120px); }
+  @media (max-width: 860px) {
+    .intro { grid-template-columns: 1fr; }
+    .theme, .theme:nth-child(even) { grid-template-columns: 1fr; }
+    .theme:nth-child(even) .shot { order: 0; }
+    .phone { right: -4px; }
+    .theme:nth-child(even) .phone { left: auto; right: -4px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rule::after { animation: none; transform: none; }
+    .theme { transition: opacity 250ms linear; translate: none; }
+    .window img { transition: none; }
+    .shot:hover .window img { transform: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#themes">Skip to the themes</a>
+<header class="top">
+  <img src="shared/img/rotary-logo.svg" alt="Rotary" width="392" height="148">
+  <p>District 3141 · Design prototypes</p>
+</header>
+
+<main>
+  <section class="intro" aria-labelledby="title">
+    <h1 id="title">District 3141, <em>reimagined.</em></h1>
+    <p>Homepage themes built with React and React Bits motion. Every theme keeps the same eight sections and live district content, with its own look and signature moments.</p>
+  </section>
+  <div class="rule" aria-hidden="true"></div>
+
+  <ol class="themes" id="themes">
+    <li class="theme ether">
+      <a class="shot" href="ether/index.html" aria-label="Open Ether">
+        <div class="window"><img src="shared/img/previews/ether-desktop.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">Preview</span></div>
+        <div class="phone"><img src="shared/img/previews/ether-phone.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">390</span></div>
+      </a>
+      <div class="meta">
+        <p class="num">Theme 01</p>
+        <h2 class="name">Ether</h2>
+        <p class="kind">Liquid light, glass and motion on Rotary blue, in dark and light.</p>
+        <ul>
+          <li>The district's banners as a 3D card stack beside the advertisement, on interactive liquid light</li>
+          <li>Snapshot cards with 12-year trend lines; holographic dignitaries around a turning Rotary wheel</li>
+          <li>Day-strip calendar, document-style newsletters, a card-style footer, and light and dark themes</li>
+        </ul>
+        <a class="open" href="ether/index.html">Open Ether <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+      </div>
+    </li>
+
+    <li class="theme prism">
+      <a class="shot" href="prism/index.html" aria-label="Open Prism">
+        <div class="window"><img src="shared/img/previews/prism-desktop.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">Preview</span></div>
+        <div class="phone"><img src="shared/img/previews/prism-phone.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">390</span></div>
+      </a>
+      <div class="meta">
+        <p class="num">Theme 02</p>
+        <h2 class="name">Prism</h2>
+        <p class="kind">Bright, colourful and interactive, in light and dark.</p>
+        <ul>
+          <li>Centred-logo header; a split-screen hero with the banner edge to edge and the ad on a Rotary-blue panel</li>
+          <li>A featured Projects panel with a ranked list of stats; both dignitaries together as zig-zag banners</li>
+          <li>A week-planner calendar with a tear-off day page, newsletters laid out as a newspaper front page, and a Rotary-blue footer</li>
+        </ul>
+        <a class="open" href="prism/index.html">Open Prism <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+      </div>
+    </li>
+    <li class="theme orbit">
+      <a class="shot" href="orbit/index.html" aria-label="Open Orbit">
+        <div class="window"><img src="shared/img/previews/orbit-desktop.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">Preview</span></div>
+        <div class="phone"><img src="shared/img/previews/orbit-phone.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">390</span></div>
+      </a>
+      <div class="meta">
+        <p class="num">Theme 03</p>
+        <h2 class="name">Orbit</h2>
+        <p class="kind">Rotary gold and deep indigo, built around a turning wheel, in light and dark.</p>
+        <ul>
+          <li>A full-width banner with no background around it, changing through a wheel-shaped iris, and the ad as a popup</li>
+          <li>The wheel at the hub of the snapshot; both dignitaries as round portraits inside spinning text rings</li>
+          <li>The calendar as a round month dial, newsletters as rows that fill with gold, and an indigo footer with a gold glow and slow orbit rings</li>
+        </ul>
+        <a class="open" href="orbit/index.html">Open Orbit <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+      </div>
+    </li>
+    <li class="theme tide">
+      <a class="shot" href="tide/index.html" aria-label="Open Tide">
+        <div class="window"><img src="shared/img/previews/tide-desktop.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">Preview</span></div>
+        <div class="phone"><img src="shared/img/previews/tide-phone.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">390</span></div>
+      </a>
+      <div class="meta">
+        <p class="num">Theme 04</p>
+        <h2 class="name">Tide</h2>
+        <p class="kind">Sea teal and tall poster type, with sections that move like water, in light and dark.</p>
+        <ul>
+          <li>A full-width banner that rises in strips and stays put while the next section slides over it, then an About section with the ad beside it</li>
+          <li>Big-number snapshot cards that move sideways as you scroll; both dignitaries on one line, each a portrait with an overlapping info card</li>
+          <li>The calendar as a deck of day cards with ticket-style events, balloon birthdays and linked-ring anniversaries, newsletters as a shelf of opening spines, and a footer with rolling sea</li>
+        </ul>
+        <a class="open" href="tide/index.html">Open Tide <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+      </div>
+    </li>
+    <li class="theme transit">
+      <a class="shot" href="transit/index.html" aria-label="Open Transit">
+        <div class="window"><img src="shared/img/previews/transit-desktop.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">Preview</span></div>
+        <div class="phone"><img src="shared/img/previews/transit-phone.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">390</span></div>
+      </a>
+      <div class="meta">
+        <p class="num">Theme 05</p>
+        <h2 class="name">Transit</h2>
+        <p class="kind">A page that scrolls sideways, colourful and lively, with rounded cards in the Rotary colours, light and dark.</p>
+        <ul>
+          <li>On desktop the mouse wheel moves the page sideways, section by section; phones stack it vertically</li>
+          <li>A banner that changes like carriage doors, snapshot numbers in a colourful bento grid, and both dignitaries on one line as white cards</li>
+          <li>The calendar as a row of day chips with a big date card, newsletters as a long run of colour cards, and a footer set over a real project photo</li>
+        </ul>
+        <a class="open" href="transit/index.html">Open Transit <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+      </div>
+    </li>
+    <li class="theme cascade">
+      <a class="shot" href="cascade/index.html" aria-label="Open Cascade">
+        <div class="window"><img src="shared/img/previews/cascade-desktop.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">Preview</span></div>
+        <div class="phone"><img src="shared/img/previews/cascade-phone.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()"><span class="missing">390</span></div>
+      </a>
+      <div class="meta">
+        <p class="num">Theme 06</p>
+        <h2 class="name">Cascade</h2>
+        <p class="kind">Full sheets that slide up and stack as you scroll, in plum, coral and mint, light and dark.</p>
+        <ul>
+          <li>A banner that sweeps in on a slant, a coral About panel with the ad as a full poster beside it, and snapshot numbers on full-width colour stripes</li>
+          <li>Both dignitaries on one line, each a white card with the portrait rising out of its top on deep teal</li>
+          <li>The calendar as a tear-off desk pad with a pinned board, newsletters as a stack of file folders, and a footer over a project photo</li>
+        </ul>
+        <a class="open" href="cascade/index.html">Open Cascade <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+      </div>
+    </li>
+  </ol>
+  <p class="next wrapnote">Six themes, same content — each with its own layouts, look and motion.</p>
+</main>
+
+<footer>
+  <p>Rotary District 3141 · Mumbai, Maharashtra</p>
+  <p>Static builds · open any theme straight from its folder · source in themes-sample/source</p>
+</footer>
+
+<script>
+  (function () {
+    'use strict';
+    var items = document.querySelectorAll('.theme');
+    // pan distance = the long capture's overflow inside its window
+    function sizeWindows() {
+      document.querySelectorAll('.window').forEach(function (w) { w.style.setProperty('--win-h', w.clientHeight + 'px'); });
+    }
+    sizeWindows();
+    addEventListener('resize', sizeWindows);
+    if (!('IntersectionObserver' in window)) { items.forEach(function (i) { i.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    items.forEach(function (i) { io.observe(i); });
+  })();
+</script>
+</body>
+</html>

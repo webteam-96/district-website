@@ -12,7 +12,8 @@
     "build:tide": "vite build --mode tide",
     "build:transit": "vite build --mode transit",
     "build:cascade": "vite build --mode cascade",
-    "build": "vite build --mode ether && vite build --mode prism && vite build --mode orbit && vite build --mode tide && vite build --mode transit && vite build --mode cascade"
+    "build:kinetic": "vite build --mode kinetic",
+    "build": "vite build --mode ether && vite build --mode prism && vite build --mode orbit && vite build --mode tide && vite build --mode transit && vite build --mode cascade && vite build --mode kinetic"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

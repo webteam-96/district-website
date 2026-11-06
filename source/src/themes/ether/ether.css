@@ -557,3 +557,10 @@ ul, ol { padding: 0; list-style: none; }
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
 
+
+/* month and year picker: colours (shared/month-picker.css) */
+.mp-pop { --mp-bg: #071029; --mp-accent: var(--gold); --mp-on-accent: #0b1736; }
+:root[data-theme="light"] .mp-pop { --mp-bg: #ffffff; --mp-accent: #005daa; --mp-on-accent: #fff; }
+
+/* the wheel carries on to the page when this list has nothing more to scroll (the scroll library blocks that by default) */
+.col__alist .animated-list__viewport { overscroll-behavior: auto; }

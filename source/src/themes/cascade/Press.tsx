@@ -3,10 +3,11 @@ import { R, shortDate } from '../../shared/rotary';
 import type { PdfDoc } from '../../shared/PdfModal';
 
 const P = R.press;
-const COLORS = ['#7a1450', '#c23a2b', '#0a7d6e', '#3b2a9e', '#a8125c', '#0067c8', '#5b1a78', '#b0460f'];
+/* the same ramp as the snapshot stripes, falling from dark to bright down the stack */
+const COLORS = ['#3a0e3f', '#4d1144', '#64134a', '#7c1650', '#951a52', '#ad2050', '#c22c4a', '#d2403f'];
 const summary = (vals: Record<string, string | number>) => R.fmt.fill(P.club.footer, vals).split(' on the {link}')[0] + '.';
 
-/* 7 · Newsletters: a stack of coloured file folders. Click a folder's tab and it opens where it sits.
+/* 7 · Newsletters: a stack of file folders in one falling colour ramp. Click a folder's tab and it opens where it sits.
    The Governor's letters and the View all button stay beside it. No images. */
 export default function Press({ year, switching, onPreview }: { year: string; switching: boolean; onPreview: (d: PdfDoc) => void }) {
   const py = P.byYear[year];

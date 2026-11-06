@@ -204,21 +204,21 @@ ul, ol { padding: 0; list-style: none; }
 .about__ad { justify-self: end; width: min(100%, 440px); }
 .about__ad img { width: 100%; height: auto; border-radius: 18px; box-shadow: var(--shadow-lg); }
 
-/* ---------- 4 · snapshot: holds still while the cards travel sideways ---------- */
+/* ---------- 4 · snapshot: the cards travel in sideways and settle with all six in view ---------- */
 .rail { position: relative; z-index: 1; background: var(--deep); color: #fff; }
-.rail__stick { display: flex; flex-direction: column; gap: 16px; overflow: hidden; padding-block: 28px; }
-.rail__track { display: flex; align-items: stretch; gap: 16px; width: max-content; padding-inline: max(var(--gutter), calc((100vw - 1320px) / 2 + var(--gutter))); will-change: transform; }
-.rail__head { display: grid; align-content: end; gap: 10px; width: clamp(280px, 30vw, 440px); padding-bottom: 10px; }
-.rail .stitle { color: #fff; font-size: clamp(3.4rem, 7.4vw, 7rem); }
+.rail__stick { display: flex; flex-direction: column; gap: clamp(10px, 2vh, 16px); overflow: hidden; padding-block: clamp(18px, 3.4vh, 32px); }
+.rail__track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.8vh, 16px); padding-inline: max(var(--gutter), calc((100vw - 1320px) / 2 + var(--gutter))); }
+.rail__head { grid-column: 1 / -1; display: grid; gap: 4px; }
+.rail .stitle { color: #fff; font-size: clamp(3rem, min(6vw, 10vh), 5.6rem); }
 .rail__note { font-size: 15px; font-weight: 700; color: var(--turq-b); }
-.panel { display: flex; flex-direction: column; gap: 8px; width: clamp(320px, 30vw, 440px); padding: 18px 24px 22px; border-radius: 16px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.14); box-shadow: inset 0 -5px 0 var(--accent); }
+.panel { display: flex; flex-direction: column; gap: clamp(2px, 1vh, 8px); min-width: 0; padding: clamp(10px, 1.9vh, 18px) 24px clamp(14px, 2.2vh, 22px); will-change: transform; border-radius: 16px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.14); box-shadow: inset 0 -5px 0 var(--accent); }
 .panel__top { display: flex; align-items: center; gap: 12px; }
 .panel__icon { display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 12px; color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .panel__icon img { width: 26px; height: 26px; }
 .panel__label { font-size: 17px; font-weight: 700; color: rgba(255, 255, 255, 0.9); }
 .panel__go { display: grid; place-items: center; margin-left: auto; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); transition: background 0.25s var(--ease), color 0.25s var(--ease); }
 .panel__go:hover { background: var(--turq-b); color: #062b33; }
-.panel__num { font-family: var(--f-display); font-weight: 800; font-size: clamp(4.6rem, 7.6vw, 7.4rem); line-height: 0.95; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.panel__num { font-family: var(--f-display); font-weight: 800; font-size: clamp(3.4rem, min(6vw, 11.5vh), 6.4rem); line-height: 0.95; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .panel__num small { font-size: 0.55em; color: var(--accent); margin-right: 0.06em; }
 .panel__num .panel__suf { margin: 0 0 0 0.16em; }
 .rail__clubs { min-width: 0; overflow: hidden; padding-inline: var(--gutter); }
@@ -448,12 +448,14 @@ ul, ol { padding: 0; list-style: none; }
   .fcard--brand { justify-content: center; text-align: center; }
 }
 @media (max-width: 900px) {
-  /* the sideways travel becomes a plain swipe */
-  .rail__head { grid-row: 1; grid-column: 1 / span 6; position: sticky; left: 0; width: min(100vw - 2 * var(--gutter), 340px); padding: 0; }
-  .rail__track { display: grid; grid-auto-flow: column; grid-template-rows: auto auto; grid-auto-columns: min(82vw, 340px); width: auto; padding-inline: var(--gutter); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-padding-inline: var(--gutter); }
-  .rail__track::-webkit-scrollbar { display: none; }
-  .panel { width: auto; scroll-snap-align: start; }
-  .panel__num { font-size: 4.4rem; }
+  /* all six still show together, two to a row */
+  .rail__track { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-inline: var(--gutter); }
+  .panel { padding: 12px 14px 16px; will-change: auto; }
+  .panel__top { gap: 8px; }
+  .panel__icon { width: 34px; height: 34px; }
+  .panel__label { font-size: 14.5px; line-height: 1.2; }
+  .panel__go { width: 32px; height: 32px; flex: none; }
+  .panel__num { font-size: clamp(2.5rem, 11vw, 4.4rem); }
   .shead--row { grid-template-columns: minmax(0, 1fr); }
   .shead--row .ssub { justify-self: start; }
   .press__top { grid-template-columns: minmax(0, 1fr); }
@@ -495,7 +497,13 @@ ul, ol { padding: 0; list-style: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rail__track { width: auto; overflow-x: auto; }
-  .panel { flex: none; }
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
+
+/* month and year picker: colours (shared/month-picker.css) */
+.mp-pop { --mp-accent: #0a7380; --mp-on-accent: #fff; }
+
+/* the wheel carries on to the page when this list has nothing more to scroll (the scroll library blocks that by default) */
+.dcard__list[data-lenis-prevent] { overscroll-behavior: auto; }
+
+.scrub__month .mp-btn { white-space: nowrap; }

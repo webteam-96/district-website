@@ -26,14 +26,13 @@ export function useStack() {
     window.addEventListener('resize', place);
     place();
 
-    const enter = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) (e.target as HTMLElement).dataset.in = ''; }), { rootMargin: '0px 0px 6% 0px' });
-    const leave = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) delete (e.target as HTMLElement).dataset.in; }));
+    /* one observer, one edge: with separate enter and leave edges an element between them could lose data-in and never get it back */
+    const seen = new IntersectionObserver(es => es.forEach(e => { const el = e.target as HTMLElement; if (e.isIntersecting) el.dataset.in = ''; else delete el.dataset.in; }), { rootMargin: '0px 0px 6% 0px' });
     const scan = () => { if (!calm) TARGETS.forEach(([sel, kind]) => root.querySelectorAll<HTMLElement>(sel).forEach(el => {
       if (el.dataset.rv) return;
       el.dataset.rv = kind;
       el.style.setProperty('--d', String(Math.min(el.parentElement ? Array.from(el.parentElement.children).indexOf(el) : 0, 7)));
-      enter.observe(el);
-      leave.observe(el);
+      seen.observe(el);
     })); };
     scan();
     const mo = new MutationObserver(scan);
@@ -53,20 +52,20 @@ export function useStack() {
         if (!calm) {
           inner.style.transform = p > 0 ? `scale(${1 - 0.05 * p})` : '';
           inner.style.transformOrigin = `50% ${vh / 2 - s.getBoundingClientRect().top}px`;
-          inner.style.setProperty('--shade', String(p * 0.45));
+          inner.style.setProperty('--shade', String(p * 0.32));
         }
         const isCovered = nt <= h + 0.5;
         if (isCovered === covered.has(s) || calm) return;
         const items = s.querySelectorAll<HTMLElement>('[data-rv]');
         if (isCovered) { covered.add(s); items.forEach(el => delete el.dataset.in); }
-        else { covered.delete(s); items.forEach(el => { enter.unobserve(el); enter.observe(el); }); }
+        else { covered.delete(s); items.forEach(el => { seen.unobserve(el); seen.observe(el); }); }
       });
     };
     const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } };
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     frame();
-    return () => { ro.disconnect(); mo.disconnect(); enter.disconnect(); leave.disconnect(); window.removeEventListener('resize', place); window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
+    return () => { ro.disconnect(); mo.disconnect(); seen.disconnect(); window.removeEventListener('resize', place); window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
   }, []);
 }
 

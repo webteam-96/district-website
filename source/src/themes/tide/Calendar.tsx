@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
 
 type Tab = 'all' | CalEntry['type'];
@@ -139,7 +140,7 @@ export default function Calendar() {
         <div className="scrub__mid">
           <div className="scrub__month">
             <button type="button" className="scrub__mbtn" aria-label="Previous month" onClick={() => shiftMonth(-1)}>{arrow('l')}</button>
-            <p id="cal-month" aria-live="polite">{monthLabel(sel)}</p>
+            <p id="cal-month" aria-live="polite"><MonthPicker value={sel} today={C.today} onPick={setSelected}>{monthLabel(sel)}</MonthPicker></p>
             <button type="button" className="scrub__mbtn" aria-label="Next month" onClick={() => shiftMonth(1)}>{arrow('r')}</button>
             <button type="button" className="tbtn tbtn--today" disabled={isToday} onClick={() => setSelected(C.today)}>{C.todayTag}</button>
           </div>

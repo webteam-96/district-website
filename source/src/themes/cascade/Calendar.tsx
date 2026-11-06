@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
 
 type Tab = 'all' | CalEntry['type'];
@@ -23,7 +24,7 @@ const Pill = ({ e }: { e: CalEntry }) => (
 );
 
 /* 6 · District Calendar: a tear-off desk calendar. Changing the day tears the page off the pad;
-   the day's entries are pinned to the board beside it. Numbered ticks along the bottom pick a day. */
+   the day's entries are pinned to the board beside it. Numbered ticks above them pick a day. */
 export default function Calendar() {
   const [selected, setSelected] = useState(C.today);
   const [torn, setTorn] = useState<{ iso: string; n: number } | null>(null);
@@ -78,6 +79,28 @@ export default function Calendar() {
             </div>
           </header>
 
+          <div className="monthbar">
+            <button type="button" className="pbtn-ic" aria-label="Previous month" onClick={() => shiftMonth(-1)}>{arrow('l')}</button>
+            <p aria-live="polite"><MonthPicker value={sel} today={C.today} onPick={pick}>{monthLabel(sel)}</MonthPicker></p>
+            <button type="button" className="pbtn-ic" aria-label="Next month" onClick={() => shiftMonth(1)}>{arrow('r')}</button>
+          </div>
+          <div ref={ticks} className="ticks" style={{ ['--n' as string]: count }}>
+            {Array.from({ length: count }, (_, i) => {
+              const d = new Date(y, m, i + 1);
+              const iso = toISO(d);
+              /* one dot per kind of entry that day, in the filter buttons' colours; follows the chosen filter */
+              const dayList = (byDate.get(iso) ?? []).filter(e => tab === 'all' || e.type === tab);
+              const kinds = C.types.map(t => ({ t, n: dayList.filter(e => e.type === t.key).length })).filter(x => x.n);
+              const said = kinds.map(x => `${x.n} ${x.n === 1 ? x.t.label.toLowerCase() : x.t.group.toLowerCase()}`).join(', ');
+              return (
+                <button key={iso} type="button" className={`tick ${iso === selected ? 'is-sel' : ''} ${iso === C.today ? 'is-today' : ''}`} aria-pressed={iso === selected} aria-label={`${longDate(d)}${said ? ', ' + said : ', nothing scheduled'}`} onClick={() => pick(iso)}>
+                  <b>{i + 1}</b>
+                  <span className="tick__dots" aria-hidden="true">{kinds.map(x => <i key={x.t.key} className={`dot dot--${x.t.key}`} />)}</span>
+                </button>
+              );
+            })}
+          </div>
+
           <div className="cal__grid">
             <div className="pad">
               <div className="pad__sheets" aria-live="polite" aria-label={longDate(sel)}>
@@ -106,25 +129,6 @@ export default function Calendar() {
                 </div>
               )) : <p className="board__empty">{C.emptyDay}</p>}
             </div>
-          </div>
-
-          <div className="monthbar">
-            <button type="button" className="pbtn-ic" aria-label="Previous month" onClick={() => shiftMonth(-1)}>{arrow('l')}</button>
-            <p>{monthLabel(sel)}</p>
-            <button type="button" className="pbtn-ic" aria-label="Next month" onClick={() => shiftMonth(1)}>{arrow('r')}</button>
-          </div>
-          <div ref={ticks} className="ticks" style={{ ['--n' as string]: count }}>
-            {Array.from({ length: count }, (_, i) => {
-              const d = new Date(y, m, i + 1);
-              const iso = toISO(d);
-              const hasEvent = (byDate.get(iso) ?? []).some(e => e.type === 'club' || e.type === 'district');
-              return (
-                <button key={iso} type="button" className={`tick ${iso === selected ? 'is-sel' : ''} ${iso === C.today ? 'is-today' : ''}`} aria-pressed={iso === selected} aria-label={longDate(d)} onClick={() => pick(iso)}>
-                  <b>{i + 1}</b>
-                  <i className={hasEvent ? 'has' : ''} aria-hidden="true" />
-                </button>
-              );
-            })}
           </div>
         </div>
       </div>

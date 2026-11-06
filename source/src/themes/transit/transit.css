@@ -409,8 +409,9 @@ ul, ol { padding: 0; list-style: none; }
   .p { flex: none; height: 100vh; padding-top: var(--top); padding-bottom: var(--rail-h); overflow: clip; }
   .stitle { font-size: clamp(2.8rem, min(5vw, 9.4vh), 5.6rem); }
 
-  .hero { width: min(calc((100vh - var(--top) - var(--rail-h) - 24px) * var(--ar) + 24px), 100vw - 130px); padding: calc(var(--top) + 12px) 12px calc(var(--rail-h) + 12px); }
+  .hero { width: 100vw; padding: calc(var(--top) + 12px) 12px calc(var(--rail-h) + 12px); }
   .stage { aspect-ratio: auto; height: 100%; }
+  .stage__img, .door img { object-position: center 22%; }
 
   .about { width: min(1560px, 100vw - 80px); grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: clamp(28px, 4vw, 70px); padding: calc(var(--top) + 14px) clamp(32px, 4vw, 70px) calc(var(--rail-h) + 14px); }
   .about .stitle { text-wrap: pretty; }
@@ -517,3 +518,6 @@ ul, ol { padding: 0; list-style: none; }
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
   .door { display: none; }
 }
+
+/* month and year picker: colours (shared/month-picker.css) */
+.mp-pop { --mp-accent: #0067c8; --mp-on-accent: #fff; }

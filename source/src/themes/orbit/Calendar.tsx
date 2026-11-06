@@ -1,10 +1,17 @@
 import { useState, type KeyboardEvent } from 'react';
+import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
 
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
 const num = (n: number) => n.toLocaleString('en-IN');
 const EVENT = new Set<CalEntry['type']>(['club', 'district']);
+/* The three lines a day can show on the dial. Club and district events share the event line. */
+const LINES: { key: string; label: string; has: (t: CalEntry['type']) => boolean }[] = [
+  { key: 'event', label: 'Events', has: t => EVENT.has(t) },
+  { key: 'birthday', label: 'Birthdays', has: t => t === 'birthday' },
+  { key: 'anniversary', label: 'Anniversaries', has: t => t === 'anniversary' }
+];
 const byDate = (() => {
   const m = new Map<string, CalEntry[]>();
   C.entries.forEach(e => m.set(e.date, [...(m.get(e.date) ?? []), e]));
@@ -16,8 +23,9 @@ const describe = (d: Date, list: CalEntry[]) => {
   return `${longDate(d)}${parts.length ? ', ' + parts.join(', ') : ', nothing scheduled'}`;
 };
 
-/* 6 · District Calendar as a dial: the month's days run round a wheel, each spoke as long as
-   that day is busy, and the hand points at the chosen day. Its entries list beside the dial. */
+/* 6 · District Calendar as a dial: the month's days run round a wheel. Each day shows a line for its
+   events, one for birthdays and one for anniversaries, longer when there are more, and the hand
+   points at the chosen day. Its entries list beside the dial. */
 export default function Calendar() {
   const [selected, setSelected] = useState(C.today);
   const [tab, setTab] = useState<Tab>('all');
@@ -27,7 +35,8 @@ export default function Calendar() {
   const days = Array.from({ length: count }, (_, i) => new Date(y, m, i + 1));
   const listFor = (iso: string) => (byDate.get(iso) ?? []).filter(e => tab === 'all' || e.type === tab);
   const lists = days.map(d => listFor(toISO(d)));
-  const busiest = Math.max(1, ...lists.map(l => l.length));
+  const lineCounts = lists.map(l => LINES.map(k => l.filter(e => k.has(e.type)).length));
+  const busiest = Math.max(1, ...lineCounts.flat());
   const dayList = listFor(selected);
   const groups = C.types.map(t => ({ t, list: dayList.filter(e => e.type === t.key) })).filter(g => g.list.length);
   const isToday = selected === C.today;
@@ -69,7 +78,7 @@ export default function Calendar() {
               <button type="button" className="dialbar__btn" aria-label="Previous month" onClick={() => shiftMonth(-1)}>
                 <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
-              <p className="dialbar__month" id="cal-month" aria-live="polite">{monthLabel(sel)}</p>
+              <p className="dialbar__month" id="cal-month" aria-live="polite"><MonthPicker value={sel} today={C.today} onPick={setSelected}>{monthLabel(sel)}</MonthPicker></p>
               <button type="button" className="dialbar__btn" aria-label="Next month" onClick={() => shiftMonth(1)}>
                 <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="m8 4 6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
@@ -79,7 +88,9 @@ export default function Calendar() {
             <div className="dial" role="radiogroup" aria-labelledby="cal-month" onKeyDown={onKey}>
               {days.map((d, i) => (
                 <span key={i} className="dial__arm" style={{ transform: `rotate(${angle(i)}deg)` }} aria-hidden="true">
-                  <i className="dial__spoke" style={{ height: `${lists[i].length ? 2 + 12 * Math.sqrt(lists[i].length / busiest) : 1}%` }} />
+                  <span className="dial__lines">
+                    {LINES.map((k, j) => lineCounts[i][j] > 0 && <i key={k.key} className={`dial__line dial__line--${k.key}`} style={{ height: `${25 + 75 * Math.sqrt(lineCounts[i][j] / busiest)}%` }} />)}
+                  </span>
                 </span>
               ))}
               <span className="dial__arm dial__arm--hand" style={{ transform: `rotate(${angle(sel.getDate() - 1)}deg)` }} aria-hidden="true"><i className="dial__hand" /></span>
@@ -110,6 +121,9 @@ export default function Calendar() {
                 {isToday && <span className="tag-today">{C.todayTag}</span>}
               </div>
             </div>
+            <ul className="dial__key" aria-hidden="true">
+              {LINES.map(k => <li key={k.key}><i className={`dial__line dial__line--${k.key}`} />{k.label}</li>)}
+            </ul>
           </div>
 
           <div className="dayp">

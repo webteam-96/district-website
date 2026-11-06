@@ -25,8 +25,8 @@ function Count({ d, value, year }: { d: StatDef; value: number; year: string }) 
   return <span ref={ref}><CountUp key={`${year}-${visit}`} to={value} decimals={d.decimals ?? 0} separator="," duration={1.5} trigger="view" /></span>;
 }
 
-/* About: a coral panel with the introduction and two big numbers, then the advertisement as a
-   large poster on a panel of its own colour, so it has no visible edge. A slant joins the two. */
+/* About: the introduction and two big numbers on warm paper, then the advertisement as a poster on
+   an apricot panel. A slant joins the two. */
 export function About() {
   const now = S.byYear[R.years.current];
   const ad = R.hero.ads?.[0];
@@ -59,8 +59,8 @@ export function About() {
   );
 }
 
-/* 4 · District Snapshot: six full-width colour stripes, each with its label on the left and a big
-   number on the right. They slide in from alternate sides. */
+/* 4 · District Snapshot: six full-width stripes falling through one colour ramp, each with its label
+   on the left and a big number on the right. They slide in from alternate sides. */
 export function Snapshot({ year }: { year: string }) {
   const v = S.byYear[year];
   const clubs = useMemo(() => R.clubs.list.map(c => ({ node: <span className="clubchip">{c.name}</span>, title: c.name, href: R.clubs.href + c.id })), []);
@@ -99,7 +99,7 @@ export function Snapshot({ year }: { year: string }) {
   );
 }
 
-/* 5 · Dignitaries: both on one line on deep teal. Each is a white card with the portrait rising out
+/* 5 · Dignitaries: both on one line on deep wine. Each is a white card with the portrait rising out
    of its top edge on a colour block. The cards share rows, so role, name, term, bio and button line up. */
 export function Dignitaries({ year, switching }: { year: string; switching: boolean }) {
   const d = R.dignitaries;

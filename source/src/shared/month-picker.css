@@ -1,0 +1,24 @@
+/* Month and year picker. Each theme sets --mp-accent and --mp-on-accent on .mp-pop, and any other
+   colour its own token names don't cover. */
+.mp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.3em; min-height: 40px; margin: 0; padding: 2px 0.4em; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; line-height: 1.15; cursor: pointer; transition: background 0.2s; }
+.mp-btn:hover, .mp-btn[aria-expanded='true'] { background: color-mix(in srgb, currentColor 11%, transparent); }
+.mp-btn__arrow { display: grid; flex: none; transition: transform 0.25s; }
+.mp-btn[aria-expanded='true'] .mp-btn__arrow { transform: rotate(180deg); }
+
+.mp-pop { --mp-bg: var(--surface, #fff); --mp-ink: var(--ink, #111); --mp-ink-2: var(--ink-2, #555); --mp-line: var(--line, rgba(0, 0, 0, 0.14)); --mp-accent: #0067c8; --mp-on-accent: #fff; position: fixed; left: 0; top: 0; z-index: 300; width: min(320px, 100vw - 16px); padding: 14px; border: 1px solid var(--mp-line); border-radius: 20px; background: var(--mp-bg); color: var(--mp-ink); font-family: var(--f-body, system-ui, sans-serif); font-size: 15px; line-height: 1.3; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28); animation: mp-in 0.2s ease-out; }
+@keyframes mp-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+.mp-pop button { font: inherit; color: inherit; cursor: pointer; }
+.mp-year { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.mp-year b { font-family: var(--f-display, inherit); font-size: 1.45rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mp-step { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--mp-line); border-radius: 50%; background: transparent; }
+.mp-step:hover { background: color-mix(in srgb, var(--mp-ink) 9%, transparent); }
+.mp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.mp-m { min-height: 44px; border: 0; border-radius: 12px; background: transparent; font-weight: 600; }
+.mp-m:hover { background: color-mix(in srgb, var(--mp-ink) 9%, transparent); }
+.mp-m.is-now { box-shadow: inset 0 0 0 2px var(--mp-accent); }
+.mp-pop .mp-m.is-on { background: var(--mp-accent); color: var(--mp-on-accent); font-weight: 700; box-shadow: none; }
+.mp-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--mp-line); }
+.mp-now { min-height: 44px; padding: 0 4px; border: 0; background: transparent; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.mp-close { min-height: 44px; padding: 0 18px; border: 1px solid var(--mp-line); border-radius: 999px; background: transparent; font-weight: 600; }
+.mp-close:hover { background: color-mix(in srgb, var(--mp-ink) 9%, transparent); }
+@media (prefers-reduced-motion: reduce) { .mp-pop { animation: none; } .mp-btn__arrow { transition: none; } }

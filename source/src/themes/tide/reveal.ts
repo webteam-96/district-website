@@ -3,7 +3,8 @@ import { reducedMotion } from '../../shared/rotary';
 
 const TARGETS: [string, 'up' | 'rise' | 'pop'][] = [
   ['.stage__controls, .stitle, .ssub, .rail__clubs, .about__lead, .about__body, .about .btn-read', 'up'],
-  ['.panel, .about__ad', 'rise'],
+  /* on large screens the snapshot cards move with the scroll instead (Sections.tsx) */
+  [window.matchMedia('(min-width: 901px)').matches ? '.about__ad' : '.panel, .about__ad', 'rise'],
   ['.person__photo', 'pop'],
   ['.person__info', 'rise'],
   ['.fchips, .deck, .scrub', 'up'],

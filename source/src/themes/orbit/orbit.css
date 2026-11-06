@@ -270,9 +270,16 @@ ul, ol { padding: 0; list-style: none; }
 .dialbar__btn:hover, .dialbar__today:not(:disabled):hover { background: var(--gold); border-color: var(--gold); color: #17103f; }
 .dial { position: relative; overflow: hidden; width: min(100%, 560px); aspect-ratio: 1; container-type: inline-size; border-radius: 50%; background: var(--surface); box-shadow: 0 30px 70px rgba(23, 16, 63, 0.14); }
 .dial__arm { position: absolute; inset: 0; pointer-events: none; transition: none; }
-.dial__spoke { position: absolute; left: 50%; top: 8.5%; width: 0.75%; min-width: 2.5px; transform: translateX(-50%); border-radius: 4px; background: var(--gold); transition: height 0.5s var(--ease); }
+.dial__lines { position: absolute; left: 50%; top: 8.5%; height: 14%; display: flex; align-items: flex-start; gap: clamp(2px, 0.5cqw, 3px); transform: translateX(-50%); }
+.dial__line { display: block; width: clamp(3px, 0.8cqw, 4.5px); border-radius: 4px; transition: height 0.5s var(--ease); }
+.dial__line--event { background: var(--azure-ink); }
+.dial__line--birthday { background: var(--cranberry); }
+.dial__line--anniversary { background: var(--turq); }
+.dial__key { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.dial__key li { display: inline-flex; align-items: center; gap: 8px; }
+.dial__key .dial__line { width: 5px; height: 18px; }
 .dial__arm--hand { transition: transform 0.7s var(--ease); }
-.dial__hand { position: absolute; left: 50%; top: 8.5%; width: 3px; height: 16%; transform: translateX(-50%); border-radius: 3px; background: var(--cranberry); }
+.dial__hand { position: absolute; left: 50%; top: 23%; width: 5px; height: 4.5%; transform: translateX(-50%); border-radius: 5px 5px 0 0; background: var(--gold); }
 .dial__day { position: absolute; display: grid; place-items: center; width: clamp(26px, 7cqw, 40px); aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--ink); font-size: clamp(12px, 2.6cqw, 14.5px); font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; transform: translate(-50%, -50%); transition: background 0.25s var(--ease), color 0.25s var(--ease); }
 .dial__day:hover { background: color-mix(in srgb, var(--gold) 30%, transparent); }
 .dial__day.is-free { color: var(--ink-3); }
@@ -460,3 +467,9 @@ ul, ol { padding: 0; list-style: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
+
+/* month and year picker: colours (shared/month-picker.css) */
+.mp-pop { --mp-accent: var(--gold); --mp-on-accent: #17103f; }
+
+/* the wheel carries on to the page when this list has nothing more to scroll (the scroll library blocks that by default) */
+.dayp__scroll[data-lenis-prevent] { overscroll-behavior: auto; }

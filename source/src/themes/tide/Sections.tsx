@@ -50,29 +50,27 @@ export function About() {
   );
 }
 
-/* 4 · District Snapshot: the row of cards moves sideways as the section scrolls up the screen,
-   with no pause, so the section stays only as tall as its content. On phones the row is a swipe. */
+/* 4 · District Snapshot: as the section scrolls up the screen the cards travel in sideways, the top row
+   from the right and the bottom row from the left, and settle with all six in view at once. */
 export function Snapshot({ year }: { year: string }) {
   const theme = useTheme();
   const v = S.byYear[year];
   const root = useRef<HTMLElement>(null);
-  const track = useRef<HTMLDivElement>(null);
   const clubs = useMemo(() => R.clubs.list.map(c => ({ node: <span className="clubchip">{c.name}</span>, title: c.name, href: R.clubs.href + c.id })), []);
   useEffect(() => {
-    if (reducedMotion() || !root.current || !track.current) return;
+    if (reducedMotion() || !root.current) return;
     const mm = gsap.matchMedia();
     mm.add('(min-width: 901px)', () => {
-      const el = track.current!;
-      const travel = () => Math.max(0, el.scrollWidth - document.documentElement.clientWidth);
-      const t = gsap.to(el, { x: () => -travel(), ease: 'none', scrollTrigger: { trigger: root.current, start: 'top 75%', end: 'top top+=72', scrub: true, invalidateOnRefresh: true } });
-      return () => { t.scrollTrigger?.kill(); t.kill(); gsap.set(el, { clearProps: 'x,transform' }); };
+      const cards = gsap.utils.toArray<HTMLElement>('.panel', root.current);
+      const tweens = cards.map((el, i) => gsap.fromTo(el, { x: () => (i < 3 ? 1 : -1) * window.innerWidth * (0.5 + 0.12 * (i < 3 ? i : 5 - i)) }, { x: 0, ease: 'none', scrollTrigger: { trigger: root.current, start: 'top 92%', end: 'top 32%', scrub: true, invalidateOnRefresh: true } }));
+      return () => tweens.forEach(t => { t.scrollTrigger?.kill(); t.kill(); gsap.set(t.targets(), { clearProps: 'x,transform' }); });
     });
     return () => mm.revert();
   }, []);
   return (
     <section id="snapshot" ref={root} className="rail" aria-labelledby="snap-title">
       <div className="rail__stick">
-        <div ref={track} className="rail__track">
+        <div className="rail__track">
           <header className="rail__head">
             {v.status === 'upcoming' && v.note && <p className="rail__note">{v.note}</p>}
             <h2 id="snap-title" className="stitle">{S.title}</h2>

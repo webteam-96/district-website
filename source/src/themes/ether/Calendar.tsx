@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import MonthPicker from '../../shared/MonthPicker';
 import { R, longDate, monthLabel, parseISO, toISO, type CalEntry } from '../../shared/rotary';
 import GooeyNav from '../../rb/GooeyNav/GooeyNav';
 import AnimatedList from '../../rb/AnimatedList/AnimatedList';
@@ -101,7 +102,7 @@ export default function Calendar() {
             <button type="button" className="round round--sm" aria-label="Previous month" onClick={() => shiftMonth(-1)}>
               <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
-            <p className="cal__title" id="cal-month" aria-live="polite">{monthLabel(sel)}</p>
+            <p className="cal__title" id="cal-month" aria-live="polite"><MonthPicker value={sel} today={C.today} onPick={setSelected}>{monthLabel(sel)}</MonthPicker></p>
             <button type="button" className="round round--sm" aria-label="Next month" onClick={() => shiftMonth(1)}>
               <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="m8 4 6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>

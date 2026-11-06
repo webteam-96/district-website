@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
 import { Title } from './Sections';
 
@@ -111,7 +112,7 @@ export default function Calendar() {
             <button type="button" className="wbar__btn" aria-label="Previous week" onClick={() => setSelected(toISO(addDays(sel, -7)))}>
               <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4 6 10l6 6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
-            <p className="wbar__range" id="cal-week" aria-live="polite">{range(days[0], days[6])}</p>
+            <p className="wbar__range" id="cal-week" aria-live="polite"><MonthPicker value={sel} today={C.today} onPick={setSelected}>{range(days[0], days[6])}</MonthPicker></p>
             <button type="button" className="wbar__btn" aria-label="Next week" onClick={() => setSelected(toISO(addDays(sel, 7)))}>
               <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="m8 4 6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>

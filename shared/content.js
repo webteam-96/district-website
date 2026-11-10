@@ -26,6 +26,10 @@ window.ROTARY = (function () {
   var IMG = '../shared/img/';
   var DIG = IMG + 'dignitaries/';
   var LIVE = 'https://rid3141.rotaryindia.org';
+  /* Inner pages sit beside each theme's index.html, so these work from every theme folder. */
+  var PAGE = { home: 'index.html', about: 'about.html', committee: 'district-committee.html', finder: 'club-finder.html',
+               projects: 'club-projects.html', service: 'club-service.html', calendar: 'calendar.html',
+               newsletters: 'newsletters.html', contact: 'contact.html' };
   var PDF = '../shared/newsletter-placeholder.pdf';
 
   /* ---------- formatting: Indian digit grouping (6,42,815 · ₹54.59 Cr) ---------- */
@@ -294,12 +298,12 @@ window.ROTARY = (function () {
 
     /* 2 · header / navigation */
     nav: [
-      { key: 'home',      label: 'Home',               href: '#top', current: true,                    image: photos.beach },
-      { key: 'about',     label: 'About',              href: LIVE + '/about',                          image: photos.vision },
-      { key: 'committee', label: 'District Committee', href: LIVE + '/district-committee',             image: photos.coreTeam },
-      { key: 'finder',    label: 'Club Finder',        href: LIVE + '/club-finder',                    image: photos.plantation },
-      { key: 'projects',  label: 'Club Projects',      href: LIVE + '/projects',                       image: photos.foodkits },
-      { key: 'service',   label: 'Club Service',       href: LIVE + '/club-service',                   image: photos.classroom },
+      { key: 'home',      label: 'Home',               href: PAGE.home, current: true,                    image: photos.beach },
+      { key: 'about',     label: 'About',              href: PAGE.about,                               image: photos.vision },
+      { key: 'committee', label: 'District Committee', href: PAGE.committee,                           image: photos.coreTeam },
+      { key: 'finder',    label: 'Club Finder',        href: PAGE.finder,                              image: photos.plantation },
+      { key: 'projects',  label: 'Club Projects',      href: PAGE.projects,                            image: photos.foodkits },
+      { key: 'service',   label: 'Club Service',       href: PAGE.service,                             image: photos.classroom },
       { key: 'optimus',   label: 'Optimus Studio',     href: 'https://bit.ly/RotaryOptimusStudio', external: true, image: photos.meals }
     ],
     ctas: {
@@ -339,7 +343,7 @@ window.ROTARY = (function () {
       title: 'District Snapshot',
       groups: [{ key: 'projects', label: 'Projects' }, { key: 'membership', label: 'Membership' }],
       stats: [
-        { key: 'projects',      group: 'projects',   label: 'Projects',      href: LIVE + '/projects', image: photos.foodkits },
+        { key: 'projects',      group: 'projects',   label: 'Projects',      href: PAGE.projects, image: photos.foodkits },
         { key: 'hours',         group: 'projects',   label: 'Man Hours',                               image: photos.beach },
         { key: 'amount',        group: 'projects',   label: 'Amount Spent',  prefix: '₹', suffix: ' Cr', decimals: 2, image: photos.medical },
         { key: 'beneficiaries', group: 'projects',   label: 'Beneficiaries',                           image: photos.warkaris },
@@ -394,12 +398,12 @@ window.ROTARY = (function () {
       subtext: 'The Governor’s Monthly Letter and the latest bulletins from clubs across District 3141.',
       gml: {
         title: 'Governor’s Monthly Letter',
-        viewAll: { label: 'View all', href: LIVE + '/newsletters?variant=governor' },
+        viewAll: { label: 'View all', href: PAGE.newsletters + '#governor' },
         empty: 'No Governor’s Monthly Letters in {year} yet.'
       },
       club: {
         title: 'Club Newsletters',
-        href: LIVE + '/newsletters?variant=club',
+        href: PAGE.newsletters + '#club',
         empty: 'No club newsletters in {year} yet.',
         footer: 'Showing the {shown} most recent — {total} bulletins in {year} on the {link}.',
         footerLink: 'Newsletters page'
@@ -420,10 +424,12 @@ window.ROTARY = (function () {
         { label: 'Rotary Blog', href: 'https://blog.rotary.org' }
       ] },
       quickLinks: { title: 'Quick Links', items: [
-        { label: 'Home', href: '#top' },
-        { label: 'District Committee', href: LIVE + '/district-committee' },
-        { label: 'Clubs Finder', href: LIVE + '/club-finder' },
-        { label: 'Club Projects', href: LIVE + '/projects' }
+        { label: 'District Committee', href: PAGE.committee },
+        { label: 'Clubs Finder', href: PAGE.finder },
+        { label: 'Club Projects', href: PAGE.projects },
+        { label: 'District Calendar', href: PAGE.calendar },
+        { label: 'Newsletters', href: PAGE.newsletters },
+        { label: 'Contact Us', href: PAGE.contact }
       ] },
       social: { title: 'Social', items: [
         { key: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/RotaryDistrict3141?mibextid=ZbWKwL' }
@@ -432,6 +438,162 @@ window.ROTARY = (function () {
       // Live site footer lines (sample/shared/content.js snapshot of the live API).
       copyright: '© 2026 Thane Hills. All rights reserved.',
       poweredBy: { lead: 'Powered by', name: 'Roster On Wheels' }
+    },
+
+
+    /* ---------- inner pages ----------
+       page.key is what <body data-page> carries. About copy is a PLACEHOLDER until the
+       district sends its own text. Committee and project entries are DUMMY: every
+       person's name is invented; club names are real clubs of the district. */
+    pages: {
+      list: [
+        { key: 'about',       file: PAGE.about,       title: 'About Us',           lead: 'Who we are, what we do and how District 3141 serves.' },
+        { key: 'committee',   file: PAGE.committee,   title: 'District Committee', lead: 'The people leading District 3141 this Rotary year.' },
+        { key: 'finder',      file: PAGE.finder,      title: 'Club Finder',        lead: 'Find a Rotary club near you, by name, place or meeting day.' },
+        { key: 'projects',    file: PAGE.projects,    title: 'Club Projects',      lead: 'Service projects by the clubs of District 3141, across Rotary’s avenues of service.' },
+        { key: 'service',     file: PAGE.service,     title: 'Club Service',       lead: 'Projects that strengthen our clubs: fellowship, training and membership.' },
+        { key: 'calendar',    file: PAGE.calendar,    title: 'District Calendar',  lead: 'Events, birthdays and anniversaries across the district, month by month.' },
+        { key: 'newsletters', file: PAGE.newsletters, title: 'Newsletters',        lead: 'The Governor’s Monthly Letter and bulletins from clubs across the district.' },
+        { key: 'contact',     file: PAGE.contact,     title: 'Contact Us',         lead: 'Write to the District Governor’s office, or find a club to join.' }
+      ],
+      home: 'Home',
+      about: {
+        placeholder: true,
+        image: photos.vision,
+        intro: 'Rotary District 3141 brings together 125 Rotary clubs and more than 7,000 members across Mumbai, Thane and Palghar. Our clubs are neighbours, professionals and community leaders who meet every week to plan service that lasts.',
+        paragraphs: [
+          'Each club chooses its own projects, from health camps and school sanitation to tree plantation and disaster relief. The district connects those clubs, so that good ideas travel, large projects find partners and every Rotarian has a place to learn and lead.',
+          'Rotary International is a global network of 1.4 million members in more than 46,000 clubs. Together we work on the causes that matter most to our communities, guided by The Four-Way Test in everything we think, say and do.'
+        ],
+        focusTitle: 'Our areas of focus',
+        focus: [
+          { key: 'peace', title: 'Promoting peace', text: 'Training peacebuilders and supporting dialogue in communities affected by conflict.' },
+          { key: 'disease', title: 'Fighting disease', text: 'Health camps, screenings and treatment that reach people who would otherwise go without.' },
+          { key: 'water', title: 'Clean water and sanitation', text: 'Water filters, toilets and hygiene education in schools and villages.' },
+          { key: 'mothers', title: 'Saving mothers and children', text: 'Neonatal care, nutrition and support for mothers before and after birth.' },
+          { key: 'education', title: 'Supporting education', text: 'Classrooms, learning material, scholarships and teacher training.' },
+          { key: 'economy', title: 'Growing local economies', text: 'Skills, livelihoods and small business support for families.' },
+          { key: 'environment', title: 'Protecting the environment', text: 'Plantation drives, beach clean-ups and waste reduction.' }
+        ],
+        cta: { label: 'Find a club near you', href: PAGE.finder }
+      },
+      committee: {
+        searchLabel: 'Search by name, role or club',
+        empty: 'No committee member matches your search.',
+        groups: [
+          { title: 'Executive Committee', members: [
+            ['Rajan Dua', 'District Governor', ''],
+            ['Anjali Deshmukh', 'District Governor Elect', 'Bombay Bandra'],
+            ['Vikram Rao', 'District Governor Nominee', 'Bombay Airport'],
+            ['Meera Kulkarni', 'Immediate Past District Governor', 'Bombay'],
+            ['Sanjay Mehta', 'District Secretary', 'Boisar-Tarapur'],
+            ['Kavita Iyer', 'District Treasurer', 'Bombay Bandra'],
+            ['Rohan Shah', 'District Joint Secretary', 'Vasai'],
+            ['Nisha Kapoor', 'District Joint Secretary', 'Virar']
+          ] },
+          { title: 'Club Service', members: [
+            ['Arjun Nair', 'Director, Club Service', 'Bombay'],
+            ['Pooja Bhatt', 'Chair, Club Administration', 'Wada'],
+            ['Farhan Qureshi', 'Chair, Fellowship', 'Umroli'],
+            ['Leena Joshi', 'Chair, Club Training', 'Upper Kandivali']
+          ] },
+          { title: 'Community Service', members: [
+            ['Deepak Pillai', 'Director, Community Service', 'Bombay Pier'],
+            ['Sunita Rane', 'Chair, Health Camps', 'Vasai'],
+            ['Imran Sheikh', 'Chair, Water and Sanitation', 'Boisar-Tarapur'],
+            ['Asha Menon', 'Chair, Environment', 'SkyCity Borivali'],
+            ['Gaurav Patil', 'Chair, Disaster Relief', 'Virar']
+          ] },
+          { title: 'Vocational Service', members: [
+            ['Ritu Agarwal', 'Director, Vocational Service', 'Bombay Airport'],
+            ['Manish Gupta', 'Chair, Skill Development', 'Wada'],
+            ['Shalini Dsouza', 'Chair, Vocational Awards', 'Bombay Bandra']
+          ] },
+          { title: 'International Service', members: [
+            ['Karan Malhotra', 'Director, International Service', 'Bombay'],
+            ['Neha Sawant', 'Chair, Global Grants', 'Upper Kandivali'],
+            ['Tariq Hussain', 'Chair, Youth Exchange', 'Umroli']
+          ] },
+          { title: 'New Generation Service', members: [
+            ['Priya Venkatesh', 'Director, New Generation Service', 'SkyCity Borivali'],
+            ['Aditya Kamat', 'District Rotaract Representative', 'Vasai'],
+            ['Sneha Gokhale', 'Chair, Interact', 'Virar'],
+            ['Rahul Bhosale', 'Chair, RYLA', 'Boisar-Tarapur']
+          ] },
+          { title: 'The Rotary Foundation', members: [
+            ['Harish Chandra', 'District Rotary Foundation Chair', 'Bombay Pier'],
+            ['Madhuri Jain', 'Chair, Annual Fund', 'Bombay Airport'],
+            ['Suresh Naik', 'Chair, Polio Plus', 'Wada']
+          ] },
+          { title: 'Membership and Public Image', members: [
+            ['Anita Fernandes', 'Chair, Membership', 'Bombay Bandra'],
+            ['Vivek Chauhan', 'Chair, Public Image', 'Bombay'],
+            ['Rekha Pandit', 'Chair, Digital Media', 'Upper Kandivali']
+          ] }
+        ].map(function (g) { return { title: g.title, members: g.members.map(function (m) { return { name: m[0], role: m[1], club: m[2] }; }) }; })
+      },
+      finder: {
+        searchLabel: 'Search by club name or meeting place',
+        dayLabel: 'Meeting day',
+        anyDay: 'Any day',
+        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        empty: 'No club matches your search. Try another name or day.',
+        more: 'Show more clubs',
+        pageSize: 12,
+        visit: 'View club'
+      },
+      projects: {
+        searchLabel: 'Search by project or club',
+        allLabel: 'All avenues',
+        empty: 'No project matches your search.',
+        more: 'Show more projects',
+        pageSize: 9,
+        avenues: [
+          { key: 'club',          label: 'Club Service' },
+          { key: 'community',     label: 'Community Service' },
+          { key: 'vocational',    label: 'Vocational Service' },
+          { key: 'international', label: 'International Service' },
+          { key: 'youth',         label: 'New Generation Service' },
+          { key: 'image',         label: 'Public Image' }
+        ],
+        statLabels: { projects: 'Projects', beneficiaries: 'Beneficiaries', amount: 'Amount spent', hours: 'Man hours' },
+        list: [
+          ['Beach clean-up at Juhu', 'Bombay Airport', 'community', '2026-10-25', 'beach', 1800, 1.2, 640, 'Volunteers cleared plastic and waste from two kilometres of shoreline.'],
+          ['Dignity packs for girls', 'Bombay Bandra', 'community', '2026-10-18', 'dignity', 1200, 3.6, 220, 'Menstrual hygiene kits and a health talk for girls in municipal schools.'],
+          ['Vision centre opening', 'Upper Kandivali', 'community', '2026-10-11', 'vision', 5200, 18.5, 410, 'A permanent eye clinic with screening for the neighbourhood.'],
+          ['English speaking course', 'Bombay', 'vocational', '2026-10-04', 'classroom', 160, 2.4, 380, 'A twelve-week spoken English course for schoolgirls.'],
+          ['Medical equipment for the civic hospital', 'Bombay Pier', 'international', '2026-09-27', 'medical', 9000, 42.0, 120, 'Dialysis and monitoring equipment funded through a global grant.'],
+          ['Food kits for families', 'Vasai', 'community', '2026-09-20', 'foodkits', 650, 4.1, 300, 'Monthly ration kits for families of daily-wage workers.'],
+          ['Tree plantation drive', 'SkyCity Borivali', 'community', '2026-09-13', 'plantation', 3000, 1.8, 520, 'Two thousand saplings planted with residents and students.'],
+          ['Mid-day meals for schools', 'Wada', 'youth', '2026-09-06', 'meals', 900, 5.5, 260, 'Nutritious meals for children in four village schools.'],
+          ['Goodwill school opening', 'Boisar-Tarapur', 'youth', '2026-08-30', 'school', 640, 26.0, 900, 'A new school building with classrooms, toilets and a library.'],
+          ['Flood relief for Dahanu', 'Virar', 'international', '2026-08-23', 'relief', 2400, 7.8, 700, 'Supplies and temporary shelter for families after the floods.'],
+          ['Notebooks for students', 'Umroli', 'youth', '2026-08-16', 'notebooks', 1500, 1.1, 140, 'Notebooks and school kits for the new academic year.'],
+          ['Food for Warkari pilgrims', 'Bombay', 'community', '2026-08-09', 'warkaris', 8000, 2.9, 480, 'Meals and water for pilgrims on the way to Pandharpur.'],
+          ['New member orientation', 'Bombay Bandra', 'club', '2026-08-02', 'coreTeam', 85, 0.4, 160, 'A half-day welcome and training for members who joined this year.'],
+          ['Club leadership training', 'Bombay Airport', 'club', '2026-07-26', 'dgAddress', 140, 0.6, 210, 'Training for club presidents, secretaries and directors.'],
+          ['Fellowship evening', 'Vasai', 'club', '2026-07-19', 'school', 120, 0.3, 90, 'An evening of fellowship with families of members.'],
+          ['Membership drive', 'Virar', 'club', '2026-07-12', 'plantation', 60, 0.2, 75, 'Open house to introduce Rotary to professionals in the area.'],
+          ['Vocational excellence awards', 'Bombay Pier', 'vocational', '2026-07-05', 'medical', 40, 0.8, 70, 'Awards for nurses, teachers and workers who serve with distinction.'],
+          ['Rotary week on social media', 'SkyCity Borivali', 'image', '2026-07-01', 'beach', 25000, 0.5, 60, 'A week of stories about club projects across the district.']
+        ].map(function (p, i) {
+          return { id: i + 1, title: p[0], club: p[1], avenue: p[2], date: p[3], photo: photos[p[4]], beneficiaries: p[5], amount: p[6], hours: p[7], summary: p[8] };
+        })
+      },
+      calendar: { emptyMonth: 'Nothing on the calendar this month yet.', monthLabel: 'Month' },
+      newsletters: { yearLabel: 'Rotary year', governor: 'Governor’s Monthly Letter', club: 'Club Newsletters', searchLabel: 'Search bulletins by title or club' },
+      contact: {
+        title: 'Write to us',
+        office: 'District Governor’s office',
+        hours: 'We reply to every message within two working days.',
+        formNote: 'This form is a design sample and does not send messages yet.',
+        fields: { name: 'Your name', email: 'Email', phone: 'Phone', club: 'Your club (if any)', message: 'Message', send: 'Send message' },
+        sent: 'Thank you. Your message is ready to be sent once the form is connected.',
+        join: { title: 'Join Rotary', text: 'Meet people who share your wish to serve. Tell us a little about yourself and a club near you will get in touch.' },
+        finder: { title: 'Find a club', text: 'There are 125 clubs in District 3141. Search by name, place or meeting day.' }
+      },
+      back: 'Back to Home',
+      breadcrumb: 'Breadcrumb'
     },
 
     /* search data (Atelier's ⌘K palette): the district's 125 clubs, live */

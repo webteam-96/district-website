@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { R } from '../../shared/rotary';
 import { lockScroll } from '../../shared/smooth';
 import { ThemeToggle, YearSelect } from '../ether/Chrome';
 import { useTheme, type Theme } from './theme';
+import { toBody } from '../../shared/inner';
+
+/* The logo is the page's h1 only on the homepage; inner pages have their own title. */
+const Brand = (p: { className: string; children: React.ReactNode }) => (R.nav[0].current ? <h1 {...p} /> : <div {...p} />);
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
 const sw = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -104,16 +107,16 @@ export function Header() {
     <header className={`head ${stuck ? 'is-stuck' : ''}`}>
       <div className="wrap head__row">
         <nav className="hnav hnav--left" aria-label="Main"><ul>{left.map(link)}</ul></nav>
-        <h1 className="head__brand">
-          <a href="#top"><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
-        </h1>
+        <Brand className="head__brand">
+          <a href={R.nav[0].current ? '#top' : R.nav[0].href}><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
+        </Brand>
         <nav className="hnav hnav--right" aria-label="More pages"><ul>{right.map(link)}</ul></nav>
         <button ref={btn} type="button" className="head__menu" aria-expanded={open} aria-controls="m-menu" onClick={() => setOpen(true)}>
           <span>Menu</span>
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M4 8h16M4 16h16" /></svg>
         </button>
       </div>
-      {createPortal(<MobileMenu open={open} onClose={close} />, document.body)}
+      {toBody(<MobileMenu open={open} onClose={close} />)}
     </header>
   );
 }

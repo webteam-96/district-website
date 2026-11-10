@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { R } from '../../shared/rotary';
 import { lockScroll } from '../../shared/smooth';
 import { ThemeToggle, YearSelect } from '../ether/Chrome';
 import { useTheme, type Theme } from './theme';
+import { toBody } from '../../shared/inner';
+
+const Brand = (p: { className: string; children: React.ReactNode }) => (R.nav[0].current ? <h1 {...p} /> : <div {...p} />);
 
 const sw = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
@@ -83,9 +85,9 @@ export function Header() {
   return (
     <header className="head">
       <div className="wrap head__row">
-        <h1 className="head__brand">
-          <a href="#top"><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
-        </h1>
+        <Brand className="head__brand">
+          <a href={R.nav[0].current ? '#top' : R.nav[0].href}><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
+        </Brand>
         <nav className="head__nav" aria-label="Main">
           <ul>
             {R.nav.map(n => (
@@ -103,7 +105,7 @@ export function Header() {
         </button>
       </div>
       <span className="head__bar" aria-hidden="true" />
-      {createPortal(<MobileMenu open={open} onClose={close} />, document.body)}
+      {toBody(<MobileMenu open={open} onClose={close} />)}
     </header>
   );
 }

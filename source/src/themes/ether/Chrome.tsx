@@ -3,6 +3,7 @@ import { R, reducedMotion } from '../../shared/rotary';
 import PillNav from '../../rb/PillNav/PillNav';
 import StarBorder from '../../rb/StarBorder/StarBorder';
 import { useTheme, type Theme } from './theme';
+import { STATIC } from '../../shared/inner';
 
 /* Sun / moon switch: the icon shows the theme you'll switch to. */
 export function ThemeToggle({ theme, onTheme }: { theme: Theme; onTheme: () => void }) {
@@ -162,7 +163,56 @@ const NavLink = forwardRef<HTMLAnchorElement, AnchorHTMLAttributes<HTMLAnchorEle
 ));
 NavLink.displayName = 'NavLink';
 
+/* The logo is the page's h1 only on the homepage; inner pages have their own title. */
+const Brand = (p: { className: string; children: React.ReactNode }) => (R.nav[0].current ? <h1 {...p} /> : <div {...p} />);
+
+/* Plain-HTML pages: PillNav measures itself in the browser, so the static version gets a plain
+   link row and a menu panel instead (shared/inner.js opens it). */
+function StaticHeader() {
+  const theme = useTheme();
+  return (
+    <header className="header">
+      <div className="wrap header__row">
+        <Brand className="brand">
+          <a href={R.nav[0].href}><img src={theme === 'light' ? R.brand.logo : R.brand.logoReversed} alt={R.site.name} width="392" height="148" /></a>
+        </Brand>
+        <nav className="snav" aria-label="Main">
+          <ul>
+            {R.nav.map(n => (
+              <li key={n.key}>
+                <a href={n.href} className={n.current ? 'is-current' : ''} aria-current={n.current ? 'page' : undefined} {...(n.external ? { target: '_blank', rel: 'noopener' } : {})}>{n.label}{n.external && ' ↗'}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <button type="button" className="snav__menu" aria-expanded="false" aria-controls="m-menu">
+          <span>Menu</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+        </button>
+      </div>
+      <div id="m-menu" className="mmenu" role="dialog" aria-modal="true" aria-label="Menu" {...{ inert: '' }}>
+        <div className="mmenu__panel">
+          <div className="mmenu__top">
+            <img src={R.brand.logoReversed} alt="" width="392" height="148" />
+            <button type="button" className="mmenu__close">Close <span aria-hidden="true">✕</span></button>
+          </div>
+          <ul className="mmenu__list">
+            {R.nav.map(n => (
+              <li key={n.key}><a href={n.href} aria-current={n.current ? 'page' : undefined} {...(n.external ? { target: '_blank', rel: 'noopener' } : {})}>{n.label}{n.external && <span aria-hidden="true"> ↗</span>}</a></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 export function Header() {
+  if (STATIC) return <StaticHeader />;
+  return <LiveHeader />;
+}
+
+function LiveHeader() {
   const theme = useTheme();
   const [stuck, setStuck] = useState(false);
   useEffect(() => {
@@ -179,15 +229,15 @@ export function Header() {
   return (
     <header className={`header ${stuck ? 'is-stuck' : ''}`}>
       <div className="wrap header__row">
-        <h1 className="brand">
-          <a href="#top">
+        <Brand className="brand">
+          <a href={R.nav[0].current ? '#top' : R.nav[0].href}>
             <img src={theme === 'light' ? R.brand.logo : R.brand.logoReversed} alt={R.site.name} width="392" height="148" />
           </a>
-        </h1>
+        </Brand>
         <PillNav
           key={theme}
           items={items}
-          activeHref="#top"
+          activeHref={R.nav.find(n => n.current)?.href ?? ''}
           linkComponent={NavLink}
           theme={theme}
           surface="glass"

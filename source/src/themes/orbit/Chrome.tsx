@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { R } from '../../shared/rotary';
 import { lockScroll } from '../../shared/smooth';
 import { ThemeToggle, YearSelect } from '../ether/Chrome';
 import { useTheme, type Theme } from './theme';
+import { STATIC, toBody } from '../../shared/inner';
+
+/* no layout effects while rendering static HTML */
+const useIsoLayout = STATIC ? useEffect : useLayoutEffect;
+/* The logo is the page's h1 only on the homepage; inner pages have their own title. */
+const Brand = (p: { className: string; children: React.ReactNode }) => (R.nav[0].current ? <h1 {...p} /> : <div {...p} />);
 
 const sw = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
@@ -89,7 +94,7 @@ export function Header() {
   const close = useCallback(() => { setOpen(false); btn.current?.focus(); }, []);
   const current = R.nav.findIndex(n => n.current);
   const active = over >= 0 ? over : current;
-  useLayoutEffect(() => {
+  useIsoLayout(() => {
     const place = () => {
       const el = list.current?.children[active] as HTMLElement | undefined;
       if (el) setPill({ x: el.offsetLeft, w: el.offsetWidth });
@@ -102,10 +107,10 @@ export function Header() {
   return (
     <header className="bar">
       <div className="wrap bar__row">
-        <h1 className="bar__tab">
-          <a href="#top"><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
-        </h1>
-        <nav className="bar__nav" aria-label="Main" onMouseLeave={() => setOver(-1)} onBlur={() => setOver(-1)}>
+        <Brand className="bar__tab">
+          <a href={R.nav[0].current ? '#top' : R.nav[0].href}><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
+        </Brand>
+        <nav className={`bar__nav ${STATIC ? 'bar__nav--static' : ''}`} aria-label="Main" onMouseLeave={() => setOver(-1)} onBlur={() => setOver(-1)}>
           <ul ref={list}>
             {R.nav.map((n, i) => (
               <li key={n.key}>
@@ -129,7 +134,7 @@ export function Header() {
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M4 8h16M4 16h16" /></svg>
         </button>
       </div>
-      {createPortal(<MobileMenu open={open} onClose={close} />, document.body)}
+      {toBody(<MobileMenu open={open} onClose={close} />)}
     </header>
   );
 }

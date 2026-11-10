@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { toBody } from '../../shared/inner';
 import { R } from '../../shared/rotary';
 import { lockScroll } from '../../shared/smooth';
 import { ThemeToggle, YearSelect } from '../ether/Chrome';
@@ -74,6 +74,9 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   );
 }
 
+/* the logo is the page's h1 only on the homepage */
+const Brand = (p: { className: string; children: React.ReactNode }) => (R.nav[0].current ? <h1 {...p} /> : <div {...p} />);
+
 /* 2 · Header: logo on the left, menu on the right. */
 export function Header() {
   const theme = useTheme();
@@ -83,9 +86,9 @@ export function Header() {
   return (
     <header className="head">
       <div className="wrap head__row">
-        <h1 className="head__brand">
-          <a href="#top"><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
-        </h1>
+        <Brand className="head__brand">
+          <a href={R.nav[0].current ? '#top' : R.nav[0].href}><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
+        </Brand>
         <nav className="head__nav" aria-label="Main">
           <ul>
             {R.nav.map(n => (
@@ -102,7 +105,7 @@ export function Header() {
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M4 8h16M4 16h16" /></svg>
         </button>
       </div>
-      {createPortal(<MobileMenu open={open} onClose={close} />, document.body)}
+      {toBody(<MobileMenu open={open} onClose={close} />)}
     </header>
   );
 }

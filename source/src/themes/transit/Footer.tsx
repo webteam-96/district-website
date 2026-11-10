@@ -3,6 +3,7 @@ import { R, reducedMotion } from '../../shared/rotary';
 import SplitFlapText from '../../rb/SplitFlapText/SplitFlapText';
 import { lenis } from '../../shared/smooth';
 import { isH } from './motion';
+import { STATIC } from '../../shared/inner';
 
 const ext = (href: string) => (/^https?:/.test(href) && !href.startsWith(R.site.live) ? { target: '_blank', rel: 'noopener' } : {});
 /* stopPropagation: Lenis's own anchor handler would otherwise take over the click */
@@ -13,7 +14,7 @@ function Visitors() {
   const box = useRef<HTMLDivElement>(null);
   const [seen, setSeen] = useState(false);
   const value = String(f.visitors);
-  const side = isH();
+  const side = !STATIC && isH();
   useEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -27,7 +28,8 @@ function Visitors() {
         {seen ? (
           <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={side ? Math.round(Math.min(72, window.innerWidth * 0.042)) : 54} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#FFC66B" textColor="#0B1437" tileRadius={8} gap={4} glare={0.1} depth={0.25} className="visits__flap" />
         ) : (
-          <span className="visits__ghost">{value}</span>
+          /* static HTML has no flip board script: show the plain number */
+          <span className={`visits__ghost ${STATIC ? 'visits__ghost--static' : ''}`}>{value}</span>
         )}
       </div>
       <p className="visits__text" aria-hidden="true">{f.visitorsText}</p>

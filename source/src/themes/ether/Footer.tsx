@@ -5,6 +5,7 @@ import MagicBento, { type MagicBentoItem } from '../../rb/MagicBento/MagicBento'
 import SplitFlapText from '../../rb/SplitFlapText/SplitFlapText';
 import { scrollToId } from '../../shared/smooth';
 import { useTheme } from './theme';
+import { STATIC } from '../../shared/inner';
 
 /* Rotary-wide links and social open in a new tab; the district's own pages do not. */
 const ext = (href: string) => (/^https?:/.test(href) && !href.startsWith(R.site.live) ? { target: '_blank', rel: 'noopener' } : {});
@@ -35,7 +36,7 @@ function Visitors() {
         {seen ? (
           <SplitFlapText text={value} charset="0123456789," padTo={value.length} loop={false} fontSize={38} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#0b1736" textColor="#FFD27A" tileRadius={9} gap={5} glare={0.35} depth={0.6} className="visits__flap" />
         ) : (
-          <span className="visits__ghost">{value}</span>
+          <span className={`visits__ghost ${STATIC ? "is-static" : ""}`}>{value}</span>
         )}
       </div>
       <p className="visits__text" aria-hidden="true"><i className="foot__live" />{f.visitorsText}</p>
@@ -136,7 +137,7 @@ export default function Footer() {
           key={theme}
           items={items}
           columns={cols}
-          rowHeight={cols === 1 ? 140 : 258}
+          rowHeight={cols === 1 ? 140 : 330}
           gap={14}
           radius={26}
           theme={theme}

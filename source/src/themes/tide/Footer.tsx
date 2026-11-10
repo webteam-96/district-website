@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { R, reducedMotion } from '../../shared/rotary';
 import SpotlightCard from '../../rb/SpotlightCard/SpotlightCard';
 import SplitFlapText from '../../rb/SplitFlapText/SplitFlapText';
 import { lenis } from '../../shared/smooth';
 import { useTheme } from './theme';
+import { STATIC, toBody } from '../../shared/inner';
 
 const ext = (href: string) => (/^https?:/.test(href) && !href.startsWith(R.site.live) ? { target: '_blank', rel: 'noopener' } : {});
 /* stopPropagation: Lenis's own anchor handler would otherwise re-aim at the hero, 84px short of the top */
@@ -18,11 +18,10 @@ function BackToTop() {
     window.addEventListener('scroll', on, { passive: true });
     return () => window.removeEventListener('scroll', on);
   }, []);
-  return createPortal(
+  return toBody(
     <a href="#top" className={`totop ${show ? 'is-on' : ''}`} aria-label="Back to top" title="Back to top" onClick={toTop}>
       <svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-    </a>,
-    document.body
+    </a>
   );
 }
 
@@ -50,7 +49,8 @@ function Visitors() {
         {seen ? (
           <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={40} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#062b33" textColor="#FFD27A" tileRadius={10} gap={5} glare={0.4} depth={0.6} className="visits__flap" />
         ) : (
-          <span className="visits__ghost">{value}</span>
+          /* static HTML has no flip board script: show the final number */
+          <span className={`visits__ghost ${STATIC ? 'visits__ghost--on' : ''}`}>{value}</span>
         )}
       </div>
       <p className="visits__text" aria-hidden="true">{f.visitorsText}</p>

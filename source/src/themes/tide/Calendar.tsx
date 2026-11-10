@@ -15,7 +15,7 @@ const byDate = (() => {
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const LIST_CLASS: Record<CalEntry['type'], string> = { club: 'tickets', district: 'tickets', birthday: 'wishes', anniversary: 'vows' };
 
-const Balloon = ({ name }: { name: string }) => (
+export const Balloon = ({ name }: { name: string }) => (
   <svg className="wish__balloon" viewBox="0 0 40 54" aria-hidden="true">
     <path className="wish__string" d="M20 40c-3 4 3 6 0 13" />
     <path className="wish__skin" d="M16.5 42h7L20 37z" />
@@ -26,7 +26,7 @@ const Balloon = ({ name }: { name: string }) => (
 );
 
 /* Two linked rings, one partner's initial in each. Ring B is redrawn over A at the lower crossing. */
-const Rings = ({ name }: { name: string }) => {
+export const Rings = ({ name }: { name: string }) => {
   const [a, b] = name.split(' & ');
   return (
     <svg className="vow__rings" viewBox="0 0 64 40" aria-hidden="true">

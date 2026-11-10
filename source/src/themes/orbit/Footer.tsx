@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { R, reducedMotion } from '../../shared/rotary';
 import SpotlightCard from '../../rb/SpotlightCard/SpotlightCard';
 import SplitFlapText from '../../rb/SplitFlapText/SplitFlapText';
 import { lenis } from '../../shared/smooth';
 import { useTheme } from './theme';
+import { STATIC, toBody } from '../../shared/inner';
 
 const ext = (href: string) => (/^https?:/.test(href) && !href.startsWith(R.site.live) ? { target: '_blank', rel: 'noopener' } : {});
 /* stopPropagation: Lenis's own anchor handler would otherwise re-aim at the hero, 84px short of the top */
@@ -18,11 +18,10 @@ function BackToTop() {
     window.addEventListener('scroll', on, { passive: true });
     return () => window.removeEventListener('scroll', on);
   }, []);
-  return createPortal(
+  return toBody(
     <a href="#top" className={`totop ${show ? 'is-on' : ''}`} aria-label="Back to top" title="Back to top" onClick={toTop}>
       <svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-    </a>,
-    document.body
+    </a>
   );
 }
 
@@ -50,7 +49,7 @@ function Visitors() {
         {seen ? (
           <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={38} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#17103f" textColor="#FFD27A" tileRadius={10} gap={5} glare={0.4} depth={0.6} className="visits__flap" />
         ) : (
-          <span className="visits__ghost">{value}</span>
+          <span className={`visits__ghost ${STATIC ? 'visits__ghost--static' : ''}`}>{STATIC ? R.fmt.num(f.visitors) : value}</span>
         )}
       </div>
       <p className="visits__text" aria-hidden="true">{f.visitorsText}</p>
@@ -105,7 +104,9 @@ export default function Footer() {
           {col(ICON.globe, f.rotaryLinks.title, f.rotaryLinks.items)}
           <SpotlightCard className="fcard fcard--brand" spotlightColor={spot} grain={0} theme={theme}>
             <a href="#top" className="foot__logo" onClick={toTop}>
-              <img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="392" height="148" loading="lazy" />
+              <img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="392" height="148" loading="lazy" className={STATIC ? 'foot__logo-lt' : undefined} />
+              {/* static pages: both logos, the stylesheet shows the one for the theme */}
+              {STATIC && <img src={R.brand.logoReversed} alt="" width="392" height="148" loading="lazy" className="foot__logo-dk" />}
             </a>
             <Visitors />
             <div className="fsocial">

@@ -723,8 +723,8 @@ async function snapshot(page: PageKey | 'home', why: string): Promise<void> {
     let item: unknown;
     if (page === 'dignitary') item = index.dignitary ? await get('dignitary.json') : null;
     else if ((ITEM_PAGES as readonly string[]).includes(page)) {
-      const pd = (P as unknown as Record<string, Row>)[page];
-      const id = new URLSearchParams(location.search).get('id') ?? String(pd.example ?? '');
+      /* no ?id=: the saved data's own example (the sample's is not among the saved items), as pages.mjs bakes it */
+      const id = new URLSearchParams(location.search).get('id') ?? String(patch.pages?.[page]?.example ?? (P as unknown as Record<string, Row>)[page].example ?? '');
       item = (index[page] as string[] | undefined)?.includes(id) ? await get(`${page}/${encodeURIComponent(id)}.json`) : null;
     }
     merge(R as unknown as Row, patch);

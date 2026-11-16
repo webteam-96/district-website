@@ -11,10 +11,10 @@ const Brand = (p: { className: string; children: React.ReactNode }) => (R.nav[0]
 const sw = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
 /* 1 · Top strip: contact, year, Join / Admin, theme */
-export function TopStrip({ year, onYear, theme, onTheme }: { year: string; onYear: (y: string) => void; theme: Theme; onTheme: () => void }) {
+export function TopStrip({ year, onYear, theme, onTheme, inner = false }: { year: string; onYear: (y: string) => void; theme: Theme; onTheme: () => void; inner?: boolean }) {
   const c = R.contact;
   return (
-    <div className="strip">
+    <div className={`strip${inner ? ' strip--in' : ''}`}>
       <div className="wrap strip__row">
         <p className="strip__contact" aria-label={c.label}>
           <a href={`mailto:${c.email}`} className="strip__link">
@@ -38,7 +38,8 @@ export function TopStrip({ year, onYear, theme, onTheme }: { year: string; onYea
   );
 }
 
-function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+/* inner: the inner pages mark the current page here too (aria-current + the menu's wave) */
+function MobileMenu({ open, onClose, inner = false }: { open: boolean; onClose: () => void; inner?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -57,7 +58,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
     return () => { lockScroll(false); document.removeEventListener('keydown', onKey); };
   }, [open, onClose]);
   return (
-    <div ref={ref} id="m-menu" className={`mmenu ${open ? 'is-open' : ''}`} role="dialog" aria-modal="true" aria-label="Menu" {...(!open ? { inert: '' } : {})}>
+    <div ref={ref} id="m-menu" className={`mmenu ${open ? 'is-open' : ''}${inner ? ' mmenu--in' : ''}`} role="dialog" aria-modal="true" aria-label="Menu" {...(!open ? { inert: '' } : {})}>
       <span className="mmenu__layer mmenu__layer--1" aria-hidden="true" />
       <span className="mmenu__layer mmenu__layer--2" aria-hidden="true" />
       <div className="mmenu__panel">
@@ -68,8 +69,9 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <ul className="mmenu__list">
           {R.nav.map((n, i) => (
             <li key={n.key} style={{ ['--i' as string]: i }}>
-              <a href={n.href} {...(n.external ? { target: '_blank', rel: 'noopener' } : {})} onClick={onClose}>
+              <a href={n.href} {...(n.external ? { target: '_blank', rel: 'noopener' } : {})} {...(inner && n.current ? { 'aria-current': 'page' as const, className: 'is-current' } : {})} onClick={onClose}>
                 {n.label}{n.external && <span aria-hidden="true"> ↗</span>}
+                {inner && n.current && <svg className="mmenu__wave" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true"><path d="M1 4c5-4 9-4 14.500 0s9 4 14.500 0 9-4 14.500 0 9 4 14.500 0" /></svg>}
               </a>
             </li>
           ))}
@@ -80,13 +82,13 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 /* 2 · Header: logo on the left, menu on the right; a wave draws itself under the item you point at. */
-export function Header() {
+export function Header({ inner = false }: { inner?: boolean }) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => { setOpen(false); btn.current?.focus(); }, []);
   return (
-    <header className="head">
+    <header className={`head${inner ? ' head--in' : ''}`}>
       <div className="wrap head__row">
         <Brand className="head__brand">
           <a href={R.nav[0].current ? '#top' : R.nav[0].href}><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
@@ -108,7 +110,7 @@ export function Header() {
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M4 8h16M4 16h16" /></svg>
         </button>
       </div>
-      {toBody(<MobileMenu open={open} onClose={close} />)}
+      {toBody(<MobileMenu open={open} onClose={close} inner={inner} />)}
     </header>
   );
 }

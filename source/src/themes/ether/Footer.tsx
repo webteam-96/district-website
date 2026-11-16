@@ -17,6 +17,18 @@ const ICON = {
   heart: <svg viewBox="0 0 24 24" width="22" height="22"><path {...sw} d="M12 19.5s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 2.5c0 5.6-7.5 10-7.5 10z" /></svg>
 };
 
+/* Plain-HTML pages: the Threads canvas needs its script, so draw the gold waves as SVG (CSS drifts them). */
+const THREADS = Array.from({ length: 16 }, (_, i) => {
+  const t = i / 15;
+  const y = (a: number, b: number) => (a + (b - a) * t).toFixed(1);
+  return `M1500 ${y(10, 230)} C${y(1120, 960)} ${y(40, 210)} ${y(1360, 1150)} ${y(640, 520)} 760 ${y(762, 792)} S220 ${y(802, 814)} -60 ${y(740, 800)}`;
+});
+const StaticThreads = () => (
+  <svg className="foot__threads" viewBox="0 0 1440 800" preserveAspectRatio="none" aria-hidden="true">
+    {THREADS.map((d, i) => <path key={i} d={d} className={i === 3 || i === 11 ? 'is-sky' : undefined} />)}
+  </svg>
+);
+
 /* Visitor counter: an airport-style split-flap board that flips in when it scrolls into view. */
 function Visitors() {
   const f = R.footer;
@@ -35,8 +47,11 @@ function Visitors() {
       <div className="visits__board" aria-hidden="true">
         {seen ? (
           <SplitFlapText text={value} charset="0123456789," padTo={value.length} loop={false} fontSize={38} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#0b1736" textColor="#FFD27A" tileRadius={9} gap={5} glare={0.35} depth={0.6} className="visits__flap" />
+        ) : STATIC ? (
+          /* plain HTML: the board at rest, one tile per character */
+          <span className="visits__tiles">{value.split('').map((ch, i) => <i key={i}>{ch}</i>)}</span>
         ) : (
-          <span className={`visits__ghost ${STATIC ? "is-static" : ""}`}>{value}</span>
+          <span className="visits__ghost">{value}</span>
         )}
       </div>
       <p className="visits__text" aria-hidden="true"><i className="foot__live" />{f.visitorsText}</p>
@@ -87,7 +102,15 @@ export default function Footer() {
       content: (
         <div className="fcard fcard--brand" style={{ ['--accent' as string]: '#F7A81B' }}>
           <a href="#top" className="foot__logo" onClick={toTop}>
-            <img src={theme === 'light' ? R.brand.logo : R.brand.logoReversed} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="196" height="74" loading="lazy" />
+            {STATIC ? (
+              /* plain HTML: both files, CSS shows the one for the colour mode */
+              <>
+                <img className="is-dark" src={R.brand.logoReversed} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="196" height="74" loading="lazy" />
+                <img className="is-light" src={R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="196" height="74" loading="lazy" />
+              </>
+            ) : (
+              <img src={theme === 'light' ? R.brand.logo : R.brand.logoReversed} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="196" height="74" loading="lazy" />
+            )}
           </a>
           <Visitors />
         </div>
@@ -119,7 +142,7 @@ export default function Footer() {
   return (
     <footer className="foot">
       <div className="foot__bg" aria-hidden="true">
-        {!reducedMotion() && (
+        {STATIC ? <StaticThreads /> : !reducedMotion() && (
           <Threads
             key={theme}
             color={theme === 'light' ? '#F0A000' : '#F7A81B'}
@@ -149,7 +172,7 @@ export default function Footer() {
           clickEffect={false}
           spotlightRadius={320}
           textAutoHide={false}
-          className="foot__bento"
+          className={STATIC ? 'foot__bento foot__bento--static' : 'foot__bento'}
         />
 
         <div className="foot__bar">

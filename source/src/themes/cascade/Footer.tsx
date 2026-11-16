@@ -38,7 +38,7 @@ function Visitors() {
   return (
     <div ref={box} className="visits" role="group" aria-label={`${R.fmt.num(f.visitors)} ${f.visitorsText}`}>
       <div className="visits__board" aria-hidden="true">
-        {STATIC ? <span className="visits__static">{value}</span> : seen ? <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={46} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#FFB199" textColor="#2B0A25" tileRadius={10} gap={5} glare={0.1} depth={0.25} className="visits__flap" /> : <span className="visits__ghost">{value}</span>}
+        {STATIC ? <span className="visits__static">{value.split('').map((d, i) => <b key={i}>{d}</b>)}</span> : seen ? <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={46} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#FFB199" textColor="#2B0A25" tileRadius={10} gap={5} glare={0.1} depth={0.25} className="visits__flap" /> : <span className="visits__ghost">{value}</span>}
       </div>
       <p className="visits__text" aria-hidden="true">{f.visitorsText}</p>
     </div>

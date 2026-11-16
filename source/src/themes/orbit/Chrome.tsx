@@ -71,7 +71,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <ul className="mmenu__list">
           {R.nav.map((n, i) => (
             <li key={n.key} style={{ ['--i' as string]: i }}>
-              <a href={n.href} {...(n.external ? { target: '_blank', rel: 'noopener' } : {})} onClick={onClose}>
+              <a href={n.href} aria-current={n.current ? 'page' : undefined} {...(n.external ? { target: '_blank', rel: 'noopener' } : {})} onClick={onClose}>
                 {n.label}{n.external && <span aria-hidden="true"> ↗</span>}
               </a>
             </li>

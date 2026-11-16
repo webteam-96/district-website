@@ -6,7 +6,7 @@
               with no React: shared/inner.js runs tabs, filters, menu, theme and year. */
 import { build } from 'vite';
 import react from '@vitejs/plugin-react';
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import vm from 'node:vm';
@@ -97,7 +97,9 @@ export const render = (k: PageKey) => { setPage(k); return renderToStaticMarkup(
       .replace(/(src|href)="\.\.\/shared\//g, '$1="../../shared/')
       .replace(/href="index\.html"/g, `href="../../${theme}/index.html"`)
       /* entrance states that only a component's own script would clear */
-      .replace(/ data-intro=""/g, '');
+      .replace(/ data-intro=""/g, '')
+      /* About has one backend field; mark the spot for whoever binds it */
+      .replace('data-cms="about-content">', 'data-cms="about-content">\n<!-- BACKEND: print the About page\'s "content" field (HTML) here, in place of this sample. -->\n');
     const html = `<!doctype html>
 <html lang="en">
 <head>${head
@@ -116,4 +118,5 @@ ${body}
   rmSync(tmp, { recursive: true, force: true });
   console.log(`${theme}: ${pages.length} React pages, ${pages.length} HTML pages`);
 }
-copyFileSync(resolve(SRC, 'node_modules/lenis/dist/lenis.min.js'), resolve(OUT, 'shared/lenis.min.js'));
+/* only when it is missing: several themes may be generated at the same time */
+if (!existsSync(resolve(OUT, 'shared/lenis.min.js'))) copyFileSync(resolve(SRC, 'node_modules/lenis/dist/lenis.min.js'), resolve(OUT, 'shared/lenis.min.js'));

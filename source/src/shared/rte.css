@@ -1,0 +1,22 @@
+/* Admin-authored HTML: the About page's "content" field (class .rte, see AdminContent in inner.tsx).
+   SAFETY only: nothing an admin pastes can widen the page or become unreadable. Each theme
+   designs the look of its .rte in its own inner.css; :where() keeps specificity flat so those
+   rules win without effort. */
+.rte { position: relative; overflow-wrap: anywhere; overflow-x: clip; }
+.rte :where(img, video, iframe, embed, object, table) { max-width: 100%; }
+/* an inline or attribute height would stretch a picture that max-width has narrowed */
+.rte :where(img, video) { height: auto !important; }
+.rte :where(iframe) { border: 0; }
+/* a wide table scrolls inside itself; its words stay whole instead of breaking letter by letter */
+.rte :where(table) { display: block; overflow-x: auto; border-collapse: collapse; overflow-wrap: normal; }
+.rte :where(pre) { white-space: pre-wrap; }
+.rte :where(p:empty) { display: none; }
+.rte > :where(:first-child) { margin-top: 0; }
+.rte > :where(:last-child) { margin-bottom: 0; }
+/* Text pasted from Word or another site carries inline fonts, sizes and colours (black text
+   would vanish on a dark theme). The theme's type wins; !important is what beats inline style. */
+.rte :where(p, span, li, div, font, b, i, u, em, strong, td, th, blockquote)[style] {
+  font-family: inherit !important; font-size: inherit !important; line-height: inherit !important;
+  color: inherit !important; background-color: transparent !important;
+}
+.rte :where(font) { font-family: inherit; font-size: inherit; color: inherit; }

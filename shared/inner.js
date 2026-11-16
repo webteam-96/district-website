@@ -6,6 +6,8 @@
    attributes in the markup:
 
    Reveal       [data-rv]                       gains .is-in each time it scrolls into view
+   Pointer glow [data-glow]                     gets --mx / --my (px from its top-left) while a mouse is over it, for CSS spotlights
+   Count-up     [data-count]                    its number ("59,895", "₹119.7 L") counts up from 0 each time it scrolls into view
    Tabs         [data-tabs] > [data-tab=K] buttons, [data-panel=K] panels
                 data-tabs-hash on the root keeps the open tab in the URL (#K)
    Filter       [data-filter] root, holding:
@@ -14,6 +16,8 @@
                   button[data-f-chip=attr][data-v]  chips; data-v="" means "all"
                   [data-item]                       the things filtered
                   [data-f-count] [data-f-empty] [data-f-more]
+                  [data-f-group]                    optional wrapper round some items (a committee, a letter):
+                                                    hidden while none of its items show; [data-f-group-count] inside it gets how many do
                 data-page-size="12" shows that many, then "show more"
    Demo form    form[data-demo-form] + [data-form-done]  (no message is sent)
 
@@ -33,15 +37,65 @@ window.RInner = (function () {
     if (!els.length) return function () {};
     if (reduced() || !('IntersectionObserver' in window)) { els.forEach(function (el) { el.classList.add('is-in'); }); return function () {}; }
     document.documentElement.classList.add('rv-on');
+    /* what is on screen when the page opens shows at once: a first screen never ends in an empty band */
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    els.forEach(function (el) { var r = el.getBoundingClientRect(); if (r.bottom > 0 && r.top < vh) el.classList.add('is-in'); });
+    /* plays when it rises a little past the lower edge of the view … */
+    var show = new IntersectionObserver(function (list) {
+      list.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('is-in'); });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+    /* … and resets only once it is wholly below the view, so it plays again on the way back down
+       but never vanishes while part of it can still be seen */
+    var hide = new IntersectionObserver(function (list) {
+      list.forEach(function (e) { if (!e.isIntersecting && e.boundingClientRect.top > 0) e.target.classList.remove('is-in'); });
+    }, { threshold: 0 });
+    els.forEach(function (el) { show.observe(el); hide.observe(el); });
+    return function () { show.disconnect(); hide.disconnect(); };
+  }
+
+  /* ---------- count-up: the element's own number, from 0, each time it scrolls into view ----------
+     The finished text is already in the markup, so with no script (or reduced motion) it simply shows.
+     Only the text node's value changes, so React keeps owning the node. */
+  function counts(root) {
+    var els = $$(root, '[data-count]');
+    if (!els.length || reduced() || !('IntersectionObserver' in window)) return function () {};
+    var finish = function (el) { if (el.rFinal != null) { el.firstChild.nodeValue = el.rFinal; el.rFinal = null; } };
     var io = new IntersectionObserver(function (list) {
       list.forEach(function (e) {
-        if (e.isIntersecting) e.target.classList.add('is-in');
-        /* leaving through the bottom resets it, so it plays again on the way back down */
-        else if (e.boundingClientRect.top > 0) e.target.classList.remove('is-in');
+        var el = e.target, node = el.firstChild;
+        if (!e.isIntersecting) { finish(el); return; }
+        if (el.rFinal != null || !node || node.nodeType !== 3 || el.childNodes.length !== 1) return;
+        var text = node.nodeValue, m = text.match(/[\d,]+(\.\d+)?/);
+        if (!m) return;
+        var end = parseFloat(m[0].replace(/,/g, '')), dec = m[1] ? m[1].length - 1 : 0, t0 = 0;
+        el.rFinal = text;
+        var step = function (t) {
+          if (el.rFinal == null) return;
+          if (!t0) t0 = t;
+          var k = Math.min(1, (t - t0) / 900);
+          if (k === 1) { finish(el); return; }
+          node.nodeValue = text.replace(m[0], (end * (1 - Math.pow(1 - k, 3))).toLocaleString('en-IN', { minimumFractionDigits: dec, maximumFractionDigits: dec }));
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.01 });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0 });   /* one call per entry or exit, never mid-way */
     els.forEach(function (el) { io.observe(el); });
-    return function () { io.disconnect(); };
+    return function () { io.disconnect(); els.forEach(finish); };
+  }
+
+  /* ---------- pointer glow: --mx/--my on the [data-glow] under the mouse (CSS draws the light) ---------- */
+  function glow(root) {
+    if (!root.querySelector('[data-glow]') || !window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return function () {};
+    var move = function (e) {
+      var el = e.target.closest && e.target.closest('[data-glow]');
+      if (!el) return;
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left).toFixed(0) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top).toFixed(0) + 'px');
+    };
+    root.addEventListener('pointermove', move, { passive: true });
+    return function () { root.removeEventListener('pointermove', move); };
   }
 
   /* ---------- tabs ---------- */
@@ -96,6 +150,7 @@ window.RInner = (function () {
       var more = box.querySelector('[data-f-more]');
       var count = box.querySelector('[data-f-count]');
       var empty = box.querySelector('[data-f-empty]');
+      var groups = $$(box, '[data-f-group]');
       var size = parseInt(box.getAttribute('data-page-size') || '0', 10) || Infinity;
       var limit = size;
       var chosen = {};
@@ -120,7 +175,13 @@ window.RInner = (function () {
           it.hidden = !vis;
           if (vis) it.style.setProperty('--n', String((shown - 1) % (isFinite(size) ? size : 12)));
         });
-        if (count) count.textContent = String(matched);
+        groups.forEach(function (g) {
+          var n = $$(g, '[data-item]').filter(function (it) { return !it.hidden; }).length;
+          var c = g.querySelector('[data-f-group-count]');
+          g.hidden = n === 0;
+          if (c) c.textContent = n.toLocaleString('en-IN');
+        });
+        if (count) count.textContent = matched.toLocaleString('en-IN');   /* 1,000 like the page's own figures */
         if (empty) empty.hidden = matched !== 0;
         if (more) more.hidden = matched <= limit;
         box.dispatchEvent(new CustomEvent('rinner:filter', { detail: matched, bubbles: true }));
@@ -158,11 +219,11 @@ window.RInner = (function () {
 
   function mount(root) {
     root = root || document;
-    var stop = reveal(root);
+    var stopReveal = reveal(root), stopCounts = counts(root), stopGlow = glow(root);
     tabs(root);
     filters(root);
     forms(root);
-    return stop;
+    return function () { stopReveal(); stopCounts(); stopGlow(); };
   }
 
   /* ======================= plain-HTML pages only ======================= */

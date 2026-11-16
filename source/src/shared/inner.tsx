@@ -4,6 +4,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { R, initials, parseISO, toISO, type CalEntry } from './rotary';
+import './rte.css';
 
 export type PageKey = 'about' | 'committee' | 'finder' | 'projects' | 'service' | 'calendar' | 'newsletters' | 'contact';
 export interface PageInfo { key: PageKey; file: string; title: string; lead: string }
@@ -12,7 +13,7 @@ export interface Project { id: number; title: string; club: string; avenue: stri
 
 interface Pages {
   list: PageInfo[]; home: string; back: string; breadcrumb: string;
-  about: { placeholder: boolean; image: { src: string; w: number; h: number; alt: string }; intro: string; paragraphs: string[]; focusTitle: string; focus: { key: string; title: string; text: string }[]; cta: { label: string; href: string } };
+  about: { placeholder: boolean; content: string };
   committee: { searchLabel: string; empty: string; groups: { title: string; members: Member[] }[] };
   finder: { searchLabel: string; dayLabel: string; anyDay: string; days: string[]; empty: string; more: string; pageSize: number; visit: string };
   projects: { searchLabel: string; allLabel: string; empty: string; more: string; pageSize: number; avenues: { key: string; label: string }[]; statLabels: Record<'projects' | 'beneficiaries' | 'amount' | 'hours', string>; list: Project[] };
@@ -48,23 +49,51 @@ export const STATIC = typeof document === 'undefined';
 
 export const toBody = (node: ReactNode) => (typeof document === 'undefined' || !document.body ? node : createPortal(node, document.body));
 
+/* ---------- About: one backend field ----------
+   The backend stores a single "content" field for the About page (HTML from the admin's editor).
+   Cleaned the way the live site does it: no <script>/<style>, and &nbsp; word gaps become real
+   spaces so pasted text can wrap. Paragraphs left empty as spacers (Enter pressed twice in the
+   editor) are dropped, so the theme's own spacing sets the rhythm. */
+export const adminHtml = (html: unknown) => String(html ?? '')
+  .replace(/<\s*(script|style)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, '')
+  .replace(/&nbsp;|&#0*160;|&#x0*a0;|\u00a0/gi, ' ')
+  .replace(/<p[^>]*>(\s|<br\s*\/?>)*<\/p>/gi, '');
+/* <AdminContent className="xx-prose" /> → <div class="rte xx-prose" data-cms="about-content">…the HTML…</div>
+   .rte (rte.css) only keeps pasted content from breaking the page; the theme styles the look. */
+export const AdminContent = ({ className = '' }: { className?: string }) => (
+  <div className={`rte ${className}`.trim()} data-cms="about-content" dangerouslySetInnerHTML={{ __html: adminHtml(P.about.content) }} />
+);
+
 /* ---------- data shaped for the pages ---------- */
 export const num = (n: number) => R.fmt.num(n);
 export const crore = (n: number) => `₹${R.fmt.num(n, 2)} L`;
 export const clubName = (c: string) => (c ? `RC ${c}` : '');
 
-export const committee = () => P.committee.groups.map((g, gi) => ({
-  ...g,
-  key: `g${gi}`,
-  members: g.members.map(m => ({ ...m, initials: initials(m.name), q: `${m.name} ${m.role} ${m.club}`.toLowerCase() }))
-}));
+/* photo: the backend sends a photo per member. The sample data has one (the District Governor,
+   from the dignitaries data); everyone else is null, so the design must show initials instead. */
+export const committee = () => {
+  const dg = R.dignitaries.byYear[R.years.current]?.dg;
+  return P.committee.groups.map((g, gi) => ({
+    ...g,
+    key: `g${gi}`,
+    members: g.members.map(m => ({ ...m, initials: initials(m.name), photo: dg && dg.name === m.name ? dg.photo : null, q: `${m.name} ${m.role} ${m.club}`.toLowerCase() }))
+  }));
+};
 
-export const clubs = () => R.clubs.list.map(c => ({
-  ...c,
-  initials: c.name.replace(/[^A-Za-z ]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
-  href: R.clubs.href + c.id,
-  q: `${c.name} ${c.place ?? ''} ${c.day ?? ''}`.toLowerCase()
-}));
+/* Club data comes from the clubs themselves: "Thurs", "thursday" and "Thursday" are one meeting day. */
+const WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const weekday = (d?: string) => (d ? WEEK.find(w => w.slice(0, 3).toLowerCase() === d.trim().slice(0, 3).toLowerCase()) ?? d : d);
+
+export const clubs = () => R.clubs.list.map(c => {
+  const day = weekday(c.day);
+  return {
+    ...c,
+    day,
+    initials: c.name.replace(/[^A-Za-z ]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
+    href: R.clubs.href + c.id,
+    q: `${c.name} ${c.place ?? ''} ${day ?? ''}`.toLowerCase()
+  };
+});
 
 export const avenueLabel = (k: string) => P.projects.avenues.find(a => a.key === k)?.label ?? k;
 export const projectsOf = (avenue?: string) => P.projects.list.filter(p => !avenue || p.avenue === avenue);

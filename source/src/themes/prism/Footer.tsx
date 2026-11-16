@@ -51,7 +51,9 @@ function Visitors() {
         {seen ? (
           <SplitFlapText text={value} charset="0123456789," padTo={value.length} loop={false} fontSize={36} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#0b3d91" textColor="#FFD27A" tileRadius={10} gap={5} glare={0.4} depth={0.6} className="visits__flap" />
         ) : (
-          <span className={`visits__ghost ${STATIC ? 'is-static' : ''}`}>{value}</span>
+          /* one tile per character: inner pages (inner.css, body[data-page]) show them as the board at rest,
+             which is all the plain-HTML page ever has; on the homepage they stay invisible text as before */
+          <span className="visits__ghost">{[...value].map((ch, i) => <span key={i} className="visits__tile">{ch}</span>)}</span>
         )}
       </div>
       <p className="visits__text" aria-hidden="true"><i className="visits__dot" />{f.visitorsText}</p>
@@ -86,7 +88,8 @@ export default function Footer() {
 
   return (
     <footer className="foot">
-      <div className="foot__bg" aria-hidden="true">
+      {/* the plain-HTML page has no Waves canvas: a still contour texture stands in (inner.css) */}
+      <div className={STATIC ? 'foot__bg foot__bg--still' : 'foot__bg'} aria-hidden="true">
         {!calm && (
           <Waves
             key={theme}
@@ -109,7 +112,15 @@ export default function Footer() {
         <div className="fgrid">
           <SpotlightCard className="fcard fcard--brand" spotlightColor={spot} grain={0} theme={theme} style={{ ['--accent' as string]: '#F7A81B' }}>
             <a href="#top" className="foot__logo" onClick={toTop}>
-              <img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="196" height="74" loading="lazy" />
+              {STATIC ? (
+                /* no script swaps this logo on the plain-HTML page: both files, CSS shows the one for the mode */
+                <>
+                  <img className="foot__logo-light" src={R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="196" height="74" />
+                  <img className="foot__logo-dark" src={R.brand.logoReversed} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="196" height="74" />
+                </>
+              ) : (
+                <img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="196" height="74" loading="lazy" />
+              )}
             </a>
             <Visitors />
           </SpotlightCard>

@@ -46,10 +46,13 @@ function Visitors() {
   return (
     <div ref={box} className="visits" role="group" aria-label={`${R.fmt.num(f.visitors)} ${f.visitorsText}`}>
       <div className="visits__board" aria-hidden="true">
-        {seen ? (
+        {STATIC ? (
+          /* static pages have no flip script: the board at rest, one tile per digit */
+          <span className="visits__tiles">{value.split('').map((c, i) => <i key={i}>{c}</i>)}</span>
+        ) : seen ? (
           <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={38} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#17103f" textColor="#FFD27A" tileRadius={10} gap={5} glare={0.4} depth={0.6} className="visits__flap" />
         ) : (
-          <span className={`visits__ghost ${STATIC ? 'visits__ghost--static' : ''}`}>{STATIC ? R.fmt.num(f.visitors) : value}</span>
+          <span className="visits__ghost">{value}</span>
         )}
       </div>
       <p className="visits__text" aria-hidden="true">{f.visitorsText}</p>
@@ -91,7 +94,7 @@ export default function Footer() {
   );
 
   return (
-    <footer className="foot">
+    <footer className={STATIC ? 'foot foot--static' : 'foot'}>
       <div className="foot__bg" aria-hidden="true">
         {RINGS.map((r, i) => (
           <span key={i} className="foot__ring" style={{ ['--s' as string]: `${r.s}vmax`, ['--a' as string]: `${r.a}deg`, animationDuration: `${r.t}s`, animationDirection: i % 2 ? 'reverse' : 'normal' }}>

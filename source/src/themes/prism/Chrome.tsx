@@ -70,7 +70,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <ol className="mmenu__list">
           {R.nav.map((n, i) => (
             <li key={n.key} style={{ ['--i' as string]: i }}>
-              <a href={n.href} {...(n.external ? { target: '_blank', rel: 'noopener' } : {})} onClick={onClose}>
+              <a href={n.href} {...(n.external ? { target: '_blank', rel: 'noopener' } : {})} aria-current={n.current ? 'page' : undefined} onClick={onClose}>
                 <span className="mmenu__n" aria-hidden="true">{pad2(i + 1)}</span>
                 {n.label}{n.external && <span aria-hidden="true"> ↗</span>}
               </a>

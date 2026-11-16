@@ -443,7 +443,8 @@ window.ROTARY = (function () {
 
     /* ---------- inner pages ----------
        page.key is what <body data-page> carries. About copy is a PLACEHOLDER until the
-       district sends its own text. Committee and project entries are DUMMY: every
+       district sends its own text (one HTML "content" field, as in the backend).
+       Committee and project entries are DUMMY: every
        person's name is invented; club names are real clubs of the district. */
     pages: {
       list: [
@@ -457,25 +458,41 @@ window.ROTARY = (function () {
         { key: 'contact',     file: PAGE.contact,     title: 'Contact Us',         lead: 'Write to the District Governor’s office, or find a club to join.' }
       ],
       home: 'Home',
+      /* About: the backend stores ONE field for this page, "content" (HTML from the admin's
+         editor), so the page shows its title and that content, nothing else. The HTML below is
+         a PLACEHOLDER until the district sends its own text. It uses the tags an editor
+         produces (paragraphs, headings, lists, an image, a quote, a link) so each theme shows
+         how it styles them. */
       about: {
         placeholder: true,
-        image: photos.vision,
-        intro: 'Rotary District 3141 brings together 125 Rotary clubs and more than 7,000 members across Mumbai, Thane and Palghar. Our clubs are neighbours, professionals and community leaders who meet every week to plan service that lasts.',
-        paragraphs: [
-          'Each club chooses its own projects, from health camps and school sanitation to tree plantation and disaster relief. The district connects those clubs, so that good ideas travel, large projects find partners and every Rotarian has a place to learn and lead.',
-          'Rotary International is a global network of 1.4 million members in more than 46,000 clubs. Together we work on the causes that matter most to our communities, guided by The Four-Way Test in everything we think, say and do.'
-        ],
-        focusTitle: 'Our areas of focus',
-        focus: [
-          { key: 'peace', title: 'Promoting peace', text: 'Training peacebuilders and supporting dialogue in communities affected by conflict.' },
-          { key: 'disease', title: 'Fighting disease', text: 'Health camps, screenings and treatment that reach people who would otherwise go without.' },
-          { key: 'water', title: 'Clean water and sanitation', text: 'Water filters, toilets and hygiene education in schools and villages.' },
-          { key: 'mothers', title: 'Saving mothers and children', text: 'Neonatal care, nutrition and support for mothers before and after birth.' },
-          { key: 'education', title: 'Supporting education', text: 'Classrooms, learning material, scholarships and teacher training.' },
-          { key: 'economy', title: 'Growing local economies', text: 'Skills, livelihoods and small business support for families.' },
-          { key: 'environment', title: 'Protecting the environment', text: 'Plantation drives, beach clean-ups and waste reduction.' }
-        ],
-        cta: { label: 'Find a club near you', href: PAGE.finder }
+        content:
+          '<p>Rotary District 3141 brings together 125 Rotary clubs and more than 7,000 members across Mumbai, Thane and Palghar. Our clubs are neighbours, professionals and community leaders who meet every week to plan service that lasts.</p>' +
+          '<p>Each club chooses its own projects, from health camps and school sanitation to tree plantation and disaster relief. The district connects those clubs, so that good ideas travel, large projects find partners and every Rotarian has a place to learn and lead.</p>' +
+          '<h2>Part of a global network</h2>' +
+          '<p>Rotary International is a global network of 1.4 million members in more than 46,000 clubs. Together we work on the causes that matter most to our communities, guided by The Four-Way Test in everything we think, say and do.</p>' +
+          '<p><img src="' + IMG + 'photo-vision.jpg" width="1920" height="1280" alt="Rotarians at the opening of a vision centre and clinic"></p>' +
+          '<h2>Our areas of focus</h2>' +
+          '<p>Rotary clubs everywhere direct their service to seven causes:</p>' +
+          '<ul>' +
+            '<li><strong>Promoting peace.</strong> Training peacebuilders and supporting dialogue in communities affected by conflict.</li>' +
+            '<li><strong>Fighting disease.</strong> Health camps, screenings and treatment that reach people who would otherwise go without.</li>' +
+            '<li><strong>Clean water and sanitation.</strong> Water filters, toilets and hygiene education in schools and villages.</li>' +
+            '<li><strong>Saving mothers and children.</strong> Neonatal care, nutrition and support for mothers before and after birth.</li>' +
+            '<li><strong>Supporting education.</strong> Classrooms, learning material, scholarships and teacher training.</li>' +
+            '<li><strong>Growing local economies.</strong> Skills, livelihoods and small business support for families.</li>' +
+            '<li><strong>Protecting the environment.</strong> Plantation drives, beach clean-ups and waste reduction.</li>' +
+          '</ul>' +
+          '<h2>The Four-Way Test</h2>' +
+          '<p>Of the things we think, say or do:</p>' +
+          '<ol>' +
+            '<li>Is it the <strong>truth</strong>?</li>' +
+            '<li>Is it <strong>fair</strong> to all concerned?</li>' +
+            '<li>Will it build <strong>goodwill</strong> and <strong>better friendships</strong>?</li>' +
+            '<li>Will it be <strong>beneficial</strong> to all concerned?</li>' +
+          '</ol>' +
+          '<blockquote><p>Service Above Self</p></blockquote>' +
+          '<h2>Join us</h2>' +
+          '<p>Rotary welcomes people who want to give their time and skills to their community. <a href="' + PAGE.finder + '">Find a club near you</a> and visit a meeting.</p>'
       },
       committee: {
         searchLabel: 'Search by name, role or club',

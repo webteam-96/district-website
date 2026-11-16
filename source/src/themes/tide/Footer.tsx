@@ -10,7 +10,7 @@ const ext = (href: string) => (/^https?:/.test(href) && !href.startsWith(R.site.
 /* stopPropagation: Lenis's own anchor handler would otherwise re-aim at the hero, 84px short of the top */
 const toTop = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if (lenis) lenis.scrollTo(0); else window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }); };
 
-function BackToTop() {
+function BackToTop({ inner = false }: { inner?: boolean }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
     const on = () => setShow(window.scrollY > 600);
@@ -19,7 +19,7 @@ function BackToTop() {
     return () => window.removeEventListener('scroll', on);
   }, []);
   return toBody(
-    <a href="#top" className={`totop ${show ? 'is-on' : ''}`} aria-label="Back to top" title="Back to top" onClick={toTop}>
+    <a href="#top" className={`totop ${show ? 'is-on' : ''}${inner ? ' totop--in' : ''}`} aria-label="Back to top" title="Back to top" onClick={toTop}>
       <svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
     </a>
   );
@@ -58,10 +58,25 @@ function Visitors() {
   );
 }
 
+/* Inner pages: the board at rest, the same in React and in plain HTML (no flip script there). */
+function Tiles() {
+  const f = R.footer;
+  return (
+    <div className="visits" role="group" aria-label={`${R.fmt.num(f.visitors)} ${f.visitorsText}`}>
+      <div className="visits__board" aria-hidden="true">
+        <span className="tp-flap">{String(f.visitors).split('').map((c, i) => <i key={i}>{c}</i>)}</span>
+      </div>
+      <p className="visits__text" aria-hidden="true">{f.visitorsText}</p>
+    </div>
+  );
+}
+
 const TILE = 'M0 40C125 80 375 0 500 40S875 80 1000 40V120H0Z';
 
 /* 8 · Footer: a wide logo card over two link cards, with layers of sea rolling along the bottom. */
-export default function Footer() {
+/* inner: inner pages print both logos (CSS picks one, so plain HTML follows the colour mode too)
+   and the visitor board at rest */
+export default function Footer({ inner = false }: { inner?: boolean }) {
   const f = R.footer;
   const theme = useTheme();
   const spot = 'rgba(0, 173, 187, 0.16)';
@@ -84,7 +99,7 @@ export default function Footer() {
     </SpotlightCard>
   );
   return (
-    <footer className="foot">
+    <footer className={`foot${inner ? ' foot--in' : ''}`}>
       <div className="sea" aria-hidden="true">
         {[0, 1, 2].map(i => (
           <svg key={i} className={`sea__layer sea__layer--${i}`} viewBox="0 0 2000 120" preserveAspectRatio="none">
@@ -96,9 +111,16 @@ export default function Footer() {
         <div className="fgrid">
           <SpotlightCard className="fcard fcard--brand" spotlightColor={spot} grain={0} theme={theme}>
             <a href="#top" className="foot__logo" onClick={toTop}>
-              <img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="392" height="148" loading="lazy" />
+              {inner ? (
+                <>
+                  <img className="tp-logo tp-logo--light" src={R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="392" height="148" loading="lazy" />
+                  <img className="tp-logo tp-logo--dark" src={R.brand.logoReversed} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="392" height="148" loading="lazy" />
+                </>
+              ) : (
+                <img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={`${R.brand.logoAlt} — ${R.site.name}`} width="392" height="148" loading="lazy" />
+              )}
             </a>
-            <Visitors />
+            {inner ? <Tiles /> : <Visitors />}
             <div className="fsocial">
               {f.social.items.map(s => (
                 <a key={s.label} href={s.href} {...ext(s.href)} aria-label={s.label} title={s.label}>
@@ -115,7 +137,7 @@ export default function Footer() {
           {f.poweredBy && <p>{f.poweredBy.lead} <b>{f.poweredBy.name}</b></p>}
         </div>
       </div>
-      <BackToTop />
+      <BackToTop inner={inner} />
     </footer>
   );
 }

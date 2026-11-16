@@ -28,8 +28,8 @@ function Visitors() {
         {seen ? (
           <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={side ? Math.round(Math.min(72, window.innerWidth * 0.042)) : 54} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#FFC66B" textColor="#0B1437" tileRadius={8} gap={4} glare={0.1} depth={0.25} className="visits__flap" />
         ) : (
-          /* static HTML has no flip board script: show the plain number */
-          <span className={`visits__ghost ${STATIC ? 'visits__ghost--static' : ''}`}>{value}</span>
+          /* static HTML has no flip board script: the same tiles, at rest */
+          <span className={`visits__ghost ${STATIC ? 'visits__ghost--static' : ''}`}>{STATIC ? [...value].map((ch, i) => <i key={i}>{ch}</i>) : value}</span>
         )}
       </div>
       <p className="visits__text" aria-hidden="true">{f.visitorsText}</p>

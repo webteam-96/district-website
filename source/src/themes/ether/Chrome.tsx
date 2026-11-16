@@ -185,16 +185,17 @@ function StaticHeader() {
             ))}
           </ul>
         </nav>
+        {/* PillNav's collapsed button: round glass, two bars */}
         <button type="button" className="snav__menu" aria-expanded="false" aria-controls="m-menu">
-          <span>Menu</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+          <span className="sr-only">Menu</span>
+          <span className="snav__bars" aria-hidden="true"><i /><i /></span>
         </button>
       </div>
+      {/* PillNav's menu sheet (shared/inner.js opens it and moves it to <body>) */}
       <div id="m-menu" className="mmenu" role="dialog" aria-modal="true" aria-label="Menu" {...{ inert: '' }}>
         <div className="mmenu__panel">
           <div className="mmenu__top">
-            <img src={R.brand.logoReversed} alt="" width="392" height="148" />
-            <button type="button" className="mmenu__close">Close <span aria-hidden="true">✕</span></button>
+            <button type="button" className="mmenu__close"><span className="sr-only">Close</span><span className="mmenu__x" aria-hidden="true"><i /><i /></span></button>
           </div>
           <ul className="mmenu__list">
             {R.nav.map(n => (

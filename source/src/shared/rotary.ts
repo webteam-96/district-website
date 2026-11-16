@@ -7,7 +7,7 @@ export interface StatDef { key: StatKey; group: 'projects' | 'membership'; label
 export type StatKey = 'projects' | 'hours' | 'amount' | 'beneficiaries' | 'clubs' | 'members';
 export type YearStats = Record<StatKey, number> & { status?: 'in-progress' | 'upcoming'; note?: string };
 export interface Person { name: string; role: string; term: string; bio: string; photo: Photo | null; dummy?: boolean }
-export interface CalEntry { date: string; type: 'club' | 'district' | 'birthday' | 'anniversary'; title?: string; name?: string; club?: string; relation?: string; time?: string; venue?: string }
+export interface CalEntry { date: string; type: 'club' | 'district' | 'birthday' | 'anniversary'; title?: string; name?: string; club?: string; relation?: string; time?: string; venue?: string; id?: string }
 export interface Bulletin { title: string; club: string; date: string; pdf: string; cover: Photo; source?: string }
 export interface Letter { title: string; month: string; governor: string; date: string; pdf: string }
 export interface PressYear { gml: Letter[]; bulletins: Bulletin[]; total: number; status: 'complete' | 'in-progress' | 'upcoming' }
@@ -45,9 +45,10 @@ export interface Rotary {
     rotaryLinks: { title: string; items: Link[] }; quickLinks: { title: string; items: Link[] }; social: { title: string; items: Link[] };
     tagline: { lead: string; emphasis: string };
     copyright?: string;
-    poweredBy?: { lead: string; name: string };
+    poweredBy?: { lead: string; name: string; href?: string };
   };
-  clubs: { href: string; list: { id: number; name: string; day?: string; place?: string }[] };
+  /* president / phone / tel: this Rotary year's club president and their phone (display text, tel: digits) */
+  clubs: { href: string; list: { id: number; name: string; day?: string; place?: string; president?: string; phone?: string; tel?: string }[] };
   fmt: { num: (n: number, d?: number) => string; stat: (def: StatDef, v: number) => string; fill: (t: string, v: Record<string, string | number>) => string };
 }
 

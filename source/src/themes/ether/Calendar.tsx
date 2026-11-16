@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import MonthPicker from '../../shared/MonthPicker';
 import { R, longDate, monthLabel, parseISO, toISO, type CalEntry } from '../../shared/rotary';
+import { pageInfo } from '../../shared/inner';
+import { eventHref } from '../../shared/detail';
 import GooeyNav from '../../rb/GooeyNav/GooeyNav';
 import AnimatedList from '../../rb/AnimatedList/AnimatedList';
 import SpotlightCard from '../../rb/SpotlightCard/SpotlightCard';
@@ -92,8 +94,7 @@ export default function Calendar() {
       <div className="wrap">
         <header className="section-head cal__head">
           <div>
-            <p className="eyebrow">{C.eyebrow}</p>
-            <h2 id="cal-title" className="section-title">{C.title}</h2>
+            <h2 id="cal-title" className="section-title">{pageInfo('calendar').title}</h2>
             <p className="section-sub">{C.subtext}</p>
           </div>
           <div className="cal__month">
@@ -196,7 +197,7 @@ export default function Calendar() {
                           const e = list[i];
                           return (
                             <div className={`entry entry--${e.type}`}>
-                              <p className="entry__title">{e.title ?? e.name}</p>
+                              <p className="entry__title">{e.type === 'club' || e.type === 'district' ? <a className="entry__link" href={eventHref(e)}>{e.title ?? e.name}</a> : e.title ?? e.name}</p>
                               <p className="entry__meta">
                                 {e.club && <span>{e.club}</span>}
                                 {e.relation && <span>{e.relation}</span>}

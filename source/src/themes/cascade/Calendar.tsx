@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
+import { eventHref } from '../../shared/detail';
 
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
@@ -118,9 +119,9 @@ export default function Calendar() {
                   <h3 className="pin__title"><i className={`dot dot--${g.t.key}`} aria-hidden="true" />{g.t.group}<b>{num(g.list.length)}</b></h3>
                   <ul className={g.t.key === 'club' || g.t.key === 'district' ? 'evts' : 'notes'}>
                     {g.list.map((e, k) => g.t.key === 'club' || g.t.key === 'district' ? (
-                      <li key={k} className={`evt evt--${e.type}`}>
+                      <li key={k} className={`evt evt--${e.type} ci-ev`}>
                         <span className="evt__time">{e.time ?? '—'}</span>
-                        <span className="evt__main"><b>{e.title}</b>{e.club && <span>{e.club}</span>}{e.venue && <span>{e.venue}</span>}</span>
+                        <span className="evt__main"><b><a className="ci-evlink" href={eventHref(e)}>{e.title}</a></b>{e.club && <span>{e.club}</span>}{e.venue && <span>{e.venue}</span>}</span>
                       </li>
                     ) : <Pill key={k} e={e} />)}
                   </ul>

@@ -134,7 +134,7 @@ export default function Footer({ inner = false }: { inner?: boolean }) {
         </div>
         <div className="foot__bar">
           {f.copyright && <p>{f.copyright}</p>}
-          {f.poweredBy && <p>{f.poweredBy.lead} <b>{f.poweredBy.name}</b></p>}
+          {f.poweredBy && <p>{f.poweredBy.lead} {f.poweredBy.href ? <a className="foot__by" href={f.poweredBy.href} target="_blank" rel="noopener"><b>{f.poweredBy.name}</b></a> : <b>{f.poweredBy.name}</b>}</p>}
         </div>
       </div>
       <BackToTop inner={inner} />

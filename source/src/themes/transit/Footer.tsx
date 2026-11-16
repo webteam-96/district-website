@@ -23,7 +23,7 @@ function Visitors() {
     return () => io.disconnect();
   }, []);
   return (
-    <div ref={box} className="visits" role="group" aria-label={`${R.fmt.num(f.visitors)} ${f.visitorsText}`}>
+    <div ref={box} className="visits" role="group" aria-label={`${value} ${f.visitorsText}`}>
       <div className="visits__board" aria-hidden="true">
         {seen ? (
           <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={side ? Math.round(Math.min(72, window.innerWidth * 0.042)) : 54} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#FFC66B" textColor="#0B1437" tileRadius={8} gap={4} glare={0.1} depth={0.25} className="visits__flap" />
@@ -72,7 +72,7 @@ export default function Footer() {
       </div>
       <div className="foot__bar">
         {f.copyright && <p>{f.copyright}</p>}
-        {f.poweredBy && <p>{f.poweredBy.lead} <b>{f.poweredBy.name}</b></p>}
+        {f.poweredBy && <p>{f.poweredBy.lead} {f.poweredBy.href ? <a href={f.poweredBy.href} target="_blank" rel="noopener"><b>{f.poweredBy.name}</b></a> : <b>{f.poweredBy.name}</b>}</p>}
       </div>
     </footer>
   );

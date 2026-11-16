@@ -1,6 +1,7 @@
 import { useState, type KeyboardEvent } from 'react';
 import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
+import { eventHref } from '../../shared/detail';
 
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
@@ -141,7 +142,7 @@ export default function Calendar() {
                     <ul className={EVENT.has(g.t.key) ? 'devents' : 'dpeople'}>
                       {g.list.map((e, k) => EVENT.has(g.t.key) ? (
                         <li key={k} className={`devent devent--${e.type}`}>
-                          <b>{e.title}</b>
+                          <b><a className="oi-stretch" href={eventHref(e)}>{e.title}</a></b>
                           <span>{[e.time, e.club, e.venue].filter(Boolean).join(' · ')}</span>
                         </li>
                       ) : (

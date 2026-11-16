@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
+import { eventHref } from '../../shared/detail';
 import { Title } from './Sections';
 
 type Tab = 'all' | CalEntry['type'];
@@ -181,7 +182,7 @@ export default function Calendar() {
                         <li key={k} className={`dv-event dv-event--${e.type}`}>
                           <span className="dv-event__time">{e.time ?? '—'}</span>
                           <span className="dv-event__text">
-                            <b>{e.title}</b>
+                            <b><a href={eventHref(e)}>{e.title}</a></b>
                             <span>{[e.club, e.venue].filter(Boolean).join(' · ')}</span>
                           </span>
                         </li>

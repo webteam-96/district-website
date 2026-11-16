@@ -47,7 +47,10 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-head__slot { min-width: 0; }
 .tx-head__below { margin-top: 18px; }
 /* breadcrumb: a two-stop route line */
-.tx-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font: 600 14.5px/1.2 var(--f-body); color: var(--ink-2); }
+/* one row: a long item name wraps inside its own stop instead of dropping to a line of its own */
+.tx-crumbs { display: flex; align-items: center; gap: 4px 10px; font: 600 14.5px/1.2 var(--f-body); color: var(--ink-2); }
+.tx-crumbs a { flex: none; }
+.tx-crumbs [aria-current] { min-width: 0; }
 .tx-crumbs a, .tx-crumbs [aria-current] { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; }
 .tx-crumbs a { transition: color 0.2s; }
 .tx-crumbs a::before, .tx-crumbs [aria-current]::before { content: ''; flex: none; width: 12px; height: 12px; border-radius: 50%; box-sizing: border-box; }
@@ -69,7 +72,7 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-h2 { font: 800 clamp(1.5rem, 2.2vw, 1.9rem)/1.1 var(--f-display); letter-spacing: -0.02em; color: var(--title); }
 .tx-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* search pill + live count */
+/* search pill (its live count is for screen readers only) */
 .tx-search { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 18px; border-radius: 999px; background: var(--surface); color: var(--ink-3); box-shadow: 0 4px 14px rgba(23, 69, 143, 0.08); cursor: text; transition: box-shadow 0.25s var(--ease), color 0.2s; }
 .tx-search:hover { box-shadow: 0 6px 18px rgba(23, 69, 143, 0.14); }
 .tx-search:focus-within { box-shadow: 0 0 0 3px var(--sky); color: var(--c); }
@@ -78,8 +81,6 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-search input { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; background: none; color: var(--ink); font: 16px var(--f-body); }
 .tx-search input::placeholder { color: var(--ink-3); opacity: 1; }
 .tx-search input:focus-visible { outline: none; }
-.tx-count { flex: none; font-size: 14.5px; line-height: 1.2; color: var(--ink-2); white-space: nowrap; }
-.tx-count b { margin-right: 2px; font: 800 1.5rem/1 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; }
 
 /* chips */
 .tx-chips { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
@@ -194,10 +195,9 @@ body[data-page] .head { position: sticky; top: 0; }
   .tx-about::after { left: 9%; top: 420px; width: 44px; height: 44px; background: var(--bright); animation-duration: 6s; }
 }
 
-/* ================= District Committee: line-map rail + ranked roster ================= */
-.tx-find { display: grid; gap: 10px; width: 420px; }
-.tx-find__meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-inline: 10px; font-size: 14.5px; color: var(--ink-2); }
-.tx-com { display: grid; grid-template-columns: 264px minmax(0, 1fr); gap: 32px; align-items: start; }
+/* ================= District Committee: line-map rail, the Governor's board, committees of portrait cards ================= */
+.tx-find { width: 420px; }
+.tx-com { display: grid; grid-template-columns: 248px minmax(0, 1fr); gap: 28px; align-items: start; }
 .tx-com--one { grid-template-columns: minmax(0, 1fr); }
 .tx-rail { position: sticky; top: calc(var(--head-h) + 20px); display: grid; gap: 2px; max-height: calc(100vh - var(--head-h) - 40px); overflow-y: auto; scrollbar-width: thin; }
 .tx-stop { --gc: var(--c); position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; min-height: 44px; padding: 7px 12px 7px 0; border: 0; border-radius: 14px; background: none; color: var(--ink-2); font: 600 15px/1.25 var(--f-body); text-align: left; cursor: pointer; transition: background 0.2s, color 0.2s, box-shadow 0.2s; }
@@ -212,8 +212,59 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-stop[aria-pressed='true'] { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 4px 14px rgba(23, 69, 143, 0.08); }
 .tx-stop[aria-pressed='true'] i { border-color: var(--gc); background: var(--gc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gc) 25%, transparent); transform: scale(1.15); }
 .tx-roster { display: grid; gap: 16px; min-width: 0; }
-.tx-lead { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.tx-lead { display: grid; grid-template-columns: minmax(280px, 320px) minmax(0, 1fr); gap: 16px; align-items: start; }
 .tx-lead:not(:has(> .tx-feature:not([hidden]))) { grid-template-columns: minmax(0, 1fr); }
+/* members as portrait cards: the photo leads, two rows per committee until "Show all" opens it */
+.tx-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; padding: 14px 14px 6px; }
+.tx-card { position: relative; display: flex; flex-direction: column; gap: 3px; min-width: 0; border-radius: 18px; transition: transform 0.4s var(--back); }
+.tx-card__photo { display: grid; place-items: center; aspect-ratio: 1; margin: 0 0 9px 5px; overflow: hidden; border-radius: 16px; background: var(--bg-2); box-shadow: -5px 5px 0 0 var(--gc); }
+.tx-card__photo img { width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 18%; transition: transform 0.7s var(--ease); }
+.tx-card__photo.is-ini { background: color-mix(in srgb, var(--gc) 14%, var(--surface)); color: var(--gc); }
+.tx-card__photo b { font: 800 2.3rem/1 var(--f-display); letter-spacing: -0.02em; }
+.tx-card h3 { padding-left: 5px; font: 800 15.5px/1.25 var(--f-display); color: var(--ink); overflow-wrap: anywhere; transition: color 0.2s; }
+.tx-card h3 a::after { content: ''; position: absolute; inset: -6px; border-radius: 20px; }
+.tx-card__role, .tx-card__club { padding-left: 5px; line-height: 1.35; overflow-wrap: anywhere; }
+.tx-card__role { font-size: 14px; color: var(--ink-2); }
+.tx-card__club { font-size: 13.5px; color: var(--ink-3); }
+.tx-card:hover { transform: translateY(-3px); }
+.tx-card:hover .tx-card__photo img { transform: scale(1.05); }
+.tx-card:hover h3 { color: var(--gc); }
+.tx-card:has(a:focus-visible) { outline: 3px solid var(--sky); outline-offset: 6px; }
+.tx-card a:focus-visible { outline: none; }
+:root[data-theme='dark'] .tx-card__photo.is-ini { background: color-mix(in srgb, var(--gc) 30%, var(--surface)); color: #fff; }
+:root[data-theme='dark'] .tx-card:hover h3 { color: inherit; }
+/* the cap: phones 2 x 2, then 3, 4 or 6 a row by the committee's width; no cap while searching */
+[data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+5 of [data-item]:not([hidden])) { display: none; }
+.tx-group:not(:has(> .tx-cards > :nth-child(5 of [data-item]:not([hidden])))) > .tx-all { display: none; }
+[data-filter]:has([data-f-search]:not(:placeholder-shown)) .tx-all { display: none; }
+@container (min-width: 440px) {
+  .tx-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+5 of [data-item]:not([hidden])) { display: flex; }
+  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+7 of [data-item]:not([hidden])) { display: none; }
+  .tx-group:not(:has(> .tx-cards > :nth-child(7 of [data-item]:not([hidden])))) > .tx-all { display: none; }
+}
+@container (min-width: 660px) {
+  .tx-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+7 of [data-item]:not([hidden])) { display: flex; }
+  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+9 of [data-item]:not([hidden])) { display: none; }
+  .tx-group:not(:has(> .tx-cards > :nth-child(9 of [data-item]:not([hidden])))) > .tx-all { display: none; }
+}
+@container (min-width: 940px) {
+  .tx-cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+9 of [data-item]:not([hidden])) { display: flex; }
+  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+13 of [data-item]:not([hidden])) { display: none; }
+  .tx-group:not(:has(> .tx-cards > :nth-child(13 of [data-item]:not([hidden])))) > .tx-all { display: none; }
+}
+/* "Show all N": a pill at the platform's foot; open, it reads "Show fewer" */
+.tx-all { padding: 4px 14px 16px; text-align: center; }
+.tx-all summary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; background: color-mix(in srgb, var(--gc) 12%, var(--surface)); color: var(--ink); font: 700 15px/1 var(--f-body); cursor: pointer; list-style: none; transition: background 0.25s, color 0.25s, transform 0.3s var(--back); }
+.tx-all summary::-webkit-details-marker { display: none; }
+.tx-all summary::after { content: ''; width: 7px; height: 7px; margin-top: -4px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform 0.25s var(--ease), margin 0.25s; }
+.tx-all[open] summary::after { margin-top: 3px; transform: rotate(-135deg); }
+.tx-all summary:hover { background: var(--gc); color: #fff; transform: translateY(-2px); }
+.tx-all summary:active { transform: scale(0.97); }
+.tx-all:not([open]) summary > span + span, .tx-all[open] summary > span:first-child { display: none; }
+:root[data-theme='dark'] .tx-all summary { background: color-mix(in srgb, var(--gc) 28%, var(--surface)); }
 /* the District Governor: the homepage's Dignitaries board */
 .tx-feature { padding: 14px; transition: transform 0.45s var(--back); }
 .tx-feature:hover { transform: translateY(-4px); }
@@ -226,6 +277,7 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-feature__info { display: grid; gap: 6px; padding: 18px 6px 6px; }
 .tx-feature__role { font: 700 1.15rem/1.2 var(--f-body); color: var(--cranberry); }
 .tx-feature__name { font: 800 clamp(1.7rem, 2.4vw, 2.2rem)/1.04 var(--f-display); letter-spacing: -0.025em; color: var(--ink); text-wrap: balance; }
+.tx-feature__name a { display: inline-flex; align-items: center; min-height: 34px; }
 .tx-feature__club { font-size: 15px; color: var(--ink-2); }
 :root[data-theme='dark'] .tx-feature__role { color: #ffc66b; }
 /* committee rows */
@@ -243,20 +295,12 @@ body[data-page] .head { position: sticky; top: 0; }
   .tx-row__club { white-space: normal; }
 }
 @container (min-width: 860px) { .tx-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; } }
-/* beside the Governor's card the officers stay in one column, so the two blocks end together */
-.tx-lead:has(> .tx-feature:not([hidden])) .tx-rows { grid-template-columns: minmax(0, 1fr); }
-.tx-plats { columns: 2; column-gap: 16px; }
-.tx-plats > .tx-plat { margin-bottom: 16px; break-inside: avoid; }
-[data-filter][data-f-group] .tx-plats { columns: 1; }
 :root[data-theme='dark'] .tx-row:hover { background: color-mix(in srgb, var(--gc) 24%, var(--surface)); }
 
 /* ================= Club Finder: search console + departure board ================= */
 .tx-console { display: grid; gap: 10px; width: 560px; padding: 12px; border-radius: 24px; }
-.tx-console__top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
 .tx-console .tx-search { background: var(--bg); box-shadow: none; }
 .tx-console .tx-search:focus-within { box-shadow: 0 0 0 3px var(--sky); }
-.tx-count--stack { display: grid; justify-items: end; padding-right: 6px; }
-.tx-count--stack b { margin: 0; font-size: 1.6rem; }
 .tx-week { display: grid; grid-template-columns: 1.3fr repeat(7, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 16px; background: var(--bg); }
 .tx-wday { --dc: var(--ink); display: grid; place-content: center; justify-items: center; gap: 3px; min-height: 48px; padding: 4px 2px; border: 0; border-radius: 12px; background: none; color: var(--ink); cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.3s var(--back); }
 .tx-wday b { font: 800 14.5px/1.1 var(--f-display); white-space: nowrap; }
@@ -292,6 +336,12 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-dep h3 a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
 .tx-dep__place { display: flex; align-items: flex-start; gap: 6px; margin-top: 4px; font-size: 14.5px; line-height: 1.4; color: var(--ink-2); }
 .tx-dep__place svg { flex: none; margin-top: 2px; color: var(--dc); }
+/* this year's president and their phone (the phone sits above the row's link so it can be tapped) */
+.tx-dep__pres { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 18px; margin-top: 4px; font-size: 14.5px; line-height: 1.35; color: var(--ink-2); }
+.tx-dep__pres > * { display: inline-flex; align-items: center; gap: 7px; min-width: 0; }
+.tx-dep__pres svg { flex: none; width: 16px; height: 16px; color: var(--dc); }
+.tx-dep__pres a { position: relative; z-index: 1; min-height: 32px; color: var(--club); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; text-decoration: underline 2px; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color 0.2s; }
+.tx-dep__pres a:hover { text-decoration-color: currentColor; }
 .tx-dep__go { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: color-mix(in srgb, var(--dc) 12%, var(--surface)); color: var(--ink); transition: background 0.3s, color 0.3s, transform 0.35s var(--back); }
 .tx-dep:hover .tx-dep__go { background: var(--dc); color: #fff; transform: translateX(3px); }
 :root[data-theme='dark'] .tx-dep__go { background: color-mix(in srgb, var(--dc) 30%, var(--surface)); }
@@ -317,25 +367,40 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-proj__frame { position: absolute; inset: 0; overflow: hidden; border-radius: 18px; background: var(--bg-2); }
 .tx-proj__frame img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; transition: transform 0.7s var(--ease); }
 .tx-proj:hover .tx-proj__frame img { transform: scale(1.04); }
-.tx-proj__tag, .tx-proj__when { position: absolute; top: 10px; padding: 6px 12px; border-radius: 999px; font: 700 13.5px/1.2 var(--f-body); }
+.tx-proj__tag, .tx-proj__when { position: absolute; z-index: 2; top: 10px; padding: 6px 12px; border-radius: 999px; font: 700 13.5px/1.2 var(--f-body); pointer-events: none; }
+/* the photo opens the lightbox: its link sits above the card's "Read more" overlay */
+.tx-proj__frame > a { position: absolute; inset: 0; z-index: 1; display: block; border-radius: inherit; }
+.tx-proj__frame > a:focus-visible { outline: 3px solid var(--sky); outline-offset: -3px; }
 .tx-proj__tag { left: 10px; max-width: calc(100% - 140px); background: var(--c); color: #fff; }
 .tx-proj__when { right: 10px; background: var(--surface); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tx-proj__body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 14px 10px 8px; }
 .tx-proj__club { font-size: 14px; font-weight: 600; color: var(--ink-3); }
 .tx-proj h3 { font: 800 1.3rem/1.15 var(--f-display); color: var(--ink); text-wrap: balance; }
 .tx-proj__sum { font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
-.tx-proj__nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: auto 0 0; padding-top: 6px; }
-.tx-proj__nums div { display: flex; flex-direction: column-reverse; justify-content: flex-end; padding: 8px 10px; border-radius: 14px; background: color-mix(in srgb, var(--c) 12%, var(--surface)); }
-.tx-proj__nums dt { font-size: 13.5px; line-height: 1.25; color: var(--ink-3); }
-.tx-proj__nums dd { margin: 0; font: 800 1.1rem/1.2 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-:root[data-theme='dark'] .tx-proj__nums div { background: color-mix(in srgb, var(--c) 24%, var(--surface)); }
+/* the card's number: a route tile beside the title, from a counter over the cards shown (#1 = the newest) */
+.tx-bricks, .tx-line { counter-reset: tx-proj; }
+.tx-proj { counter-increment: tx-proj; }
+.tx-proj__top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
+.tx-proj__no { display: grid; place-items: center; min-width: 48px; height: 48px; padding: 0 8px; border-radius: 14px; background: var(--c); color: #fff; font: 800 17px/1 var(--f-display); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; box-shadow: 0 8px 18px color-mix(in srgb, var(--c) 32%, transparent); }
+.tx-proj__no::before { content: '#' counter(tx-proj); }
+/* the card's one action: "Read more", whose link covers the card */
+/* the foot: "Read more" (the card's action) and Share (the second, smaller control) */
+.tx-proj__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: auto; padding-top: 4px; }
+.tx-proj__more { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 18px; border-radius: 999px; background: color-mix(in srgb, var(--c) 12%, var(--surface)); color: var(--ink); font: 700 14.5px/1 var(--f-body); white-space: nowrap; transition: background 0.25s, color 0.25s; }
+.tx-proj__more svg { transition: transform 0.35s var(--back); }
+.tx-proj__more::after { content: ''; position: absolute; inset: 0; border-radius: 26px; }
+.tx-proj:hover .tx-proj__more { background: var(--c); color: #fff; }
+.tx-proj:hover .tx-proj__more svg { transform: translateX(3px); }
+.tx-proj__card:has(.tx-proj__more:focus-visible) { outline: 3px solid var(--sky); outline-offset: 3px; }
+.tx-proj__more:focus-visible { outline: none; }
+:root[data-theme='dark'] .tx-proj__more { background: color-mix(in srgb, var(--c) 30%, var(--surface)); }
 /* the card takes its shape from the width it gets: on top under 620px, side by side above, larger when wide */
 @container (min-width: 620px) {
   .tx-proj__card { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); }
   .tx-proj__photo { aspect-ratio: auto; min-height: 280px; }
   .tx-proj__photo::before { content: ''; position: absolute; left: -6px; bottom: -6px; width: 62%; height: 62%; border-radius: 20px; background: var(--c); }
   .tx-proj__body { justify-content: center; padding: 18px 22px 12px; }
-  .tx-proj__nums { margin-top: 10px; }
+  .tx-proj__acts { margin-top: 8px; }
   .tx-proj h3 { font-size: 1.45rem; }
   .tx-line .tx-proj__photo { order: 2; }
   .tx-line .tx-proj__photo::before { left: auto; right: -6px; }
@@ -346,13 +411,12 @@ body[data-page] .head { position: sticky; top: 0; }
   .tx-proj__body { gap: 10px; padding: 26px 30px 18px; }
   .tx-proj h3 { font-size: clamp(1.6rem, 2.2vw, 2.1rem); }
   .tx-proj__sum { font-size: 17px; }
-  .tx-proj__nums { gap: 8px; }
-  .tx-proj__nums div { padding: 10px 14px; }
-  .tx-proj__nums dd { font-size: 1.35rem; }
+  .tx-proj__no { min-width: 58px; height: 58px; border-radius: 16px; font-size: 21px; }
+  .tx-proj__more { min-height: 46px; padding: 0 22px; font-size: 15.5px; }
 }
 
 /* ================= Club Service: one teal totals card, a dated route of feature rows ================= */
-.tx-stotals { display: grid; grid-template-columns: repeat(4, auto); justify-content: space-between; width: 560px; padding: 18px 22px; container-type: inline-size; }
+.tx-stotals { display: grid; grid-template-columns: repeat(5, auto); justify-content: space-between; width: 700px; padding: 18px 22px; container-type: inline-size; }
 .tx-stotals p { display: grid; gap: 4px; padding-inline: 16px; }
 .tx-stotals p:first-child { padding-left: 0; }
 .tx-stotals p:last-child { padding-right: 0; }
@@ -526,10 +590,247 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-way p { grid-column: 1; max-width: 48ch; font-size: 15.5px; line-height: 1.45; opacity: 0.95; }
 .tx-way .pbtn { grid-column: 2; grid-row: 1 / 3; }
 
+/* ================= links to the detail pages (the look at rest does not change) ================= */
+/* one action per card: the name's link covers its row or card */
+.tx-row, .tx-feature, .tx-proj__card, .tx-ev, .dep:has(> .dep__main .dep__link) { position: relative; }
+:is(.tx-row h3, .tx-feature__name, .tx-ev__top) a::after, .dep__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+:is(.tx-row, .tx-feature, .tx-ev):has(a:focus-visible), .dep:has(.dep__link:focus-visible) { outline: 3px solid var(--sky); outline-offset: 2px; }
+:is(.tx-row h3, .tx-feature__name, .tx-ev__top) a:focus-visible, .dep__link:focus-visible { outline: none; }
+.tx-row:has(a):hover h3, .tx-feature:has(a):hover .tx-feature__name, .tx-proj:hover h3 { color: var(--gc, var(--c)); }
+.tx-ev:has(a) { transition: background 0.2s; }
+.tx-ev:has(a):hover { background: color-mix(in srgb, var(--tc) 20%, var(--surface)); }
+.dep:has(.dep__link) { transition: background 0.2s; }
+.dep:has(.dep__link):hover { background: color-mix(in srgb, var(--c) 18%, var(--surface)); }
+:root[data-theme='dark'] .tx-row:has(a):hover h3, :root[data-theme='dark'] .tx-feature:has(a):hover .tx-feature__name, :root[data-theme='dark'] .tx-proj:hover h3 { color: inherit; }
+
+/* ================= detail pages: one colour per page, a smaller title (item names run long) ================= */
+.tx-main--club { --c: var(--orange); --pop: var(--orange); --tint: var(--p-press); }
+.tx-main--event { --c: var(--violet); --pop: var(--violet); --tint: var(--p-cal); }
+.tx-main--member, .tx-main--dignitary { --c: var(--cranberry); --tint: var(--p-dig); }
+.tx-dig--president { --c: var(--azure); --pop: var(--azure); --tint: var(--p-about); }
+/* a project takes its avenue's colour, as its tag does on the list pages */
+.tx-pj { --pop: var(--c); --tint: color-mix(in srgb, var(--c) 9%, var(--bg)); }
+:root[data-theme='dark'] .tx-main--club { --pop: #ffb27a; }
+:root[data-theme='dark'] .tx-main--event { --pop: #d9a6f5; }
+:root[data-theme='dark'] .tx-dig--president { --pop: #7fbdff; }
+:root[data-theme='dark'] .tx-pj { --pop: color-mix(in srgb, var(--c) 45%, #fff); --tint: color-mix(in srgb, var(--c) 18%, var(--bg)); }
+:is(.tx-main--club, .tx-main--project, .tx-main--event, .tx-main--dignitary, .tx-main--member) .tx-head__title { font-size: clamp(2rem, 3.7vw, 3.4rem); line-height: 1.02; }
+.tx-role { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.tx-role b { font-weight: 700; color: var(--c); }
+:root[data-theme='dark'] .tx-role b { color: #ffc66b; }
+
+/* shared detail parts */
+.tx-sec--more { padding-top: 0; }
+.tx-sec__title { margin-bottom: 18px; }
+.tx-text { max-width: 68ch; font-size: 17px; line-height: 1.7; color: var(--ink-2); overflow-wrap: break-word; }
+.tx-text p + p { margin-top: 1em; }
+.tx-text--lede > p:first-child { font-size: 20px; line-height: 1.55; font-weight: 500; color: var(--ink); }
+.tx-none { padding: 20px 22px 22px; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
+.tx-plat .tx-empty, .tx-galbox .tx-empty { min-height: 132px; padding-block: 24px; border-radius: 0; background: none; box-shadow: none; }
+.tx-plat .tx-more { margin: 4px 0 18px; }
+/* label + value rows with an icon disc (club details, a member's pass, the event ticket) */
+.tx-facts, .tx-ticket { --gc: var(--c); }
+.tx-dl { display: grid; gap: 2px; padding: 10px; }
+.tx-dl > div { position: relative; display: grid; align-content: center; gap: 1px; min-width: 0; min-height: 60px; padding: 8px 10px 8px 62px; border-radius: 14px; }
+.tx-dl__ic { position: absolute; left: 10px; top: 50%; display: grid; place-items: center; width: 40px; height: 40px; margin-top: -20px; border-radius: 12px; background: color-mix(in srgb, var(--gc) 12%, var(--surface)); color: var(--gc); }
+.tx-dl dt { font-size: 14px; font-weight: 600; line-height: 1.3; color: var(--ink-3); }
+.tx-dl dd { margin: 0; font: 700 16px/1.4 var(--f-body); color: var(--ink); overflow-wrap: break-word; }
+.tx-dl dd a { color: var(--club); text-decoration: underline 2px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--club) 35%, transparent); transition: text-decoration-color 0.2s; }
+.tx-dl dd a:hover { text-decoration-color: currentColor; }
+:root[data-theme='dark'] .tx-dl__ic { background: color-mix(in srgb, var(--gc) 26%, var(--surface)); color: #fff; }
+/* a facts platform with room runs its facts side by side */
+@container (min-width: 700px) { .tx-facts .tx-dl { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); column-gap: 8px; } }
+/* the item's photos: natural shapes in columns, nothing cropped */
+.tx-gal { column-count: var(--cols, 3); column-gap: 16px; }
+.tx-gal > li { break-inside: avoid; margin-bottom: 16px; }
+.tx-gal img { width: 100%; height: auto; border-radius: 18px; background: var(--bg-2); box-shadow: 0 10px 26px rgba(23, 69, 143, 0.14); }
+/* one photo: its own shape, never taller than a screen can show */
+.tx-gal--one { max-width: 900px; }
+.tx-gal--one img { width: auto; max-width: 100%; max-height: 640px; }
+.tx-galbox .tx-more { margin-top: 8px; }
+/* back to the list */
+.tx-backrow { margin-top: calc(clamp(36px, 4.4vw, 64px) * -0.45); padding-bottom: clamp(40px, 5vw, 72px); }
+.tx-back { display: inline-flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 22px 0 18px; border-radius: 999px; background: var(--surface); color: var(--ink); font: 700 15.5px/1.2 var(--f-body); box-shadow: 0 4px 14px rgba(23, 69, 143, 0.1); transition: transform 0.35s var(--back), background 0.25s, color 0.25s; }
+.tx-back svg { flex: none; color: var(--c); transition: transform 0.35s var(--ease), color 0.25s; }
+.tx-back:hover { background: var(--c); color: #fff; transform: translateY(-2px); }
+.tx-back:hover svg { color: #fff; transform: translateX(-3px); }
+.tx-back:active { transform: scale(0.97); }
+/* not found: the empty route, the message, the way back */
+.tx-missing { min-height: 280px; gap: 22px; }
+.tx-missing p { max-width: 34ch; }
+.tx-missing .btn-go { font: 700 15.5px/1 var(--f-body); }
+.tx-missing .btn-go:hover svg { transform: translateX(-3px); }
+/* a departure-style link card (organised by, the other dignitary) */
+.tx-org, .tx-other { --dc: var(--c); position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr) 44px; gap: 14px; align-items: center; padding: 12px 14px 12px 12px; border-radius: 22px; background: var(--surface); box-shadow: 0 4px 14px rgba(23, 69, 143, 0.08); transition: transform 0.35s var(--back), box-shadow 0.3s var(--ease); }
+.tx-org:not(:has(a)) { grid-template-columns: 56px minmax(0, 1fr); }
+.tx-org p, .tx-other p { display: grid; gap: 3px; min-width: 0; }
+.tx-org p > span, .tx-other p > span { font-size: 14px; font-weight: 600; line-height: 1.25; color: var(--ink-3); }
+.tx-org :is(a, b), .tx-other a { font: 800 1.15rem/1.2 var(--f-display); color: var(--ink); }
+:is(.tx-org, .tx-other) a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+:is(.tx-org, .tx-other):has(a):hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(23, 69, 143, 0.14); }
+:is(.tx-org, .tx-other):has(a):hover .tx-dep__go { background: var(--dc); color: #fff; transform: translateX(3px); }
+:is(.tx-org, .tx-other):has(a:focus-visible) { outline: 3px solid var(--sky); outline-offset: 2px; }
+:is(.tx-org, .tx-other) a:focus-visible { outline: none; }
+.tx-org__ic { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 14px; background: var(--c); color: #fff; font: 800 17px/1 var(--f-display); letter-spacing: 0.02em; }
+/* a portrait board: the homepage's Dignitaries photo on its colour block */
+.tx-portrait { padding: 14px; }
+.tx-portrait .tx-feature__photo::before { background: var(--pc, var(--c)); }
+.tx-portrait .tx-feature__frame { background: var(--gc, var(--c)); }
+
+/* Share (behaviour and menu: shared/inner.js + media.css): a quiet outlined pill beside the main action */
+.tx-share { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 42px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--surface); color: var(--ink-2); font: 700 14.5px/1 var(--f-body); white-space: nowrap; box-shadow: inset 0 0 0 2px var(--line); cursor: pointer; transition: background 0.25s, color 0.25s, box-shadow 0.25s, transform 0.3s var(--back); }
+.tx-share svg { flex: none; color: var(--c); transition: color 0.25s; }
+.tx-share:hover, .tx-share[aria-expanded='true'] { background: var(--c); color: #fff; box-shadow: none; }
+.tx-share:hover svg, .tx-share[aria-expanded='true'] svg { color: #fff; }
+.tx-share:active { transform: scale(0.96); }
+.tx-share:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
+/* photos that open the lightbox: a visible keyboard ring (the cursor is already zoom-in) */
+.tx-cover__frame > a { position: relative; display: block; height: 100%; border-radius: 18px; }
+.tx-gal a { display: block; border-radius: 18px; }
+.tx-gal--one a { display: inline-block; max-width: 100%; vertical-align: top; }
+.tx-gal a img { transition: transform 0.45s var(--back), box-shadow 0.3s; }
+.tx-gal a:hover img { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(23, 69, 143, 0.22); }
+:is(.tx-cover__frame, .tx-gal) a:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
+/* the shared lightbox on the theme's night blue; the share menu in the dark palette */
+body[data-page] { --lb-bg: rgba(11, 20, 55, 0.95); }
+:root[data-theme='dark'] body[data-page] { --share-bg: #17234f; --share-ink: #f1f4ff; --share-hover: rgba(255, 255, 255, 0.09); --share-ring: rgba(255, 255, 255, 0.16); }
+
+/* ================= Club profile ================= */
+.tx-main--club .tx-head__slot { align-self: stretch; }
+.tx-bento--club .tx-bento__beneficiaries { grid-column: auto; }
+.tx-bento--club .tx-bento__projects { grid-row: auto; }
+.tx-bento--club .tx-bento__members { grid-row: 1 / 3; }
+.tx-bento--club .tx-bento__members b { font-size: min(3.6rem, 34cqi); }
+/* the meeting, as a row of the Club Finder's departure board */
+.tx-meet { --dc: var(--ink-3); display: inline-grid; grid-template-columns: 56px minmax(0, auto); gap: 14px; align-items: center; max-width: 100%; margin-top: 16px; padding: 8px 20px 8px 8px; border-radius: 20px; background: var(--surface); box-shadow: 0 4px 14px rgba(23, 69, 143, 0.08); }
+.tx-meet__day { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 14px; background: var(--dc); color: #fff; font: 800 17px/1 var(--f-display); letter-spacing: 0.04em; text-transform: uppercase; }
+.tx-meet[data-day=''] .tx-meet__day { background: var(--bg-2); color: var(--ink-3); }
+.tx-meet__text { display: grid; gap: 3px; min-width: 0; }
+.tx-meet__text b { font: 800 1.08rem/1.25 var(--f-display); color: var(--ink); }
+.tx-meet__text span { display: flex; align-items: flex-start; gap: 6px; font-size: 14.5px; line-height: 1.4; color: var(--ink-2); }
+.tx-meet__text svg { flex: none; margin-top: 2px; color: var(--dc); }
+/* details beside the year's board, then the roster across the full width */
+.tx-club { display: grid; gap: 16px; }
+.tx-roll__tools { padding: 12px 12px 0; }
+.tx-roll__tools .tx-search { height: 48px; background: var(--bg); box-shadow: none; }
+.tx-roll__tools .tx-search:focus-within { box-shadow: 0 0 0 3px var(--sky); }
+@container (min-width: 560px) { :is(.tx-roll__list, .tx-leaders .tx-rows) { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; } }
+@container (min-width: 840px) { :is(.tx-roll__list, .tx-leaders .tx-rows) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@container (min-width: 1120px) { :is(.tx-roll__list, .tx-leaders .tx-rows) { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tx-sec--tabs { padding-top: 0; }
+.tx-cpanel { margin-top: 16px; }
+.tx-cpanel .tx-proj__club, .tx-cpanel .tx-issue__club { display: none; }
+.tx-docs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
+.tx-docs > .tx-issue:nth-child(odd of .tx-issue:not([hidden])):nth-last-child(1 of .tx-issue:not([hidden])) { grid-column: 1 / -1; }
+.tx-docs .tx-issue time { height: 66px; gap: 1px; }
+.tx-docs .tx-issue time i { position: static; width: auto; height: auto; overflow: visible; clip: auto; font-size: 13px; font-style: normal; line-height: 1.1; opacity: 0.92; }
+.tx-dep__date { display: grid; place-content: center; justify-items: center; gap: 4px; letter-spacing: 0; text-transform: none; }
+.tx-dep__date b { font: 800 1.45rem/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.tx-dep__date span { font: 700 13.5px/1 var(--f-body); }
+
+/* ================= Project ================= */
+.tx-figs { grid-template-columns: none; grid-auto-flow: column; width: calc(var(--n, 4) * 128px + 48px); }
+.tx-pj__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 16px; }
+.tx-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; }
+.tx-pj__tools > .tx-meta { margin-top: 0; }
+.tx-meta > li { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 6px 14px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 75%, transparent); color: var(--ink-2); font: 600 14.5px/1.25 var(--f-body); }
+.tx-meta > li svg { flex: none; color: var(--c); }
+.tx-meta > .tx-meta__tag { background: var(--c); color: #fff; font-weight: 700; }
+.tx-story { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: clamp(24px, 3.4vw, 56px); align-items: start; }
+.tx-story--text { grid-template-columns: minmax(0, 1fr); max-width: 800px; }
+/* a short story sits level with the middle of the photo; a long one runs on while the photo stays */
+.tx-story__text { align-self: center; min-width: 0; }
+.tx-story__text .tx-h2 { margin-bottom: 14px; }
+.tx-story__text .tx-text + .tx-org { margin-top: 28px; }
+.tx-cover { margin: 0; padding: 14px; }
+.tx-cover__frame { position: relative; display: block; }
+.tx-cover__frame::before { content: ''; position: absolute; left: -6px; bottom: -6px; width: 62%; height: 62%; border-radius: 20px; background: var(--c); }
+.tx-cover__frame img { position: relative; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; border-radius: 18px; background: var(--bg-2); }
+.tx-cover figcaption { padding: 14px 6px 2px; font-size: 14.5px; line-height: 1.45; color: var(--ink-3); }
+@media (min-width: 900px) and (min-height: 720px) { .tx-cover { position: sticky; top: calc(var(--head-h) + 20px); } }
+
+/* ================= Event ================= */
+/* the day: the homepage calendar's big date card */
+.tx-when { width: 360px; padding: 18px 24px 20px; }
+.tx-when::after { right: -40px; top: -40px; bottom: auto; width: 130px; background: var(--cranberry); }
+.tx-when time { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 16px; }
+.tx-when time b { grid-row: 1 / 3; font: 800 5rem/0.9 var(--f-display); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.tx-when__wd { align-self: end; font: 800 1.35rem/1.15 var(--f-display); }
+.tx-when time span:last-child { align-self: start; font-size: 15px; font-weight: 500; }
+.tx-when__tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.tx-when__time { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); font: 800 14.5px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.tx-when__time svg { width: 16px; height: 16px; }
+.tx-when .tag-today { height: 30px; font-style: normal; font-size: 13.5px; }
+.tx-when:has(.tag-today) { box-shadow: 0 0 0 4px color-mix(in srgb, var(--violet) 28%, transparent), 0 18px 40px rgba(125, 42, 158, 0.32); }
+.tx-evt { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); gap: clamp(24px, 3.4vw, 56px); align-items: start; }
+.tx-evt--wide { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+.tx-evt__story { min-width: 0; }
+.tx-evt__story > .tx-h2 { margin-bottom: 14px; }
+.tx-evt__story > .tx-text + .tx-galbox { margin-top: 32px; }
+/* the ticket: details, then the register stub behind a perforation */
+.tx-ticket { --gc: var(--c); position: relative; }
+.tx-ticket__stub { position: relative; padding: 18px 20px 20px; border-top: 2px dashed var(--line-2); }
+.tx-ticket__stub::before, .tx-ticket__stub::after { content: ''; position: absolute; top: -11px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); }
+.tx-ticket__stub::before { left: -10px; }
+.tx-ticket__stub::after { right: -10px; }
+.tx-ticket__stub .btn-go { width: 100%; }
+@media (min-width: 900px) {
+  .tx-evt--wide .tx-ticket { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
+  .tx-evt--wide .tx-ticket .tx-dl { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-content: center; }
+  .tx-evt--wide .tx-ticket__stub { display: grid; align-content: center; padding: 20px 26px; border-top: 0; border-left: 2px dashed var(--line-2); }
+  .tx-evt--wide .tx-ticket__stub::before { top: -10px; left: -11px; }
+  .tx-evt--wide .tx-ticket__stub::after { top: auto; bottom: -10px; left: -11px; right: auto; }
+  .tx-evt--wide .tx-ticket__stub .btn-go { width: auto; }
+}
+
+/* ================= RI President / District Governor ================= */
+.tx-bio { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: clamp(24px, 3.4vw, 56px); align-items: start; }
+@media (min-width: 900px) and (min-height: 720px) { .tx-bio > .tx-portrait { position: sticky; top: calc(var(--head-h) + 20px); } }
+.tx-bio__main { display: grid; gap: 24px; min-width: 0; max-width: 800px; }
+.tx-bio__main > .tx-h2 { margin-bottom: -10px; }
+.tx-lines { display: flex; flex-wrap: wrap; gap: 8px; }
+.tx-lines a { flex: 1 1 260px; }
+.tx-lines a { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 18px 6px 6px; border-radius: 999px; background: var(--surface); color: var(--ink); font: 700 15.5px/1.25 var(--f-body); overflow-wrap: anywhere; box-shadow: 0 4px 14px rgba(23, 69, 143, 0.08); transition: background 0.25s, color 0.25s, transform 0.3s var(--back); }
+.tx-lines a > span:first-child { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--c); color: #fff; transition: background 0.25s, color 0.25s; }
+.tx-lines a:hover { background: var(--c); color: #fff; transform: translateY(-2px); }
+.tx-lines a:hover > span:first-child { background: #fff; color: var(--c); }
+.tx-other { --dc: var(--oc); --oc: var(--cranberry); grid-template-columns: 64px minmax(0, 1fr) 44px; gap: 16px; padding: 12px 16px 12px 12px; box-shadow: var(--shadow); }
+.tx-other--president { --oc: var(--azure); }
+.tx-other__face { display: grid; place-items: center; width: 64px; height: 64px; overflow: hidden; border-radius: 50%; background: var(--oc); color: #fff; font: 800 1.2rem/1 var(--f-display); box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--oc); }
+.tx-other__face img { width: 100%; height: 100%; object-fit: cover; object-position: center 15%; }
+.tx-other p > span { font: 700 15px/1.2 var(--f-body); color: var(--oc); }
+.tx-other a { font-size: 1.3rem; letter-spacing: -0.01em; }
+:root[data-theme='dark'] .tx-other p > span { color: #ffc66b; }
+
+/* ================= Committee member: the portrait in the head, a strip of facts, the rest of the committee ================= */
+.tx-mem .tx-head__row { align-items: center; }
+.tx-mface { width: 196px; padding: 12px; }
+.tx-mface .tx-feature__photo::before { background: var(--pc); }
+.tx-mface .tx-feature__frame { background: var(--gc); }
+.tx-mface .tx-feature__ini { font-size: 3.4rem; }
+.tx-person { display: grid; gap: 16px; }
+.tx-mfacts { --gc: var(--c); }
+.tx-mfacts .tx-dl { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 2px 12px; }
+.tx-others .tx-rows { grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); column-gap: 10px; }
+/* a big committee (Club Presidents: 120+) shows four rows of three, then "Show all N"; two-column/one-column widths show 8 / 6 */
+.tx-others:not(:has(> .tx-all[open])) .tx-rows > :nth-child(n+13) { display: none; }
+.tx-others:not(:has(.tx-rows > :nth-child(13))) > .tx-all { display: none; }
+@container (max-width: 1159px) {
+  .tx-others:not(:has(> .tx-all[open])) .tx-rows > :nth-child(n+9) { display: none; }
+  .tx-others:not(:has(.tx-rows > :nth-child(9))) > .tx-all { display: none; }
+}
+@container (max-width: 759px) {
+  .tx-others:not(:has(> .tx-all[open])) .tx-rows > :nth-child(n+7) { display: none; }
+  .tx-others:not(:has(.tx-rows > :nth-child(7))) > .tx-all { display: none; }
+}
+.tx-head + .tx-backrow { margin-top: 0; padding-top: clamp(24px, 3vw, 40px); }
+
 /* ================= header and footer: fixes on inner pages only ================= */
 /* phone menu: the current page is marked; the pages that have no menu item follow the list */
 body[data-page] .mmenu a[aria-current='page'] { color: #ffc66b; }
 body[data-page] .mmenu a[aria-current='page']::before { content: ''; display: inline-block; width: 12px; height: 12px; margin-right: 10px; border-radius: 50%; background: #ffc66b; vertical-align: 0.12em; }
+/* footer: the credit links to Roster On Wheels (hover only; the look at rest is the homepage's) */
+.foot__bar a:hover b { text-decoration: underline 2px; text-underline-offset: 4px; }
 /* footer: the plain-HTML counter shows the flip board's tiles at rest, the same size as the React board */
 body[data-page] .visits__ghost--static { display: inline-flex; gap: 4px; color: #0b1437; font: 760 54px/1 'SFMono-Regular', 'Roboto Mono', 'Cascadia Code', 'Liberation Mono', Menlo, monospace; letter-spacing: 0.035em; font-variant-numeric: tabular-nums; }
 body[data-page] .visits__ghost--static i { position: relative; display: grid; place-items: center; width: 0.78em; height: 1.08em; border-radius: 8px; background: linear-gradient(180deg, #ffd895, #ffc66b); box-shadow: 0 0.16em 0.38em rgba(0, 0, 0, 0.28); font-style: normal; }
@@ -628,7 +929,6 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-head__tools { margin-top: 12px; }
   .tx-head__below { margin-top: 12px; }
   .tx-sec--first { padding-top: 14px; }
-  .tx-count b { font-size: 1.3rem; }
   .rv-on .tx-main [data-rv]:not(.is-in) { transform: translateX(12px); }
   /* the first screen goes to content (on these pages the controls below say what the lead says) */
   .tx-main--projects .tx-head__lead, .tx-main--service .tx-head__lead, .tx-main--calendar .tx-head__lead, .tx-main--newsletters .tx-head__lead { display: none; }
@@ -647,12 +947,9 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-feature__name { font-size: 1.5rem; }
   .tx-feature__role { font-size: 1rem; }
   .tx-feature__ini { font-size: 2.6rem; }
-  /* finder: the whole week stays visible (4 x 2), the count sits under the search so its placeholder fits */
+  /* finder: the whole week stays visible (4 x 2) */
   .tx-main--finder .tx-head__lead { display: none; }
   .tx-console { padding: 10px; }
-  .tx-console__top { grid-template-columns: minmax(0, 1fr); gap: 6px; }
-  .tx-count--stack { display: flex; align-items: baseline; gap: 6px; padding: 0 10px; }
-  .tx-count--stack b { font-size: 1.35rem; }
   .tx-week { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .tx-dep { grid-template-columns: 52px minmax(0, 1fr) 40px; gap: 12px; padding: 12px; }
   .tx-dep__day { height: 48px; font-size: 15.5px; }
@@ -672,6 +969,8 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-stotals p + p { border-left: 0; }
   .tx-stotals p:nth-child(even) { padding-left: 14px; border-left: 1px solid rgba(255, 255, 255, 0.28); }
   .tx-stotals b { font-size: 1.6rem; }
+  .tx-stotals p:nth-child(5):last-child { grid-column: 1 / -1; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.28); }
+  .tx-dep__pres a { min-height: 40px; }
   .tx-line { gap: 28px; }
   .tx-line > .tx-proj { grid-template-columns: minmax(0, 1fr); gap: 10px; padding-left: 30px; }
   .tx-line > .tx-proj::before { left: 5.5px; top: 20px; bottom: -48px; }
@@ -699,7 +998,6 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-tab { justify-content: space-between; min-height: 52px; padding: 6px 8px 6px 14px; border-radius: 18px; font-size: 14.5px; }
   .tx-news__tools { flex-wrap: wrap; gap: 6px 16px; }
   .tx-news__tools .tx-search { flex-basis: 100%; }
-  .tx-news__tools .tx-count { padding-inline: 10px; }
   .tx-issue { grid-template-columns: 56px minmax(0, 1fr); grid-template-areas: 'date text' 'acts acts'; gap: 10px 12px; padding: 12px; }
   .tx-issue time { height: 56px; }
   .tx-issue__acts .tx-act { flex: 1; }
@@ -726,6 +1024,62 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-prose h3::before { left: -35px; }
   .tx-prose blockquote { padding: 20px 22px; }
   .tx-empty { min-height: 150px; padding: 28px 20px; font-size: 1.15rem; }
+}
+
+/* ================= detail pages: tablets and phones ================= */
+@media (max-width: 899px) {
+  .tx-story, .tx-evt, .tx-bio { grid-template-columns: minmax(0, 1fr); }
+  .tx-when, .tx-figs { width: 100%; }
+  .tx-bio__main, .tx-story--text { max-width: none; }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  /* tablets: a smaller portrait beside the biography */
+  .tx-bio { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+}
+@media (max-width: 760px) {
+  :is(.tx-main--club, .tx-main--project, .tx-main--event, .tx-main--dignitary, .tx-main--member) .tx-head__title { font-size: 2rem; }
+  .tx-meet { display: grid; width: 100%; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; margin-top: 12px; padding: 8px 14px 8px 8px; }
+  .tx-meet__day { width: 52px; height: 52px; font-size: 15.5px; }
+  .tx-bento--club .tx-bento__members { grid-column: 1 / -1; }
+  .tx-figs { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tx-figs > p:nth-child(3):last-child { grid-column: 1 / -1; }
+  .tx-meta { gap: 6px; margin-top: 12px; }
+  .tx-meta > li { min-height: 32px; padding: 5px 12px; font-size: 14px; }
+  .tx-switch--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tx-switch--3 .tx-tab { flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 8px 4px; font-size: 14px; text-align: center; }
+  .tx-switch--3 .tx-tab b { min-width: 26px; height: 22px; font-size: 13px; }
+  .tx-docs { grid-template-columns: minmax(0, 1fr); }
+  .tx-docs .tx-issue time { height: 62px; }
+  .tx-gal { column-count: min(var(--cols, 3), 2); column-gap: 10px; }
+  .tx-gal--one img { max-height: 520px; }
+  .tx-gal > li { margin-bottom: 10px; }
+  .tx-gal img { border-radius: 14px; }
+  .tx-cover { padding: 10px; }
+  .tx-text { font-size: 16px; line-height: 1.65; }
+  .tx-text--lede > p:first-child { font-size: 18px; }
+  .tx-when { padding: 14px 18px 16px; }
+  .tx-when time b { font-size: 3.6rem; }
+  .tx-when__wd { font-size: 1.15rem; }
+  .tx-when__tags { margin-top: 10px; }
+  .tx-portrait { padding: 10px; }
+  .tx-portrait .tx-feature__photo { aspect-ratio: 5 / 4; height: auto; }
+  .tx-portrait .tx-feature__ini { font-size: 4rem; }
+  /* a member: the portrait stays beside the name, small */
+  .tx-mem .tx-head__row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .tx-mface { width: 104px; padding: 7px; border-radius: 20px; }
+  .tx-mface .tx-feature__photo { aspect-ratio: 4 / 4.4; height: auto; }
+  .tx-mface .tx-feature__photo::before { left: -4px; bottom: -4px; border-radius: 14px; }
+  .tx-mface .tx-feature__frame { border-radius: 14px; }
+  .tx-mface .tx-feature__ini { font-size: 2rem; }
+  .tx-org { grid-template-columns: 52px minmax(0, 1fr) 40px; gap: 12px; }
+  .tx-org:not(:has(a)) { grid-template-columns: 52px minmax(0, 1fr); }
+  .tx-org__ic { width: 52px; height: 52px; font-size: 15.5px; }
+  .tx-other { grid-template-columns: 56px minmax(0, 1fr) 40px; gap: 12px; padding: 10px 12px 10px 10px; }
+  .tx-other__face { width: 56px; height: 56px; }
+  .tx-other a { font-size: 1.15rem; }
+  .tx-ticket__stub { padding: 16px; }
+  .tx-missing { min-height: 230px; }
+  .tx-backrow { margin-top: -14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -44,7 +44,7 @@ function Visitors() {
     return () => io.disconnect();
   }, []);
   return (
-    <div ref={box} className="visits" role="group" aria-label={`${R.fmt.num(f.visitors)} ${f.visitorsText}`}>
+    <div ref={box} className="visits" role="group" aria-label={`${value} ${f.visitorsText}`}>
       <div className="visits__board" aria-hidden="true">
         {STATIC ? (
           /* static pages have no flip script: the board at rest, one tile per digit */
@@ -124,7 +124,9 @@ export default function Footer() {
         </div>
         <div className="foot__bar">
           {f.copyright && <p>{f.copyright}</p>}
-          {f.poweredBy && <p>{f.poweredBy.lead} <b>{f.poweredBy.name}</b></p>}
+          {f.poweredBy && <p>{f.poweredBy.lead} {f.poweredBy.href
+            ? <a className="foot__by" href={f.poweredBy.href} target="_blank" rel="noopener"><b>{f.poweredBy.name}</b></a>
+            : <b>{f.poweredBy.name}</b>}</p>}
         </div>
       </div>
       <BackToTop />

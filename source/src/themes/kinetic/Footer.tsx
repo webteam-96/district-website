@@ -36,7 +36,7 @@ function Visitors() {
     return () => io.disconnect();
   }, []);
   return (
-    <div ref={box} className="visits" role="group" aria-label={`${R.fmt.num(f.visitors)} ${f.visitorsText}`}>
+    <div ref={box} className="visits" role="group" aria-label={`${value} ${f.visitorsText}`}>
       <div className="visits__board" aria-hidden="true">
         {STATIC ? <span className="visits__static">{value.split("").map((d, i) => <i key={i}>{d}</i>)}</span> : seen ? <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={46} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#4BD2FF" textColor="#0B0E55" tileRadius={10} gap={5} glare={0.1} depth={0.25} className="visits__flap" /> : <span className="visits__ghost">{value}</span>}
       </div>
@@ -76,7 +76,7 @@ export default function Footer() {
         <p className="mark" aria-hidden="true">District 3141</p>
         <div className="foot__bar">
           {f.copyright && <p>{f.copyright}</p>}
-          {f.poweredBy && <p>{f.poweredBy.lead} <b>{f.poweredBy.name}</b></p>}
+          {f.poweredBy && <p>{f.poweredBy.lead} {f.poweredBy.href ? <a className="kx-by" href={f.poweredBy.href} target="_blank" rel="noopener"><b>{f.poweredBy.name}</b></a> : <b>{f.poweredBy.name}</b>}</p>}
         </div>
       </div>
       <BackToTop />

@@ -1,24 +1,12 @@
 import { R, shortDate } from '../../shared/rotary';
 import type { PdfDoc } from '../../shared/PdfModal';
+import { pageInfo } from '../../shared/inner';
 import SpotlightCard from '../../rb/SpotlightCard/SpotlightCard';
-import ShinyText from '../../rb/ShinyText/ShinyText';
 import BorderGlow from '../../rb/BorderGlow/BorderGlow';
 import { useTheme } from './theme';
 
 const P = R.press;
 const pad2 = (n: number) => String(n).padStart(2, '0');
-
-/* Template with a {link} slot → text + anchor + text. */
-const footerLine = (vals: Record<string, string | number>) => {
-  const [before, after = ''] = R.fmt.fill(P.club.footer, vals).split('{link}');
-  return (
-    <>
-      {before}
-      <a href={P.club.href} target="_blank" rel="noopener">{P.club.footerLink}</a>
-      {after}
-    </>
-  );
-};
 
 export default function Press({ year, switching, onPreview }: { year: string; switching: boolean; onPreview: (d: PdfDoc) => void }) {
   const theme = useTheme();
@@ -30,11 +18,7 @@ export default function Press({ year, switching, onPreview }: { year: string; sw
       <div className="wrap">
         <header className="section-head press__head">
           <div>
-            <p className="eyebrow">{P.eyebrow}</p>
-            <h2 id="press-title" className="section-title">
-              {P.title}{' '}
-              <ShinyText key={theme} text={P.tagline} color={theme === 'light' ? '#a8740f' : '#c9922b'} shineColor={theme === 'light' ? '#ffe3a3' : '#fff3cf'} speed={3.2} className="press__tag" />
-            </h2>
+            <h2 id="press-title" className="section-title">{P.title}</h2>
           </div>
           <p className="section-sub">{P.subtext}</p>
         </header>
@@ -89,8 +73,8 @@ export default function Press({ year, switching, onPreview }: { year: string; sw
                       </div>
                       <span className="paper__no" aria-hidden="true">{pad2(i + 1)}</span>
                       <div className="paper__body">
-                        <p className="paper__club">{b.club}</p>
                         <h4 className="paper__title">{b.title}</h4>
+                        <p className="paper__club">{b.club}</p>
                       </div>
                       <div className="paper__actions">
                         <button type="button" className="pill-btn pill-btn--solid" onClick={() => onPreview({ title: b.title, meta: `${b.club} · ${shortDate(b.date)}`, pdf: b.pdf })}>
@@ -108,7 +92,12 @@ export default function Press({ year, switching, onPreview }: { year: string; sw
               </div>
             )}
             {bulletins.length > 0 && !switching && (
-              <p className="club__foot">{footerLine({ shown: bulletins.length, total: R.fmt.num(py.total), year })}</p>
+              <div className="club__foot">
+                <a className="pill-btn club__all" href={pageInfo('newsletters').file}>
+                  View all newsletters
+                  <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </a>
+              </div>
             )}
           </div>
         </div>

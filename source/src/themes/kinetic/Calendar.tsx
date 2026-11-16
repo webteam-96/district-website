@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, reducedMotion, toISO, type CalEntry } from '../../shared/rotary';
 import { Title } from './Sections';
+import { eventHref } from '../../shared/detail';
 
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
@@ -108,9 +109,12 @@ export default function Calendar() {
                         <h3 className="pin__title"><i className={`dot dot--${t.key}`} aria-hidden="true" />{t.group}<b>{num(items.length)}</b></h3>
                         <ul className={isEvent ? 'evts' : 'notes'}>
                           {items.map((e, k) => isEvent ? (
-                            <li key={k} className={`evt evt--${e.type}`} style={{ ['--k' as string]: Math.min(k, 8) }}>
-                              <span className="evt__time">{e.time ?? '—'}</span>
-                              <span className="evt__main"><b>{e.title}</b>{e.club && <span>{e.club}</span>}{e.venue && <span>{e.venue}</span>}</span>
+                            /* the event's own page (kx-evt: inner.css); the row looks as before */
+                            <li key={k} style={{ ['--k' as string]: Math.min(k, 8) }}>
+                              <a className={`evt evt--${e.type} kx-evt`} href={eventHref(e)}>
+                                <span className="evt__time">{e.time ?? '—'}</span>
+                                <span className="evt__main"><b>{e.title}</b>{e.club && <span>{e.club}</span>}{e.venue && <span>{e.venue}</span>}</span>
+                              </a>
                             </li>
                           ) : (
                             <li key={k} className={`note note--${e.type}`} style={{ ['--k' as string]: Math.min(k, 8) }}>

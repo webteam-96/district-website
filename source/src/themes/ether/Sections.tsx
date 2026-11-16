@@ -111,7 +111,6 @@ export function Snapshot({ year }: { year: string }) {
       <div className="wrap">
         <header className="section-head">
           <div>
-            <p className="eyebrow">{v.status === 'upcoming' && v.note ? v.note : `${R.years.label} ${year}${v.note ? ` · ${v.note}` : ''}`}</p>
             <h2 id="snap-title" className="section-title">{s.title}</h2>
           </div>
         </header>
@@ -159,7 +158,6 @@ export function Dignitaries({ year, switching }: { year: string; switching: bool
       <div className="wrap">
         <header className="section-head">
           <div>
-            <p className="eyebrow eyebrow--gold">{R.years.label} {year}</p>
             <h2 id="dig-title" className="section-title">{d.title}</h2>
           </div>
         </header>
@@ -192,8 +190,8 @@ export function Dignitaries({ year, switching }: { year: string; switching: bool
                   />
                 </div>
                 <div className="dig__text">
-                  <p className="dig__role">{p.role}</p>
                   <h3 className="dig__name">{p.name}</h3>
+                  <p className="dig__role">{p.role}</p>
                   <p className="dig__term">{p.term}</p>
                   <BlurText key={`${year}-${k}-bio`} text={p.bio} animateBy="words" delay={16} stepDuration={0.3} className="dig__bio" />
                 </div>

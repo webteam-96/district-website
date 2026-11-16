@@ -29,12 +29,13 @@ const StaticThreads = () => (
   </svg>
 );
 
-/* Visitor counter: an airport-style split-flap board that flips in when it scrolls into view. */
+/* Visitor counter: an airport-style split-flap board that flips in when it scrolls into view.
+   Plain digits, no grouping commas (the client's choice). */
 function Visitors() {
   const f = R.footer;
   const box = useRef<HTMLDivElement>(null);
   const [seen, setSeen] = useState(false);
-  const value = R.fmt.num(f.visitors);
+  const value = String(Math.round(f.visitors));
   useEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -46,7 +47,7 @@ function Visitors() {
     <div ref={box} className="visits" role="group" aria-label={`${value} ${f.visitorsText}`}>
       <div className="visits__board" aria-hidden="true">
         {seen ? (
-          <SplitFlapText text={value} charset="0123456789," padTo={value.length} loop={false} fontSize={38} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#0b1736" textColor="#FFD27A" tileRadius={9} gap={5} glare={0.35} depth={0.6} className="visits__flap" />
+          <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={38} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#0b1736" textColor="#FFD27A" tileRadius={9} gap={5} glare={0.35} depth={0.6} className="visits__flap" />
         ) : STATIC ? (
           /* plain HTML: the board at rest, one tile per character */
           <span className="visits__tiles">{value.split('').map((ch, i) => <i key={i}>{ch}</i>)}</span>
@@ -177,7 +178,7 @@ export default function Footer() {
 
         <div className="foot__bar">
           {f.copyright && <p>{f.copyright}</p>}
-          {f.poweredBy && <p>{f.poweredBy.lead} <b>{f.poweredBy.name}</b></p>}
+          {f.poweredBy && <p>{f.poweredBy.lead} {f.poweredBy.href ? <a className="foot__by" href={f.poweredBy.href} target="_blank" rel="noopener"><b>{f.poweredBy.name}</b></a> : <b>{f.poweredBy.name}</b>}</p>}
           <a href="#top" className="foot__top" onClick={toTop}>
             Back to top
             <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>

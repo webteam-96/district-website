@@ -29,7 +29,9 @@ window.ROTARY = (function () {
   /* Inner pages sit beside each theme's index.html, so these work from every theme folder. */
   var PAGE = { home: 'index.html', about: 'about.html', committee: 'district-committee.html', finder: 'club-finder.html',
                projects: 'club-projects.html', service: 'club-service.html', calendar: 'calendar.html',
-               newsletters: 'newsletters.html', contact: 'contact.html' };
+               newsletters: 'newsletters.html', contact: 'contact.html',
+               /* detail pages: one item each, picked by ?id= (source/src/shared/detail.tsx) */
+               club: 'club.html', project: 'project.html', event: 'event.html', dignitary: 'dignitary.html', member: 'member.html' };
   var PDF = '../shared/newsletter-placeholder.pdf';
 
   /* ---------- formatting: Indian digit grouping (6,42,815 · ₹54.59 Cr) ---------- */
@@ -275,6 +277,28 @@ window.ROTARY = (function () {
   var counts = { club: countOf('club'), district: countOf('district'), birthday: 1081, anniversary: 573 };
   counts.all = counts.club + counts.district + counts.birthday + counts.anniversary;
 
+  /* ---------- Club Finder: each club's President and phone ----------
+     INVENTED PLACEHOLDERS, not real people or numbers: a name and a phone for every club, made from its id
+     (no two alike). No Indian mobile number starts with 5, so the phones reach no one. On this computer the
+     live data (source/src/shared/live.ts) shows each club's real President instead. */
+  var PRES_FIRST = ['Aditi', 'Anil', 'Bhavna', 'Chetan', 'Deepa', 'Farah', 'Gautam', 'Hema', 'Ishaan', 'Jaya', 'Kunal', 'Lata',
+                    'Mahesh', 'Nalini', 'Omkar', 'Pallavi', 'Rafiq', 'Rekha', 'Sachin', 'Tara', 'Uday', 'Vandana', 'Yusuf', 'Zarine'];
+  var PRES_LAST = ['Apte', 'Bakshi', 'Chitnis', 'Dalvi', 'Engineer', 'Fadnis', 'Gadgil', 'Hirani', 'Inamdar', 'Jagtap', 'Karnik', 'Lokhande',
+                   'Mhatre', 'Nadkarni', 'Oak', 'Parulekar', 'Rege', 'Sathe', 'Talwalkar', 'Usgaonkar', 'Wagle', 'Yadav', 'Zaveri'];
+  function withPresidents(list) {
+    var n = PRES_FIRST.length * PRES_LAST.length, used = {};
+    return list.map(function (c) {
+      var i = (c.id * 7919) % n;
+      while (used[i]) i = (i + 1) % n;
+      used[i] = true;
+      var d = '5' + String(1e9 + (c.id * 104729) % 1e9).slice(1);      /* 5 and nine digits */
+      c.president = PRES_FIRST[i % PRES_FIRST.length] + ' ' + PRES_LAST[Math.floor(i / PRES_FIRST.length)];
+      c.phone = '+91 ' + d.slice(0, 5) + ' ' + d.slice(5);
+      c.tel = '+91' + d;
+      return c;
+    });
+  }
+
   return {
     site: { name: 'Rotary District 3141', district: '3141', region: 'Mumbai, Maharashtra', zone: 'Zone 4', live: LIVE },
 
@@ -359,7 +383,7 @@ window.ROTARY = (function () {
       label: 'Dignitary',
       readMore: 'Read More',
       order: ['president', 'dg'],
-      links: { president: LIVE + '/dignitary?type=president', dg: LIVE + '/dignitary?type=dg' },
+      links: { president: PAGE.dignitary + '?type=president', dg: PAGE.dignitary + '?type=dg' },
       byYear: dignitariesByYear
     },
 
@@ -428,8 +452,7 @@ window.ROTARY = (function () {
         { label: 'Clubs Finder', href: PAGE.finder },
         { label: 'Club Projects', href: PAGE.projects },
         { label: 'District Calendar', href: PAGE.calendar },
-        { label: 'Newsletters', href: PAGE.newsletters },
-        { label: 'Contact Us', href: PAGE.contact }
+        { label: 'Newsletters', href: PAGE.newsletters }
       ] },
       social: { title: 'Social', items: [
         { key: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/RotaryDistrict3141?mibextid=ZbWKwL' }
@@ -437,7 +460,7 @@ window.ROTARY = (function () {
       tagline: { lead: 'Together, we', emphasis: 'Create Change' },
       // Live site footer lines (sample/shared/content.js snapshot of the live API).
       copyright: '© 2026 Thane Hills. All rights reserved.',
-      poweredBy: { lead: 'Powered by', name: 'Roster On Wheels' }
+      poweredBy: { lead: 'Powered by', name: 'Roster On Wheels', href: 'https://rosteronwheels.com/' }
     },
 
 
@@ -455,7 +478,13 @@ window.ROTARY = (function () {
         { key: 'service',     file: PAGE.service,     title: 'Club Service',       lead: 'Projects that strengthen our clubs: fellowship, training and membership.' },
         { key: 'calendar',    file: PAGE.calendar,    title: 'District Calendar',  lead: 'Events, birthdays and anniversaries across the district, month by month.' },
         { key: 'newsletters', file: PAGE.newsletters, title: 'Newsletters',        lead: 'The Governor’s Monthly Letter and bulletins from clubs across the district.' },
-        { key: 'contact',     file: PAGE.contact,     title: 'Contact Us',         lead: 'Write to the District Governor’s office, or find a club to join.' }
+        /* (the Contact page was removed at the client's request, 2026-11-16: no page is written and nothing links to it) */
+        /* detail pages: the item (a club, a project, …) gives the page its title; these are fallbacks */
+        { key: 'club',        file: PAGE.club,        title: 'Club Profile',       lead: '' },
+        { key: 'project',     file: PAGE.project,     title: 'Project',            lead: '' },
+        { key: 'event',       file: PAGE.event,       title: 'Event',              lead: '' },
+        { key: 'dignitary',   file: PAGE.dignitary,   title: 'Dignitary',          lead: '' },
+        { key: 'member',      file: PAGE.member,      title: 'Member Profile',     lead: '' }
       ],
       home: 'Home',
       /* About: the backend stores ONE field for this page, "content" (HTML from the admin's
@@ -470,7 +499,6 @@ window.ROTARY = (function () {
           '<p>Each club chooses its own projects, from health camps and school sanitation to tree plantation and disaster relief. The district connects those clubs, so that good ideas travel, large projects find partners and every Rotarian has a place to learn and lead.</p>' +
           '<h2>Part of a global network</h2>' +
           '<p>Rotary International is a global network of 1.4 million members in more than 46,000 clubs. Together we work on the causes that matter most to our communities, guided by The Four-Way Test in everything we think, say and do.</p>' +
-          '<p><img src="' + IMG + 'photo-vision.jpg" width="1920" height="1280" alt="Rotarians at the opening of a vision centre and clinic"></p>' +
           '<h2>Our areas of focus</h2>' +
           '<p>Rotary clubs everywhere direct their service to seven causes:</p>' +
           '<ul>' +
@@ -609,14 +637,131 @@ window.ROTARY = (function () {
         join: { title: 'Join Rotary', text: 'Meet people who share your wish to serve. Tell us a little about yourself and a club near you will get in touch.' },
         finder: { title: 'Find a club', text: 'There are 125 clubs in District 3141. Search by name, place or meeting day.' }
       },
+      /* ---------- detail pages (source/src/shared/detail.tsx) ----------
+         Each shows one item, picked by the query string. `example` is the item the static HTML page shows;
+         `sample` adds what the sample lists lack (everyone named here is invented, except the RI President and
+         the District Governor, who are real; example.org and +91 5… numbers reach no one); live data replaces it
+         all on this computer (`item`, filled by source/src/shared/live.ts). */
+      club: {
+        missing: 'We could not find this club. It may have moved or closed.',
+        back: 'All clubs',
+        details: 'Club details', glance: 'At a glance', leadership: 'Club leadership', members: 'Members',
+        searchLabel: 'Search members by name', empty: 'No member matches your search.', more: 'Show more members', pageSize: 24,
+        tabs: { projects: 'Projects', bulletins: 'Newsletters', events: 'Events' },
+        none: { projects: 'No projects reported yet this Rotary year.', bulletins: 'No newsletters yet this Rotary year.', events: 'No upcoming events.', leaders: 'The club has not named its board for this year yet.' },
+        /* Bombay Pier: the one sample club with both projects and newsletters, so the static page shows full tabs
+           (its meeting time, charter date and zone are the club's real ones; board and members are invented) */
+        example: '47',
+        sample: {
+          meetingTime: '19:30',
+          details: [{ label: 'Chartered', value: '5 Feb 1992' }, { label: 'Zone', value: '4' }],
+          contact: { email: 'club@example.org', web: 'https://example.org' },
+          leaders: [['President', 'Kavita Mehra'], ['Secretary', 'Rohan Desai'], ['Treasurer', 'Farhan Sheikh'], ['President-elect', 'Neha Kulkarni'],
+                    ['Club Service Director', 'Prakash Iyer'], ['Community Service Director', 'Shalini Rao']]
+            .map(function (m) { return { role: m[0], name: m[1], photo: null }; }),
+          members: [['Kavita Mehra', 'President'], ['Rohan Desai', 'Secretary'], ['Farhan Sheikh', 'Treasurer'], ['Neha Kulkarni', 'President-elect'],
+                    ['Prakash Iyer', 'Director'], ['Shalini Rao', 'Director'], ['Aditya Banerjee', ''], ['Leena Joshi', ''], ['Manoj Thakkar', ''],
+                    ['Sonal Kapoor', ''], ['Imran Patel', ''], ['Gauri Bhosale', ''], ['Sameer Khanna', ''], ['Pooja Venkatesh', '']]
+            .map(function (m) { return { name: m[0], role: m[1], club: 'Bombay Pier', photo: null }; })
+        }
+      },
+      project: {
+        missing: 'We could not find this project.',
+        back: 'All projects', about: 'About the project', gallery: 'Photos', organiser: 'Organised by', figures: 'Impact',
+        example: '1',
+        /* invented reports for some sample projects (by id); the photos are the pool's, each alt says what its photo shows */
+        sample: {
+          '1': {
+            description: 'On a Sunday morning in October, members of the club were joined by Interactors, Rotaractors and residents of Juhu to clear plastic and other waste from two kilometres of the beach.\n\n' +
+              'Volunteers worked in teams along the shore with gloves and sacks, and sorted what they collected into recyclable and non-recyclable waste. The recyclables went to a recycling partner; the rest was handed over to the municipal ward for disposal.\n\n' +
+              'Before the drive began, a short talk showed how plastic dropped in the city’s drains is carried out to sea, and what every household can do to keep it out of the water.\n\n' +
+              'The club plans to repeat the clean-up every month until the monsoon, and invites anyone who lives or works near Juhu to join the next drive.',
+            gallery: [photos.beach, photos.plantation, photos.warkaris, photos.dignity],
+            location: 'Juhu Beach, Mumbai', rotarians: 38, focus: 'Environment'
+          },
+          '3': {
+            description: 'A permanent vision centre, run with a partner eye hospital, where residents can have their eyes tested, see an eye doctor and buy spectacles at cost.\n\n' +
+              'Screening camps in schools and housing societies refer patients to the centre; those who need cataract surgery are operated on free of charge at the partner hospital.',
+            gallery: [photos.vision, photos.medical, photos.meals],
+            location: 'Kandivali West, Mumbai', rotarians: 26, focus: 'Disease prevention and treatment'
+          },
+          '4': {
+            description: 'A twelve-week spoken English course for 160 girls in classes 8 and 9 of a municipal school, taught by trained volunteers twice a week after school.\n\n' +
+              'Each class practises everyday conversation, reading aloud and short talks; at the end of the course every girl gave a talk to her parents and teachers.',
+            gallery: [photos.classroom, photos.notebooks, photos.meals],
+            location: 'Mumbai', rotarians: 12, focus: 'Basic education and literacy'
+          },
+          '5': {
+            description: 'With a Rotary Foundation global grant and a partner club overseas, the club equipped the civic hospital’s dialysis unit with new machines and patient monitors.\n\n' +
+              'The unit can now treat more patients every day, and its staff were trained on the new equipment by the suppliers’ engineers.',
+            gallery: [photos.medical, photos.vision, photos.dignity],
+            location: 'Mumbai', rotarians: 14, focus: 'Disease prevention and treatment'
+          },
+          '8': {
+            description: 'Every school day, 900 children in four village schools near Wada get a hot, nutritious mid-day meal, cooked by a local women’s self-help group with groceries the club buys each month.\n\n' +
+              'Teachers say attendance has risen since the meals began, and the club measures the children’s height and weight every term.',
+            gallery: [photos.meals, photos.classroom, photos.notebooks],
+            location: 'Wada, Palghar', rotarians: 18, focus: 'Maternal and child health'
+          }
+        }
+      },
+      event: {
+        missing: 'We could not find this event.',
+        back: 'District Calendar', about: 'About the event', when: 'When', where: 'Where', organiser: 'Organised by', register: 'Register', contact: 'Contact',
+        example: null,
+        /* invented details for some sample events (by event id; with no example, the first club event is the one shown) */
+        sample: {
+          '2026-11-02-literacy-mission-book-drive': {
+            description: 'The club is collecting storybooks and textbooks in Marathi, Hindi and English to set up a reading corner in the school’s library, with shelves, floor cushions and a lending register kept by the students.\n\n' +
+              'Bring books in good condition for children aged 6 to 14, or come and help sort and label them on the day.',
+            gallery: [photos.notebooks, photos.classroom],
+            registration: 'https://example.org/register',
+            contact: { name: 'Neeta Karnik', email: 'events@example.org', phone: '+91 50000 31415' }
+          },
+          '2026-11-03-district-rotary-foundation-seminar': {
+            description: 'An evening for club presidents, Foundation chairs and members on how The Rotary Foundation funds service: district and global grants, the Annual Fund and PolioPlus, and how a club applies for a grant this year.',
+            registration: 'https://example.org/register'
+          },
+          '2026-11-11-blood-donation-drive': {
+            description: 'A blood donation drive with a partner blood bank. Donors must be 18 to 65 years old and weigh at least 45 kg; the drive runs until 2 pm, and every donor is offered a light breakfast.'
+          },
+          '2026-11-21-district-ryla-opening-ceremony': {
+            description: 'The opening of the district’s Rotary Youth Leadership Awards: three days of workshops, talks and team challenges for young people aged 18 to 30, nominated by their clubs.',
+            registration: 'https://example.org/register'
+          }
+        }
+      },
+      dignitary: {
+        missing: 'This profile is not available yet.',
+        back: 'Home', bio: 'Biography', details: 'Rotary details', contact: 'Contact',
+        sample: {
+          /* the RI President's facts and biography as the district API gives them (Rotary International's announcement) */
+          president: {
+            facts: [{ label: 'Club', value: 'Rotary Club of Trans Amadi, Nigeria' }, { label: 'In Rotary since', value: '1984, as a Rotaractor' },
+                    { label: 'Offices held', value: 'District governor 2011-12, RI director 2018-20, RI vice president 2019-20' }],
+            bio: 'Olayinka Hakeem Babalola, a member of the Rotary Club of Trans Amadi, Nigeria, was selected by the Board of Directors to become Rotary International’s president for 2026-27. His term began on 1 July 2026.\n\n' +
+              'Babalola began his Rotary journey in 1984 as a Rotaractor and joined the Rotary Club of Trans Amadi ten years later. He has served as district governor (2011-12), RI vice president (2019-20) and a member of the RI Board (2018-20), and on committees including the End Polio Now Countdown to History Campaign Committee and the Nigeria National PolioPlus Committee.\n\n' +
+              'An engineer, he worked for 25 years in the oil and gas industry, holding senior positions at Shell, and founded two companies. He supports The Rotary Foundation with a named endowment and as an Arch Klumph Society member.'
+          },
+          /* the Governor: only what is on record (his club, from the district API) */
+          dg: { facts: [{ label: 'Club', value: 'Rotary Club of Mumbai Island City' }, { label: 'District', value: 'Rotary District 3141' }] }
+        }
+      },
+      member: {
+        missing: 'We could not find this member.',
+        back: 'District Committee', club: 'Home club', email: 'Email', committee: 'Committee',
+        example: 'harish-chandra',
+        /* the example member's e-mail (invented; the sample committee lists none) */
+        sample: { 'harish-chandra': { email: 'harish.chandra@example.org' } }
+      },
       back: 'Back to Home',
       breadcrumb: 'Breadcrumb'
     },
 
-    /* search data (Atelier's ⌘K palette): the district's 125 clubs, live */
+    /* search data (Atelier's ⌘K palette): the district's 125 clubs, live; president, phone and tel are invented (withPresidents) */
     clubs: {
-      href: LIVE + '/club?id=',
-      list: [
+      href: PAGE.club + '?id=',
+      list: withPresidents([
         {"id":33547,"name":"Addiction Prevention 3141","day":"Wednesday","place":"Regular Meeting"},
         {"id":123,"name":"Boisar-Tarapur","day":"Tuesday","place":"Rotary Community Centre, 04, C Wing, Caster, Thakur Galaxy, Yashwant Shrushti"},
         {"id":18,"name":"Bombay","day":"Tuesday","place":"Taj Mahal Hotel, Apollo Bunder"},
@@ -742,7 +887,7 @@ window.ROTARY = (function () {
         {"id":34171,"name":"Vasai","day":"Friday","place":"Labtop House, Plot No. 59, Valiv Phata , Sativili Road, Vasai East"},
         {"id":31568,"name":"Virar","day":"Saturday","place":"Club meeting, SHOP NO 8, Bhau Nagar,Near New Viva college, Virar West"},
         {"id":31497,"name":"Wada","day":"Saturday","place":"CLUB MEETING, MANGALRAJ JEWELLERS, SHIVAJI NAGAR, AT POST TAL WADA DIST PALGHAR"}
-      ]
+      ])
     },
 
     /* helpers */

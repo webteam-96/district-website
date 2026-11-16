@@ -37,7 +37,8 @@ function Visitors() {
   const f = R.footer;
   const box = useRef<HTMLDivElement>(null);
   const [seen, setSeen] = useState(false);
-  const value = R.fmt.num(f.visitors);
+  /* plain digits, no separators (client): "10508", while and after it counts up */
+  const value = String(f.visitors);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -49,7 +50,7 @@ function Visitors() {
     <div ref={box} className="visits" role="group" aria-label={`${value} ${f.visitorsText}`}>
       <div className="visits__board" aria-hidden="true">
         {seen ? (
-          <SplitFlapText text={value} charset="0123456789," padTo={value.length} loop={false} fontSize={36} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#0b3d91" textColor="#FFD27A" tileRadius={10} gap={5} glare={0.4} depth={0.6} className="visits__flap" />
+          <SplitFlapText text={value} charset="0123456789" padTo={value.length} loop={false} fontSize={36} flipDuration={0.09} stagger={0.08} flipsPerChar={10} tileColor="#0b3d91" textColor="#FFD27A" tileRadius={10} gap={5} glare={0.4} depth={0.6} className="visits__flap" />
         ) : (
           /* one tile per character: inner pages (inner.css, body[data-page]) show them as the board at rest,
              which is all the plain-HTML page ever has; on the homepage they stay invisible text as before */
@@ -144,7 +145,9 @@ export default function Footer() {
 
         <div className="foot__bar">
           {f.copyright && <p>{f.copyright}</p>}
-          {f.poweredBy && <p>{f.poweredBy.lead} <b>{f.poweredBy.name}</b></p>}
+          {f.poweredBy && <p>{f.poweredBy.lead} {f.poweredBy.href
+            ? <a className="foot__by" href={f.poweredBy.href} target="_blank" rel="noopener"><b>{f.poweredBy.name}</b></a>
+            : <b>{f.poweredBy.name}</b>}</p>}
         </div>
       </div>
       <p className="foot__mark" aria-hidden="true">District {R.site.district}</p>

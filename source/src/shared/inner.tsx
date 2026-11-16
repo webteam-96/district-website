@@ -5,10 +5,12 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { R, initials, parseISO, toISO, type CalEntry, type Photo } from './rotary';
 import './rte.css';
+import './media.css';                  /* the photo lightbox and share menu built by shared/inner.js */
 
-export type PageKey = 'about' | 'committee' | 'finder' | 'projects' | 'service' | 'calendar' | 'newsletters' | 'contact';
+export type PageKey = 'about' | 'committee' | 'finder' | 'projects' | 'service' | 'calendar' | 'newsletters' | 'contact'
+  | 'club' | 'project' | 'event' | 'dignitary' | 'member';                  /* detail pages: shared/detail.tsx */
 export interface PageInfo { key: PageKey; file: string; title: string; lead: string }
-export interface Member { name: string; role: string; club: string; photo?: Photo | null }
+export interface Member { name: string; role: string; club: string; photo?: Photo | null; id?: string; email?: string }
 export interface Project { id: number; title: string; club: string; avenue: string; date: string; photo: { src: string; w: number; h: number; alt: string }; beneficiaries: number; amount: number; hours: number; summary: string }
 
 export interface Pages {
@@ -25,9 +27,11 @@ export const P = (R as unknown as { pages: Pages }).pages;
 export const pageInfo = (k: PageKey) => P.list.find(p => p.key === k)!;
 export const isPage = (k: string | undefined): k is PageKey => !!k && P.list.some(p => p.key === k);
 
-/* Marks the menu item for the page being shown (the homepage marks Home). */
+/* Marks the menu item for the page being shown (the homepage marks Home); a detail page marks the list it
+   belongs to, and pages that are not in the menu mark nothing. */
+const PARENT: Partial<Record<PageKey, string>> = { calendar: '', newsletters: '', contact: '', club: 'finder', project: 'projects', event: '', dignitary: '', member: 'committee' };
 export const setPage = (k: PageKey | 'home') => {
-  const navKey = k === 'calendar' || k === 'newsletters' || k === 'contact' ? '' : k;
+  const navKey = k !== 'home' && k in PARENT ? PARENT[k]! : k;
   R.nav.forEach(n => { n.current = k === 'home' ? n.key === 'home' : n.key === navKey; });
 };
 

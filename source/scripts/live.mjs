@@ -32,9 +32,10 @@ const readToken = () => {
 };
 const TOKEN = readToken();
 
-/* the API is slow and a page asks for many things: keep answers for five minutes */
+/* the API is slow and a page asks for many things (a club page reads a 5 MB report): keep answers for half an
+   hour, so moving between pages during a review stays fast; restart this server to see changes sooner */
 const cache = new Map();
-const TTL = 5 * 60 * 1000;
+const TTL = 30 * 60 * 1000;
 const fetchCached = async (key, url, headers) => {
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < TTL) return hit;

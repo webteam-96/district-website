@@ -9,8 +9,9 @@
    The calls and the media-path workarounds follow the production site (district_website_react/src/api/client.ts,
    pages/Home/homeData.ts, HomeCalendar.tsx, clubData.ts, DistrictCommittee/, Projects/). Calls that can answer
    404 are avoided: the browser reports every failed request as a console error. */
-import { R, monogram, monthLabel, toISO, type Bulletin, type CalEntry, type Letter, type Person, type Photo, type Rotary } from './rotary';
-import type { Member, PageKey, Pages, Project } from './inner';
+import { R, monogram, monthLabel, parseISO, shortDate, toISO, type Bulletin, type CalEntry, type Letter, type Person, type Photo, type Rotary } from './rotary';
+import { totals, type Member, type PageKey, type Pages, type Project } from './inner';
+import { memberId, type DetailPages, type EventDetail, type Fact, type Leader } from './detail';
 
 type Row = Record<string, any>;
 type Apply = () => void;
@@ -18,7 +19,9 @@ interface Year { id?: number; label: string }
 interface Ctx { num: string; id: number; years: [Year, Year] }   /* this Rotary year, the next one */
 
 const P = (R as unknown as { pages: Pages }).pages;
+const D = P as unknown as DetailPages;              /* the detail pages' item slots (shared/detail.tsx) */
 const CAP = 8000;                                   /* ms: what has not arrived by then stays sample */
+let until = 0;                                      /* performance.now() at which loadLive stops waiting */
 const MEDIA = 'https://rizones45678.org/API';        /* /Documents/… and /uploads/… live under the API host */
 const DEFAULT = { num: '3141', id: 490 };
 const KEY = 'rid-dev-district';                      /* production's session key for ?district= */
@@ -53,15 +56,25 @@ const media = (p: unknown) => {
   const u = /^https?:\/\//i.test(s) ? s : MEDIA + (s.startsWith('/') ? '' : '/') + s;
   return /%[0-9a-f]{2}/i.test(u) ? u : encodeURI(u).replace(/[()']/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
 };
+/* an admin-typed link as a URL ("www.club.org" → "https://www.club.org"), '' when none */
+const link = (u: unknown) => { const l = String(u ?? '').trim(); return l ? (/^(https?:)?\/\//i.test(l) ? l : 'https://' + l) : ''; };
 /* a banner's or an ad's own link, or its uploaded document (production's clickThroughUrl) */
-const clickThrough = (r: Row) => { const l = String(r.linkUrl ?? '').trim(); return l ? (/^(https?:)?\/\//i.test(l) ? l : 'https://' + l) : r.documentPath ? media(r.documentPath) : null; };
+const clickThrough = (r: Row) => link(r.linkUrl) || (r.documentPath ? media(r.documentPath) : null);
 const portrait = (src: string, name: string): Photo | null => (src ? { src, w: 480, h: 600, alt: `Portrait of ${name}` } : null);
 const tba = (role: string, term: string): Person => ({ name: 'To be announced', role, term, bio: '', photo: null });
 /* production's isDistrictGovernor, plus "Lt Governor" */
 const isDG = (d: unknown) => { const s = clean(d).toLowerCase(); return s.includes('governor') && !/governor[’'`]s|\blt\b|vice|deputy|assistant|asst|acting|nominee|elect|past|nominate|counsel|mentor|advis|aide|secretary|chair|coordinator|trainer/.test(s); };
-/* admin HTML as plain text; a paragraph ends a sentence even when the editor left off its full stop */
-const textOf = (html: unknown) => (new DOMParser().parseFromString(String(html ?? '').replace(/<\/(p|div|li|h[1-6])>|<br\s*\/?>/gi, '$&\n'), 'text/html').body.textContent ?? '')
-  .split('\n').map(clean).filter(Boolean).map(s => (/[.!?:…"”’)]$/.test(s) ? s : s + '.')).join(' ');
+/* admin HTML as plain text, a line for each paragraph */
+const lines = (html: unknown) => (new DOMParser().parseFromString(String(html ?? '').replace(/<\/(p|div|li|h[1-6])>|<br\s*\/?>/gi, '$&\n'), 'text/html').body.textContent ?? '')
+  .split('\n').map(clean).filter(Boolean);
+/* …run together; a paragraph ends a sentence even when the editor left off its full stop */
+const textOf = (html: unknown) => lines(html).map(s => (/[.!?:…"”’)]$/.test(s) ? s : s + '.')).join(' ');
+/* …or kept as paragraphs, a blank line between them (detail.tsx paras() splits them again) */
+const parasOf = (html: unknown) => lines(html).join('\n\n');
+/* the admin's plain text (descriptions, introductions): line breaks kept as typed (blank line = new paragraph), so
+   detail.tsx paras() can tell a sentence wrapped mid-line or a typed list from a new paragraph */
+const plain = (t: unknown) => String(t ?? '').replace(/\r\n?/g, '\n').split('\n')
+  .map(s => s.replace(/[ \t ]+/g, ' ').trim()).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 /* the first whole sentences of a long text, about `max` characters (bios and project reports are written at length) */
 const ABBR = /\b(?:Dr|Mr|Mrs|Ms|Rtn|St|Lt|Col|Capt|Brig|Prof|Smt|Shri|No|Jr|Sr)\.$/;
 const lead = (text: string, max: number) => {
@@ -82,6 +95,59 @@ const probe = (src: string, alt: string) => new Promise<Photo | null>(done => {
   img.onerror = () => done(null);
   img.src = src;
 });
+/* a gallery photo's real size, as soon as the browser knows it (long before a large file has arrived); a dead file
+   → null, and one that has not told its size within 3 s keeps w×h (so a slow photo never costs the page its data) */
+const sized = (src: string, alt: string, w = 1200, h = 900) => new Promise<Photo | null>(resolve => {
+  if (!src) return resolve(null);
+  let over = false;
+  const done = (p: Photo | null) => { over = true; resolve(p); };
+  const img = new Image(), t0 = performance.now();
+  const tick = () => {
+    if (over) return;
+    if (img.naturalWidth) done({ src, w: img.naturalWidth, h: img.naturalHeight, alt });
+    else if (performance.now() - t0 > 3000) done({ src, w, h, alt });
+    else setTimeout(tick, 40);
+  };
+  img.onerror = () => done(null);
+  img.src = src;
+  tick();
+});
+/* fn over every item, at most n at a time (125 clubs must not mean 125 requests at once); a failure skips its item */
+const pool = <T>(items: T[], n: number, fn: (x: T) => Promise<unknown>) => {
+  let i = 0;
+  return Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => { while (i < items.length) await fn(items[i++]).catch(() => {}); }));
+};
+/* resolves a moment before loadLive stops waiting: a job that gathers many small answers hands over what it has */
+const lapse = () => new Promise<void>(r => setTimeout(r, Math.max(0, until - performance.now() - 300)));
+/* a phone number as shown and as dialled: "+91 90047 62626" / "+919004762626" (others as the member typed them) */
+const dial = (num: unknown, code: unknown = '+91') => {
+  const s = clean(num), d = s.replace(/\D/g, ''), cc = clean(code) || '+91';
+  const ten = cc !== '+91' ? d : d.length === 12 && d.startsWith('91') ? d.slice(2) : d.length === 11 && d.startsWith('0') ? d.slice(1) : d;
+  if (!d) return null;
+  return cc === '+91' && ten.length === 10 ? { phone: `+91 ${ten.slice(0, 5)} ${ten.slice(5)}`, tel: '+91' + ten }
+    : { phone: s.startsWith('+') ? s : `${cc} ${s}`, tel: (s.startsWith('+') ? s : cc + s).replace(/[^\d+]/g, '') };
+};
+/* "PDP Park,, Mumbai" + "Mumbai" + "Maharashtra" → "PDP Park, Mumbai, Maharashtra": tidy commas, and a part already said is left out */
+const places = (parts: unknown[]) => parts.map(p => clean(p).replace(/\s*,[\s,]*/g, ', ').replace(/^, |, $/g, ''))
+  .filter((s, i, a) => s && !a.slice(0, i).some(p => p.toLowerCase().includes(s.toLowerCase()))).join(', ');
+/* "DISEASE PREVENTION AND TREATMENT" → "Disease prevention and treatment" (mixed case stays as typed) */
+const sentence = (s: string) => (/[a-z]/.test(s) ? s : s.charAt(0) + s.slice(1).toLowerCase());
+/* an object without its empty fields, or null when none is left (contacts) */
+const filled = <T extends Record<string, string>>(o: T): Partial<T> | null => { const e = Object.entries(o).filter(([, v]) => v); return e.length ? (Object.fromEntries(e) as Partial<T>) : null; };
+/* label and value pairs; a value that repeats its label ("Zone" "Zone 4") keeps only the rest ("4"), as themes print both */
+const facts = (pairs: [string, string][]): Fact[] => pairs.filter(([, v]) => v).map(([label, value]) => {
+  const rest = value.replace(new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b[\\s:–—-]*`, 'i'), '').trim();
+  return { label, value: rest || value };
+});
+const dated = (s: unknown) => { const d = isoDay(s); return d > '1900' ? shortDate(d) : ''; };
+/* the page's query string, read exactly as detail.tsx reads it: a detail job learns which item it is for */
+const param = (k: string) => new URLSearchParams(location.search).get(k) ?? '';
+/* a 404 means "no such item" (the page shows its not-found state); any other failure leaves the sample */
+const absent = (e: Error) => (/^404 /.test(e.message) ? null : Promise.reject(e));
+/* "Thurs" → "Thursday"; a club's meeting time "13:15:00" → "13:15" ("00:00:00" is the API's "not set") */
+const WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const weekday = (d: unknown) => { const s = clean(d); return WEEK.find(w => s && w.slice(0, 3).toLowerCase() === s.slice(0, 3).toLowerCase()) ?? s; };
+const clock = (t: unknown) => { const m = /^(\d{1,2}):(\d{2})/.exec(clean(t)); return m && +m[1] + +m[2] ? `${m[1].padStart(2, '0')}:${m[2]}` : ''; };
 
 /* ---------- the API, through the local server ---------- */
 let signal: AbortSignal | undefined;
@@ -103,8 +169,100 @@ const clubsOf = (c: Ctx) => api(`/api/mobile/club-finder?districtNumber=${c.num}
 });
 /* the API has no district-wide list of club events or bulletins: one request per club, as production does */
 const everyClub = (c: Ctx, path: (id: number) => string) => clubsOf(c).then(({ rows }) => Promise.all(rows.map(club =>
-  api(path(club.clubId)).then((r): Row[] => list(r).map(x => ({ ...x, club: clean(club.clubName) })), (): Row[] => [])))).then(a => a.flat());
+  api(path(club.clubId)).then((r): Row[] => list(r).map(x => ({ ...x, club: clean(club.clubName), clubId: club.clubId })), (): Row[] => [])))).then(a => a.flat());
 const feed = (c: Ctx, yearId?: number) => (yearId ? api(`/api/districts/${c.id}/district-report/avenue-of-service-all-clubs?yearId=${yearId}`).then(list) : Promise.resolve([] as Row[]));
+const eventsOf = (clubId: number | string) => `/api/mobile/club-finder/${clubId}/events`;
+
+/* an avenue-of-service report as a project card; the report has no photos: the club's initials plate, until
+   cardPhotos() fetches the card's own. The id is the public project's (project.html?id= opens it). */
+const plates = new Map<string, string>();
+const plate = (club: string) => plates.get(club) ?? plates.set(club, monogram(club || 'Rotary')).get(club)!;
+const toProject = (r: Row, i: number): Project => {
+  const club = clean(r.clubName), key = clean(r.moduleKey).toLowerCase();
+  return {
+    id: Number(/\/project\/(\d+)/.exec(String(r.publicPhotoUrl))?.[1]) || -(i + 1),
+    title: clean(r.title) || 'Untitled project',
+    club,
+    avenue: AVENUE[key] ?? (key || 'community'),
+    date: isoDay(r.projectDate),
+    photo: { src: plate(club), w: 480, h: 600, alt: '' },
+    beneficiaries: Number(r.beneficiaries) || 0,
+    amount: (Number(r.amountSpent) || 0) / 1e5,                                /* ₹ lakh */
+    hours: Number(r.manHours) || 0,
+    summary: lead(clean(r.description) || clean(r.areaOfFocus), 180)
+  };
+};
+const newestFirst = (a: Project, b: Project) => b.date.localeCompare(a.date) || b.id - a.id;
+/* real photos for the cards a visitor sees first, one request a card (as production) */
+const cardPhotos = (cards: Project[], yearId?: number) => Promise.all(cards.filter(p => p.id > 0).map(p => api(`/api/public/projects/${p.id}?yearId=${yearId}`).then((d: Row) => {
+  const ph = list(d?.photos).find(x => x.isPrimary) ?? list(d?.photos)[0];
+  const src = media(ph?.imagePath);
+  if (src) p.photo = { src, w: 1200, h: 900, alt: clean(ph!.description) || p.title };
+}, () => { /* the card keeps its plate */ })));
+
+/* club bulletins: production's rules (published, not scheduled for later, with a file or a link; the year from
+   yearId, or from the date when the row has none) */
+const ts = (r: Row) => Date.parse(r.publishDateTime) || 0;
+const shown = (r: Row) => String(r.status ?? 'Published').toLowerCase() === 'published' && !!(r.linkUrl || r.filePath) && ts(r) <= Date.now();
+const inYear = (r: Row, y: Year) => (r.yearId ? r.yearId === y.id : !!ts(r) && yearOf(new Date(ts(r))) === y.label);
+const newest = (a: Row, b: Row) => ts(b) - ts(a);
+const bulletinOf = (r: Row): Bulletin => ({
+  title: clean(r.title) || 'Newsletter', club: r.club, date: isoDay(r.publishDateTime), pdf: media(r.linkUrl || r.filePath),
+  cover: R.photos.school                                                       /* the API has no cover; the themes show none */
+});
+
+/* a club's event as a calendar entry. Its id names the club and the event (c-<club id>-<event id>), so the event
+   page can check the club's own list before asking for the event: a wrong id never costs a 404. */
+const clubEvent = (e: Row): CalEntry => {
+  const when = e.eventDate || e.date || e.startDate;
+  return { date: isoDay(when), type: 'club', title: clean(e.title || e.eventTitle || e.name) || 'Club event', club: e.club, time: hhmm(when), venue: clean(e.venue || e.eventVenue || e.location) || undefined, id: e.eventId ? `c-${e.clubId}-${e.eventId}` : undefined };
+};
+
+/* the Governor in a committee roster */
+const findDG = (rows: Row[]) => rows.find(m => /^district governor$/i.test(clean(m.districtDesignation))) ?? rows.find(m => isDG(m.districtDesignation)) ?? null;
+/* production's pickPresident: designationId 1, else a "…President" role that is not Vice or Past */
+const pickPresident = (board: Row[]) => board.find(b => b.designationId === 1)
+  ?? board.find(b => { const n = clean(b.designationName).toLowerCase(); return n.includes('president') && !n.includes('vice') && !n.includes('past'); }) ?? null;
+
+/* District Committee: the executive, then every committee group (and its sub-groups), in API order */
+const committeeOf = async (c: Ctx) => {
+  const y = c.years[0].id, base = `/api/districts/${c.id}/committee`;
+  /* id: the API's member id (member.html?id= opens the profile) */
+  const member = (m: Row): Member => {
+    const name = clean(m.name) || 'Member';
+    return { name, role: clean(m.districtDesignation), club: clean(m.clubName), photo: portrait(media(m.profilePhoto), name), id: m.memberId > 0 ? String(m.memberId) : undefined, email: clean(m.email) || undefined };
+  };
+  /* sub-group rows name only the photo's file (production's fixSubPhoto) */
+  const subPhoto = (m: Row) => {
+    const p = clean(m.profilePhoto);
+    return p && !p.startsWith('/') && !/^https?:/i.test(p) ? { ...m, profilePhoto: (m.memberId > 0 ? '/Documents/directory/' : `/Documents/DistrictCommittee/Group${m.clubId || 0}/`) + p } : m;
+  };
+  const [exec, groups] = await Promise.all([api(`${base}/members?yearId=${y}&page=1&pageSize=200`).then(list), groupsOf(c)]);
+  const sections = await Promise.all(groups.map(async g => {
+    const [own, subs] = await Promise.all([
+      groupMembers(c, g.id).catch(() => [] as Row[]),
+      g.subGroupCount > 0
+        ? api(`${base}/groups/${g.id}/sub-groups`).then(r => Promise.all(list(r).map(async sg => ({
+          title: `${clean(g.groupName)} · ${clean(sg.subGroupName)}`,
+          members: list(await api(`${base}/sub-groups/${sg.id}/members`).catch(() => [])).map(subPhoto).map(member)
+        })))).catch(() => [])
+        : []
+    ]);
+    return [{ title: clean(g.groupName), members: own.map(member) }, ...subs];
+  }));
+  /* the themes lead the page with the first member of the first group: the District Governor */
+  const gov = exec.findIndex(m => isDG(m.districtDesignation));
+  if (gov > 0) exec.unshift(...exec.splice(gov, 1));
+  return [{ title: 'Executive Committee', members: exec.map(member) }, ...sections.flat()].filter(s => s.members.length);
+};
+const groupsOf = (c: Ctx) => api(`/api/districts/${c.id}/committee/groups?yearId=${c.years[0].id}&page=1&pageSize=200`).then(list);
+/* every page of a group (200 is the API's page cap) */
+const groupMembers = async (c: Ctx, gid: number) => {
+  const page = (n: number) => api(`/api/districts/${c.id}/committee/groups/${gid}/members?page=${n}&pageSize=200`);
+  const first = await page(1);
+  const more = await Promise.all(Array.from({ length: Math.max(0, (Number(first?.totalPages) || 1) - 1) }, (_, i) => page(i + 2)));
+  return [first, ...more].flatMap(list);
+};
 
 /* District: 3141, or ?district=NNNN, remembered for the session (production's tenant rule).
    Rotary year: the one today falls in (production's rule), and the next one. */
@@ -197,10 +355,7 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
   async dignitaries(c) {
     const got = await Promise.all(c.years.map(y => (y.id ? Promise.all([
       api(`/api/public/club/${PRESIDENT_CLUB}/international-president?yearId=${y.id}`).catch(() => null),
-      api(`/api/districts/${c.id}/committee/members?yearId=${y.id}&page=1&pageSize=200`).then(r => {
-        const rows = list(r);
-        return rows.find(m => /^district governor$/i.test(clean(m.districtDesignation))) ?? rows.find(m => isDG(m.districtDesignation)) ?? null;
-      }, () => null)
+      api(`/api/districts/${c.id}/committee/members?yearId=${y.id}&page=1&pageSize=200`).then(r => findDG(list(r)), () => null)
     ]) : Promise.resolve([null, null]))));
     return () => c.years.forEach((y, i) => {
       const [p, g] = got[i] as (Row | null)[], was = R.dignitaries.byYear[y.label];
@@ -247,13 +402,11 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
       list(f?.familyAnniversaries).filter(x => !wed.has(`${x.memberId}|${day(x)}`)).forEach(x => add(day(x), /^spouse$/i.test(clean(x.relation))
         ? { type: 'anniversary', name: `${clean(x.memberName)} & ${clean(x.familyMemberName)}`, club: clean(x.clubName) }
         : { type: 'anniversary', name: clean(x.familyMemberName) || clean(x.memberName), relation: of(x) }));
-      list(f?.upcomingEvents).filter(x => isoDay(x.eventDate || x.date).startsWith(toISO(m).slice(0, 8))).forEach(x => add(isoDay(x.eventDate || x.date), { type: 'district', title: clean(x.title || x.eventTitle || x.name) || 'District event', time: hhmm(x.eventDate || x.date), venue: clean(x.eventVenue || x.venue) || undefined }));
+      /* a district event's id names the month whose feed lists it (d-<yyyy-mm>-<event id>): the event page asks that one feed */
+      list(f?.upcomingEvents).filter(x => isoDay(x.eventDate || x.date).startsWith(toISO(m).slice(0, 8))).forEach(x => add(isoDay(x.eventDate || x.date), { type: 'district', title: clean(x.title || x.eventTitle || x.name) || 'District event', time: hhmm(x.eventDate || x.date), venue: clean(x.eventVenue || x.venue) || undefined, id: x.id ? `d-${toISO(m).slice(0, 7)}-${x.id}` : undefined }));
     });
     const first = toISO(months[0]), last = toISO(new Date(start + 1, 5, 30));
-    events.forEach(e => {
-      const when = e.eventDate || e.date || e.startDate, date = isoDay(when);
-      if (date >= first && date <= last) entries.push({ date, type: 'club', title: clean(e.title || e.eventTitle || e.name) || 'Club event', club: e.club, time: hhmm(when), venue: clean(e.venue || e.eventVenue || e.location) || undefined });
-    });
+    events.map(clubEvent).forEach(e => { if (e.date >= first && e.date <= last) entries.push(e); });
     entries.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     /* the tab counts are this month's, as in the sample */
     const today = toISO(new Date()), month = today.slice(0, 7);
@@ -265,13 +418,9 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
   /* Governor's Monthly Letters and club bulletins, this year and next */
   async press(c, page) {
     const [letters, bulletins] = await Promise.all([api(`/api/districts/${c.id}/newsletters?pageSize=200`).then(list), everyClub(c, id => `/api/clubs/${id}/newsletters?pageSize=200`)]);
-    const g = GROUPS[c.num], now = Date.now();
-    const ts = (r: Row) => Date.parse(r.publishDateTime) || 0;
-    /* production's rules: published, not scheduled for later, with a file or a link; letters carry no year, so it comes from the date */
-    const shown = (r: Row) => String(r.status ?? 'Published').toLowerCase() === 'published' && !!(r.linkUrl || r.filePath) && ts(r) <= now;
-    const inYear = (r: Row, y: Year) => (r.yearId ? r.yearId === y.id : !!ts(r) && yearOf(new Date(ts(r))) === y.label);
-    const newest = (a: Row, b: Row) => ts(b) - ts(a);
+    const g = GROUPS[c.num];
     const home = page === 'home';
+    /* letters carry no year, so it comes from the date */
     return () => c.years.forEach((y, i) => {
       const gml: Letter[] = letters.filter(r => shown(r) && !!ts(r) && yearOf(new Date(ts(r))) === y.label).sort(newest).map(r => ({
         title: clean(r.title) || 'Governor’s Monthly Letter',
@@ -281,10 +430,7 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
         /* the file sits in the district's website group, not the folder the API names */
         pdf: r.linkUrl ? media(r.linkUrl) : media(g ? `${MEDIA}/Documents/ebulletin/Group${g}/${fileName(r.filePath)}` : r.filePath)
       }));
-      const club: Bulletin[] = bulletins.filter(r => shown(r) && inYear(r, y)).sort(newest).map(r => ({
-        title: clean(r.title) || 'Newsletter', club: r.club, date: isoDay(r.publishDateTime), pdf: media(r.linkUrl || r.filePath),
-        cover: R.photos.school                                                       /* the API has no cover; the themes show none */
-      }));
+      const club: Bulletin[] = bulletins.filter(r => shown(r) && inYear(r, y)).sort(newest).map(bulletinOf);
       /* the homepage shows the latest few, as designed; the Newsletters page shows the whole year */
       R.press.byYear[y.label] = { gml: home ? gml.slice(0, 3) : gml, bulletins: home ? club.slice(0, 8) : club, total: club.length, status: i ? 'upcoming' : 'in-progress' };
     });
@@ -296,61 +442,16 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
     return () => Object.assign(P.about, { content: row ? String(row.content || row.Content) : '', placeholder: false });
   },
 
-  /* District Committee: the executive, then every committee group (and its sub-groups), in API order */
+  /* District Committee (committeeOf above) */
   async committee(c) {
-    const y = c.years[0].id, base = `/api/districts/${c.id}/committee`;
-    const member = (m: Row): Member => { const name = clean(m.name) || 'Member'; return { name, role: clean(m.districtDesignation), club: clean(m.clubName), photo: portrait(media(m.profilePhoto), name) }; };
-    /* every page of a group (200 is the API's page cap) */
-    const members = async (gid: number) => {
-      const first = await api(`${base}/groups/${gid}/members?page=1&pageSize=200`);
-      const more = await Promise.all(Array.from({ length: Math.max(0, (Number(first?.totalPages) || 1) - 1) }, (_, i) => api(`${base}/groups/${gid}/members?page=${i + 2}&pageSize=200`)));
-      return [first, ...more].flatMap(list);
-    };
-    /* sub-group rows name only the photo's file (production's fixSubPhoto) */
-    const subPhoto = (m: Row) => {
-      const p = clean(m.profilePhoto);
-      return p && !p.startsWith('/') && !/^https?:/i.test(p) ? { ...m, profilePhoto: (m.memberId > 0 ? '/Documents/directory/' : `/Documents/DistrictCommittee/Group${m.clubId || 0}/`) + p } : m;
-    };
-    const [exec, groups] = await Promise.all([api(`${base}/members?yearId=${y}&page=1&pageSize=200`).then(list), api(`${base}/groups?yearId=${y}&page=1&pageSize=200`).then(list)]);
-    const sections = await Promise.all(groups.map(async g => {
-      const [own, subs] = await Promise.all([
-        members(g.id).catch(() => [] as Row[]),
-        g.subGroupCount > 0
-          ? api(`${base}/groups/${g.id}/sub-groups`).then(r => Promise.all(list(r).map(async sg => ({
-            title: `${clean(g.groupName)} · ${clean(sg.subGroupName)}`,
-            members: list(await api(`${base}/sub-groups/${sg.id}/members`).catch(() => [])).map(subPhoto).map(member)
-          })))).catch(() => [])
-          : []
-      ]);
-      return [{ title: clean(g.groupName), members: own.map(member) }, ...subs];
-    }));
-    /* the themes lead the page with the first member of the first group: the District Governor */
-    const gov = exec.findIndex(m => isDG(m.districtDesignation));
-    if (gov > 0) exec.unshift(...exec.splice(gov, 1));
-    return () => { P.committee.groups = [{ title: 'Executive Committee', members: exec.map(member) }, ...sections.flat()].filter(s => s.members.length); };
+    const groups = await committeeOf(c);
+    return () => { P.committee.groups = groups; };
   },
 
   /* Club Projects / Club Service: this year's avenue-of-service report, newest first */
   async projects(c, page) {
     const y = c.years[0].id;
-    const plates = new Map<string, string>();
-    const plate = (club: string) => plates.get(club) ?? plates.set(club, monogram(club || 'Rotary')).get(club)!;
-    const all: Project[] = (await feed(c, y)).map((r, i) => {
-      const club = clean(r.clubName), key = clean(r.moduleKey).toLowerCase();
-      return {
-        id: Number(/\/project\/(\d+)/.exec(String(r.publicPhotoUrl))?.[1]) || -(i + 1),
-        title: clean(r.title) || 'Untitled project',
-        club,
-        avenue: AVENUE[key] ?? (key || 'community'),
-        date: isoDay(r.projectDate),
-        /* the report has no photos: the club's initials plate, until the card's own photo is fetched below */
-        photo: { src: plate(club), w: 480, h: 600, alt: '' },
-        beneficiaries: Number(r.beneficiaries) || 0,
-        amount: (Number(r.amountSpent) || 0) / 1e5,                                /* ₹ lakh */
-        hours: Number(r.manHours) || 0,
-        summary: lead(clean(r.description) || clean(r.areaOfFocus), 180)
-      };
-    }).sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
+    const all: Project[] = (await feed(c, y)).map(toProject).sort(newestFirst);
     /* The designs put every card in the page and page them in the browser, and style "the first card shown" by
        counting siblings: past a few hundred cards that costs seconds to a minute of blank page (this year has
        4,387 reports). So the pages get the latest PER of each avenue, and their lead says so, with the full count. */
@@ -359,17 +460,214 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
     const clubs = (l: Project[]) => l.filter(p => p.avenue === 'club').length;
     /* real photos for the cards a visitor sees first: the first page of every avenue filter, one request a card (as production) */
     const views = page === 'service' ? [kept.filter(p => p.avenue === 'club')] : [kept, ...P.projects.avenues.map(a => kept.filter(p => p.avenue === a.key))];
-    const first = new Set(views.flatMap(v => v.slice(0, P.projects.pageSize)).filter(p => p.id > 0));
-    await Promise.all([...first].map(p => api(`/api/public/projects/${p.id}?yearId=${y}`).then((d: Row) => {
-      const ph = list(d?.photos).find(x => x.isPrimary) ?? list(d?.photos)[0];
-      const src = media(ph?.imagePath);
-      if (src) p.photo = { src, w: 1200, h: 900, alt: clean(ph!.description) || p.title };
-    }, () => { /* the card keeps its plate */ })));
+    const first = new Set(views.flatMap(v => v.slice(0, P.projects.pageSize)));
+    await cardPhotos([...first], y);
     return () => {
       P.projects.list = kept;
       const n = (v: number) => R.fmt.num(v), yr = c.years[0].label, head = (k: PageKey) => P.list.find(p => p.key === k)!;
       if (kept.length < all.length) head('projects').lead = `The latest projects by the clubs of District ${c.num}, up to ${PER} for each avenue of service: ${n(kept.length)} of the ${n(all.length)} reported in ${yr}.`;
       if (clubs(kept) < clubs(all)) head('service').lead = `Projects that strengthen our clubs: the latest ${n(clubs(kept))} of the ${n(clubs(all))} reported in ${yr}.`;
+    };
+  },
+
+  /* Club Finder: each club's President and the President's phone (production's enrichPresident). The committee's
+     "Club Presidents" group names nearly all of them in one request; the clubs it lacks ask their own board. The
+     phone comes from the member's record, and only when the member has not hidden their personal details. ~130
+     small requests, 8 at a time: what has not arrived just before loadLive stops waiting is left out (the server
+     keeps answers for five minutes, so the next visit has them). */
+  async presidents(c) {
+    const y = c.years[0].id, got = new Map<number, { president: string; phone?: string; tel?: string }>();
+    const work = (async () => {
+      const [{ rows }, groups] = await Promise.all([clubsOf(c), groupsOf(c).catch(() => [] as Row[])]);
+      const g = groups.find(x => /^club presidents?$/i.test(clean(x.groupName)));
+      const who = new Map<number, Row>();
+      if (g) (await groupMembers(c, g.id).catch(() => [] as Row[])).forEach(m => { if (m.clubId && clean(m.name)) who.set(Number(m.clubId), { memberId: m.memberId, memberName: m.name }); });
+      await pool(rows.filter(r => !who.has(Number(r.clubId))), 8, r => api(`/api/clubs/${r.clubId}/board-of-directors?yearId=${y}`).then(b => {
+        const p = pickPresident(list(b));
+        if (p && clean(p.memberName)) who.set(Number(r.clubId), p);
+      }));
+      who.forEach((p, id) => got.set(id, { president: clean(p.memberName) }));
+      await pool([...who].filter(([, p]) => p.memberId > 0), 8, ([id, p]) => api(`/api/mobile/club-finder/members/${p.memberId}`).then((d: Row) => {
+        const m = d?.member ?? {}, hidden = m.isPersonalDetailsVisible === 0 || m.isPersonalDetailsVisible === false;
+        got.set(id, { president: clean(m.memberName) || clean(p.memberName), ...(hidden ? null : dial(m.primaryMobile, m.primaryPhoneCode)) });
+      }));
+    })().catch(() => {});
+    let finished = false;
+    await Promise.race([work.then(() => { finished = true; }), lapse()]);
+    if (!finished) info(`Club Finder: ${got.size} Presidents arrived in time, ${[...got.values()].filter(p => p.phone).length} with a phone`);
+    return () => R.clubs.list.forEach(k => { const p = got.get(k.id); k.president = p?.president; k.phone = p?.phone; k.tel = p?.tel; });
+  },
+
+  /* Club profile (club.html?id=<club id>): production's ClubProfile. The id must be one of the district's clubs (the
+     club endpoints answer 403 for any other). Projects and their totals come from the year's avenue-of-service
+     report (as production: by club name), the board and the newsletters from this Rotary year. */
+  async club(c) {
+    const id = param('id'), y = c.years[0];
+    const row = (await clubsOf(c)).rows.find(r => String(r.clubId) === id);
+    if (!row) return () => { D.club.item = null; };
+    const roster = async () => {                                           /* every page of the roster (100 is the page cap) */
+      const page = (n: number) => api(`/api/mobile/club-finder/${id}/members?page=${n}&pageSize=100&excludeHonorary=true`);
+      const first = await page(1);
+      const more = await Promise.all(Array.from({ length: Math.max(0, Math.ceil((Number(first?.totalCount) || 0) / 100) - 1) }, (_, i) => page(i + 2)));
+      return [first, ...more].flatMap(list).filter(m => !Number(m.isHonorary));   /* the API ignores excludeHonorary */
+    };
+    const none = (): Row[] => [], late: Row[] = [];
+    const [d, board, people, reports, letters, events] = await Promise.all([
+      api(`/api/mobile/club-finder/${id}`),
+      api(`/api/clubs/${id}/board-of-directors?yearId=${y.id}`).then(list, none),
+      roster().catch(none),
+      /* the year's report is 5 MB: should it arrive too late, the club still shows live, without its projects */
+      Promise.race([feed(c, y.id).catch(none), lapse().then(() => late)]),
+      api(`/api/clubs/${id}/newsletters?pageSize=200`).then(list, none),
+      api(eventsOf(id)).then(list, none)
+    ]);
+    if (reports === late) info('club: the year’s project report came too late; the club shows no projects');
+    const k: Row = d?.club ?? {}, name = clean(k.ClubName) || clean(row.clubName);
+    const projects = reports.map(toProject).filter(p => p.club === name).sort(newestFirst);
+    await Promise.race([cardPhotos(projects.slice(0, P.projects.pageSize), y.id), lapse()]);
+    const leader = (role: unknown, who: unknown, photo: unknown): Leader => { const n = clean(who); return { role: clean(role), name: n, photo: portrait(media(photo), n) }; };
+    /* the year's board, in the API's order of office; none on record: the club's current President and Secretary */
+    const leaders = board.length
+      ? board.slice().sort((a, b) => (a.designationId || 999) - (b.designationId || 999))
+        .map(b => leader(clean(b.designationName || 'Board Member').replace(/^club\s+/i, ''), b.memberName || b.nonMemberName, b.profilePhotoPath))
+      : [leader('President', d?.president?.name, d?.president?.profilePhoto), leader('Secretary', d?.secretary?.name, d?.secretary?.profilePhoto)];
+    const members: Member[] = people.map(m => { const n = clean(m.memberName) || 'Member'; return { name: n, role: clean(m.currentDesignation), club: name, photo: portrait(media(m.profilePhoto), n), id: m.memberId ? String(m.memberId) : undefined }; });
+    const from = clock(k.MeetingFromTime), to = clock(k.MeetingToTime);
+    return () => {
+      D.club.item = {
+        id, name,
+        meeting: { day: weekday(k.MeetingDay || row.meetingDay), time: from && to ? `${from}–${to}` : from || to, place: places([k.MeetingAddress || row.meetingAddress, k.City, `${clean(k.State)} ${clean(k.Pincode)}`]) },
+        details: facts([['Chartered', dated(k.ClubCharterDate)], ['Zone', clean(k.zoneName)], ['Club ID', clean(k.ClubRotaryId)]]),
+        glance: { members: members.length, ...totals(projects) },
+        contact: filled({ email: clean(k.ClubEmail), web: link(d?.clubWebsite?.clientDomain || k.ClubWebsite) }),
+        leaders: leaders.filter(l => l.name),
+        members, projects,
+        bulletins: letters.filter(r => shown(r) && inYear(r, y)).sort(newest).map(r => bulletinOf({ ...r, club: name })),
+        events: events.map(e => clubEvent({ ...e, club: name, clubId: id })).filter(e => yearOf(parseISO(e.date)) === y.label).sort((a, b) => a.date.localeCompare(b.date))
+      };
+    };
+  },
+
+  /* Project (project.html?id=<public project id>): production's club-project Detail, /api/public/projects/{id} in
+     this Rotary year (the ids repeat across years). Every photo, primary first, with its real size. */
+  async project(c) {
+    const id = param('id'), y = c.years[0].id;
+    const d: Row | null = /^\d+$/.test(id) ? await api(`/api/public/projects/${id}?yearId=${y}`).catch(absent) : null;
+    const p: Row | undefined = d?.project;
+    if (!p) return () => { D.project.item = null; };
+    const title = clean(p.title) || 'Untitled project', club = clean(p.clubName), key = clean(p.moduleKey).toLowerCase();
+    const shots = list(d!.photos).slice().sort((a, b) => Number(!!b.isPrimary) - Number(!!a.isPrimary) || (a.sortOrder || 0) - (b.sortOrder || 0));
+    const gallery = (await Promise.all(shots.map(s => sized(media(s.imagePath), clean(s.description) || title)))).filter((s): s is Photo => !!s);
+    const n = (v: unknown) => (v == null || v === '' || !Number.isFinite(Number(v)) ? null : Number(v));
+    return () => {
+      D.project.item = {
+        id: Number(id), title, club,
+        avenue: AVENUE[key] ?? (key || 'community'),
+        date: isoDay(p.projectDate),
+        photo: gallery[0] ?? { src: plate(club), w: 480, h: 600, alt: '' },
+        beneficiaries: n(p.directBeneficiaries) ?? 0,
+        amount: (n(p.projectCost) ?? 0) / 1e5,                                  /* ₹ lakh: the report's amount spent */
+        hours: n(p.manHours) ?? 0,
+        summary: lead(clean(p.description) || clean(p.areaOfFocus), 180),
+        description: plain(p.description),
+        gallery,
+        location: places([p.location, p.clubCity, p.clubState]),
+        rotarians: n(p.rotariansInvolved),
+        focus: sentence(clean(p.areaOfFocus)),
+        clubId: p.clubId ? String(p.clubId) : ''
+      };
+    };
+  },
+
+  /* Event (event.html?id=…): a club event, c-<club id>-<event id> (the club's list, then production's club-event
+     detail for the organiser), or a district event, d-<yyyy-mm>-<event id> (that month's district calendar, which
+     carries the whole event). Ids the lists do not name are not asked for. */
+  async event(c) {
+    const id = param('id');
+    const ce = /^c-(\d+)-(\d+)$/.exec(id), de = /^d-(\d{4})-(\d{2})-(\d+)$/.exec(id);
+    let item: EventDetail | null = null;
+    if (ce) {
+      const row = (await clubsOf(c)).rows.find(r => String(r.clubId) === ce[1]);
+      const e = row ? list(await api(eventsOf(ce[1]))).find(x => String(x.eventId) === ce[2]) : null;
+      if (e) {
+        const x: Row = await api(`/api/mobile/club-finder/events/${ce[2]}`).catch(() => e);
+        const when = x.eventDate || e.eventDate, title = clean(x.title) || 'Club event';
+        const photo = await sized(media(x.imagePath), title);
+        item = {
+          id, kind: 'club', title, date: isoDay(when), time: hhmm(when) ?? '', venue: clean(x.venue),
+          club: clean(x.clubName) || clean(row!.clubName), clubId: ce[1],
+          description: plain(x.description), gallery: photo ? [photo] : [], registration: link(x.registrationLink),
+          contact: filled({ name: clean(x.organizerName), email: clean(x.organizerEmail), phone: dial(x.organizerMobile)?.phone ?? '' })
+        };
+      }
+    } else if (de) {
+      const f: Row = await api(`/api/mobile/district-calendar/${c.id}?month=${+de[2]}&year=${de[1]}`);
+      const e = list(f?.upcomingEvents).find(x => String(x.id) === de[3]);
+      if (e) {
+        const when = e.eventDate || e.date, title = clean(e.title || e.eventTitle || e.name) || 'District event';
+        /* an image the old admin uploaded sits in the district's website group, not where the API says (production's eventMediaAlt) */
+        const path = String(e.imagePath ?? ''), old = /^\/Documents\/Event\/Group\d+\/(.+)$/i.exec(path), g = GROUPS[c.num];
+        const photo = (await sized(media(path), title)) ?? (old && g ? await sized(media(`/Documents/Event/Group${g}/${old[1]}`), title) : null);
+        item = {
+          id, kind: 'district', title, date: isoDay(when), time: hhmm(when) ?? '', venue: clean(e.eventVenue || e.venue),
+          club: '', clubId: '', description: plain(e.description), gallery: photo ? [photo] : [], registration: link(e.registrationLink), contact: null
+        };
+      }
+    }
+    return () => { D.event.item = item; };
+  },
+
+  /* RI President or District Governor (dignitary.html?type=president|dg), this Rotary year: production's
+     DignitaryProfile. The President's whole biography; the Governor from the committee roster (as the homepage),
+     with the facts and contact of their member record. */
+  async dignitary(c) {
+    const t = param('type').toLowerCase(), y = c.years[0];
+    if (!(t === 'dg' || t === '2' || t === 'governor')) {
+      const p: Row | null = await api(`/api/public/club/${PRESIDENT_CLUB}/international-president?yearId=${y.id}`).catch(absent);
+      const name = clean(p?.name);
+      return () => {
+        D.dignitary.item = name ? { president: { name, role: 'President', term: `Rotary International ${y.label}`, bio: parasOf(p!.description), photo: portrait(media(p!.profilePhotoPath), name), type: 'president', facts: [], contact: null } } : null;
+      };
+    }
+    const g = findDG(list(await api(`/api/districts/${c.id}/committee/members?yearId=${y.id}&page=1&pageSize=200`)));
+    const m: Row = g && g.memberId > 0 ? await api(`/api/members/${g.memberId}`).catch(() => ({})) : {};
+    const name = clean(g?.name);
+    return () => {
+      D.dignitary.item = name ? {
+        dg: {
+          name, role: 'District Governor', term: y.label,
+          /* the API keeps no bio for the Governor unless the member wrote an introduction */
+          bio: plain(m.memberIntroduction) || `${name} leads Rotary District ${c.num} in ${y.label}.`,
+          photo: portrait(media(m.profilePhotoPath) || media(g!.profilePhoto), name), type: 'dg',
+          facts: facts([['Club', clean(g!.clubName) && `Rotary Club of ${clean(g!.clubName)}`], ['Rotary ID', clean(m.rotaryId)], ['Classification', clean(m.classificationProfession)], ['Member since', dated(m.joinedDate)]]),
+          contact: filled({ email: clean(m.emailId) || clean(g!.email), phone: dial(m.primaryMobileNumber || g!.mobile, m.primaryCountryPhoneCode)?.phone ?? '' })
+        }
+      } : null;
+    };
+  },
+
+  /* Committee member (member.html?id=<member id>&name=&role=&club=): production's DirectorProfile, which prefers
+     the name, role and club the card forwarded. The committee says which group the member is in (and finds a
+     member the API has no record for); /api/members/{id} gives the photo and the e-mail. */
+  async member(c) {
+    const id = param('id');
+    const [groups, md] = await Promise.all([
+      committeeOf(c).catch(() => null),
+      /^\d+$/.test(id) && +id > 0 ? api(`/api/members/${id}`).catch(absent) as Promise<Row | null> : null
+    ]);
+    const g = groups?.find(x => x.members.some(m => memberId(m) === id)), row = g?.members.find(m => memberId(m) === id);
+    return () => {
+      if (groups) P.committee.groups = groups;
+      if (!row && !clean(md?.memberName)) { D.member.item = null; return; }
+      const name = param('name') || row?.name || clean(md!.memberName);
+      D.member.item = {
+        id, name,
+        role: param('role') || row?.role || clean(md?.designation) || 'Rotary Member',
+        club: param('club') || row?.club || '',
+        group: g?.title ?? '',
+        email: clean(md?.emailId) || row?.email || '',
+        photo: portrait(media(md?.profilePhotoPath), name) ?? row?.photo ?? null
+      };
     };
   }
 };
@@ -379,12 +677,18 @@ const PAGE_JOBS: Record<PageKey | 'home', string[]> = {
   home: ['hero', 'snapshot', 'clubs', 'dignitaries', 'calendar', 'press'],
   about: ['about'],
   committee: ['committee'],
-  finder: ['clubs'],
+  finder: ['clubs', 'presidents'],
   projects: ['projects'],
   service: ['projects'],
   calendar: ['calendar'],
   newsletters: ['dignitaries', 'press'],     /* each letter names its Governor */
-  contact: ['dignitaries']                   /* the Governor's office */
+  contact: ['dignitaries'],                  /* the Governor's office */
+  /* detail pages (shared/detail.tsx): the item the query string names, in P.<page>.item */
+  club: ['clubs', 'club'],
+  project: ['project'],
+  event: ['event'],
+  dignitary: ['dignitaries', 'dignitary'],    /* both people, so the page can offer the other one with name and photo */
+  member: ['member']
 };
 const ORDER = Object.keys(JOBS);               /* write order: the dignitaries before the press */
 
@@ -406,6 +710,7 @@ export async function loadLive(page: PageKey | 'home'): Promise<void> {
   if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return info('not on this computer: sample data');
   const t0 = performance.now(), ctrl = new AbortController(), TIMEOUT = Symbol('timeout');
   signal = ctrl.signal;
+  until = t0 + CAP;
   const deadline = new Promise<typeof TIMEOUT>(r => setTimeout(() => r(TIMEOUT), CAP));
   let c: Ctx | typeof TIMEOUT;
   try {

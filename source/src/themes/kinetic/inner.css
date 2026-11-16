@@ -34,8 +34,10 @@
 /* the footer's fade starts from the colour the page ends on */
 .kx ~ .foot { --prev: #e8ecff; }
 .kx--about ~ .foot { --prev: #ffe3d6; }
+.kx--club ~ .foot { --prev: #ece6ff; }
 :root[data-theme='dark'] .kx ~ .foot { --prev: #070a2b; }
 :root[data-theme='dark'] .kx--about ~ .foot { --prev: #2a0f1e; }
+:root[data-theme='dark'] .kx--club ~ .foot { --prev: #181040; }
 
 /* ---------- reveal: every time it scrolls into view (shared/inner.js toggles .is-in) ---------- */
 .kx [data-rv] {
@@ -66,7 +68,6 @@
 .kx-title { font-family: var(--f-display); font-weight: 800; font-size: clamp(2.15rem, 5.4vw, 5.2rem); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; transform-origin: 0 50%; }
 .kx-title > span { display: inline-block; transform-origin: 0 60%; animation: kx-in-x 0.9s var(--ease) both; }
 @keyframes kx-in-x { from { opacity: 0; transform: scaleX(0.6); } }
-.kx-head__lead { max-width: 80ch; margin-top: 6px; font-size: 18px; line-height: 1.5; font-weight: 500; color: var(--ink-2); }
 .kx-tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 12px; margin-top: 18px; }
 .kx-tools > .kx-chips { flex: 1 1 520px; padding-top: 5px; }
 
@@ -87,10 +88,8 @@
 .kx-search { position: relative; flex: 1 1 320px; max-width: 440px; display: flex; align-items: center; min-height: 52px; border-radius: 999px; background: var(--surface); color: var(--on); box-shadow: 0 10px 26px rgba(11, 14, 85, 0.12), inset 0 0 0 1px var(--line); transition: box-shadow 0.25s; }
 .kx-search:focus-within { box-shadow: 0 0 0 3px #d9400e, 0 10px 26px rgba(11, 14, 85, 0.12); }
 .kx-search > svg { position: absolute; left: 18px; color: var(--on-2); pointer-events: none; }
-.kx-search input { flex: 1; min-width: 0; height: 52px; padding: 0 12px 0 48px; border: 0; border-radius: inherit; background: none; color: inherit; font: inherit; font-size: 16px; text-overflow: ellipsis; outline: none; }
+.kx-search input { flex: 1; min-width: 0; height: 52px; padding: 0 22px 0 48px; border: 0; border-radius: inherit; background: none; color: inherit; font: inherit; font-size: 16px; text-overflow: ellipsis; outline: none; }
 .kx-search input::placeholder { color: var(--on-2); opacity: 1; }
-.kx-search__n { flex: none; padding: 0 20px 0 14px; border-left: 1px solid var(--line); font-size: 14px; font-weight: 600; color: var(--on-2); white-space: nowrap; }
-.kx-search__n b { font-family: var(--f-display); font-weight: 800; color: var(--on); font-variant-numeric: tabular-nums; }
 .kx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .kx-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 15px; border: 0; border-radius: 999px; background: var(--kx-chip); color: var(--kx-chip-ink); font: 600 14.5px/1.1 var(--f-body); white-space: nowrap; cursor: pointer; transition: background-color 0.25s, color 0.25s, scale 0.3s var(--back); }
 .kx-chip:hover { scale: 1.05; }
@@ -171,36 +170,49 @@
 .kx-prose :is(pre, code) { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.88em; }
 .kx-prose pre { padding: 16px 20px; border-radius: 18px; background: var(--surface); color: var(--on); overflow-x: auto; }
 
-/* ================= District Committee: everyone meets in the middle, on one spine ================= */
-.kx-roster { position: relative; display: grid; gap: 52px; padding-top: 6px; }
-.kx-roster::before { content: ''; position: absolute; top: 24px; bottom: 0; left: 50%; width: 4px; margin-left: -2px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 16%, transparent); }
-.kx-cg { position: relative; z-index: 1; display: grid; justify-items: center; gap: 18px; }
-.kx-cg__name { display: inline-flex; align-items: center; gap: 12px; max-width: 100%; min-height: 52px; padding: 6px 7px 6px 24px; border-radius: 999px; background: var(--c); color: var(--c-ink); font-family: var(--f-display); font-weight: 800; font-size: clamp(1.1rem, 1.5vw, 1.4rem); line-height: 1.15; letter-spacing: -0.02em; box-shadow: 0 12px 28px rgba(11, 14, 85, 0.16); }
+/* ================= District Committee: the Governor's duo, then each committee as rows of portraits ================= */
+.kx-roster { display: grid; gap: 48px; padding-top: 6px; }
+.kx-cg { display: grid; gap: 20px; }
+.kx-cg__name { justify-self: start; display: inline-flex; align-items: center; gap: 12px; max-width: 100%; min-height: 52px; padding: 6px 7px 6px 24px; border-radius: 999px; background: var(--c); color: var(--c-ink); font-family: var(--f-display); font-weight: 800; font-size: clamp(1.1rem, 1.5vw, 1.4rem); line-height: 1.15; letter-spacing: -0.02em; box-shadow: 0 12px 28px rgba(11, 14, 85, 0.16); }
 .kx-cg__name b { display: grid; place-items: center; flex: none; min-width: 40px; height: 40px; padding: 0 8px; border-radius: 999px; background: var(--c-ink); color: #ffffff; font-size: 15px; font-variant-numeric: tabular-nums; }
 .kx-t0 { --c: var(--c1); } .kx-t1 { --c: var(--c2); } .kx-t2 { --c: var(--c3); } .kx-t3 { --c: var(--c4); } .kx-t4 { --c: var(--c5); } .kx-t5 { --c: #b9a8ff; }
-.kx-pairs { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 16px 72px; }
-/* a capsule hugging the spine: the right column reads outward, the left column is its mirror */
-.kx-mem { display: flex; align-items: center; gap: 16px; justify-self: start; max-width: 100%; padding: 10px 28px 10px 10px; border-radius: 999px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); }
-.kx-mem:nth-child(odd of [data-item]:not([hidden])) { flex-direction: row-reverse; justify-self: end; padding: 10px 10px 10px 28px; text-align: right; }
 .kx-av { position: relative; flex: none; display: grid; place-items: center; width: 62px; aspect-ratio: 1 / 1.1547; overflow: hidden; background: var(--c); color: var(--c-ink); clip-path: var(--kx-hex); font: 800 19px/1 var(--f-display); }
 .kx-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
-.kx-mem__t { display: grid; min-width: 0; line-height: 1.3; }
-.kx-mem__name { font-family: var(--f-display); font-weight: 700; font-size: 18px; line-height: 1.25; letter-spacing: -0.01em; }
-.kx-mem__role { font-size: 15px; font-weight: 600; }
-.kx-mem__club { font-size: 14.5px; color: var(--on-2); }
-/* the duo: the first two meet at the spine, as the homepage's portraits do */
-.kx-mem--lead, .kx-mem--lead:nth-child(odd of [data-item]:not([hidden])) { gap: 26px; padding: 0; background: none; box-shadow: none; color: var(--ink); }
-.kx-mem--lead:nth-child(odd of [data-item]:not([hidden])) { margin-right: -24px; }
-.kx-mem--lead:nth-child(even of [data-item]:not([hidden])) { margin-left: -24px; }
-.kx-mem--lead .kx-av { width: clamp(160px, 15vw, 220px); aspect-ratio: 4 / 5; clip-path: none; border-radius: 26px; background: linear-gradient(150deg, var(--c), color-mix(in srgb, var(--c) 45%, #ffffff)); box-shadow: var(--shadow); font-size: clamp(3rem, 5.4vw, 5rem); letter-spacing: -0.04em; }
+/* the Governor and the one beside them: big portraits that meet in the middle, details outside (the homepage's duo) */
+.kx-duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; padding-block: 4px 8px; }
+.kx-duo:not(:has(> .kx-mem:nth-child(2 of :not([hidden])))) { grid-template-columns: minmax(0, 1fr); }
+/* everyone else: portrait cards, six to a row */
+.kx-faces { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; }
+.kx-mem { position: relative; display: flex; flex-direction: column; min-width: 0; overflow: hidden; border-radius: 24px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); }
+.kx-mem > .kx-av { width: 100%; aspect-ratio: 4 / 5; clip-path: none; background: linear-gradient(150deg, var(--c), color-mix(in srgb, var(--c) 45%, #ffffff)); font-size: clamp(2.4rem, 3.6vw, 3.4rem); letter-spacing: -0.04em; }
+.kx-mem__t { display: grid; align-content: start; gap: 3px; min-width: 0; padding: 14px 16px 18px; line-height: 1.3; }
+.kx-mem__name { font-family: var(--f-display); font-weight: 700; font-size: 17px; line-height: 1.25; letter-spacing: -0.01em; }
+.kx-mem__role { font-size: 14.5px; font-weight: 600; }
+.kx-mem__club { font-size: 14px; color: var(--on-2); }
+.kx-mem--lead { flex-direction: row; align-items: center; gap: 26px; justify-self: start; overflow: visible; border-radius: 0; background: none; box-shadow: none; color: var(--ink); }
+.kx-mem--lead:nth-child(1 of :not([hidden])) { flex-direction: row-reverse; justify-self: end; text-align: right; }
+.kx-duo:not(:has(> .kx-mem:nth-child(2 of :not([hidden])))) > .kx-mem--lead { flex-direction: row; justify-self: center; text-align: left; }
+.kx-mem--lead > .kx-av { width: clamp(180px, 16vw, 236px); border-radius: 26px; box-shadow: var(--shadow); font-size: clamp(3rem, 5.4vw, 5rem); }
+.kx-mem--lead .kx-mem__t { padding: 0; }
 .kx-mem--lead .kx-mem__name { font-weight: 800; font-size: clamp(1.6rem, 2.4vw, 2.3rem); line-height: 1.06; letter-spacing: -0.025em; }
 .kx-mem--lead .kx-mem__role { margin-top: 8px; font-size: 18px; }
 .kx-mem--lead .kx-mem__club { margin-top: 2px; font-size: 16px; color: var(--ink-2); }
+/* a committee shows its first row (CSS only; the cap is set per screen width below); a search or a committee chip shows all */
+.kx-cg > .kx-all { margin-top: 2px; background: var(--c); color: var(--c-ink); }
+[data-filter][data-f-group] .kx-cg > .kx-all { display: none; }
+@media (min-width: 1101px) {
+  [data-filter]:not([data-f-group]):has([data-f-search]:placeholder-shown) .kx-cg:has(> .kx-all input:not(:checked)) .kx-faces > :nth-child(n + 7 of [data-item]:not([hidden])) { display: none; }
+  [data-filter] .kx-cg:not(:has(> .kx-faces > :nth-child(7 of [data-item]:not([hidden])))) > .kx-all { display: none; }
+}
+@media (max-width: 1100px) {
+  [data-filter]:not([data-f-group]):has([data-f-search]:placeholder-shown) .kx-cg:has(> .kx-all input:not(:checked)) .kx-faces > :nth-child(n + 5 of [data-item]:not([hidden])) { display: none; }
+  [data-filter] .kx-cg:not(:has(> .kx-faces > :nth-child(5 of [data-item]:not([hidden])))) > .kx-all { display: none; }
+}
 .kx-roster + .kx-empty { margin-top: 10px; }
 
 /* ================= Club Finder: hex-monogram cards in the colour of their meeting day ================= */
 .kx-clubs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.kx-club { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 16px 16px 16px 18px; border-radius: 26px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); }
+.kx-club { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: start; gap: 16px; padding: 18px 16px 18px 18px; border-radius: 26px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); }
 .kx-club:hover { scale: 1.025; box-shadow: 0 22px 44px rgba(11, 14, 85, 0.18); }
 .kx-club:has(.kx-club__go:focus-visible) { outline: 3px solid var(--hot); outline-offset: 3px; }
 .kx-club__hex { position: relative; display: grid; place-items: center; width: 64px; aspect-ratio: 1 / 1.1547; color: var(--c-ink); font: 800 19px/1 var(--f-display); }
@@ -211,6 +223,17 @@
 .kx-club h3 small { font: 500 15px var(--f-body); letter-spacing: 0; color: var(--on-2); }
 .kx-club__meta { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-top: 5px; color: var(--on-2); font-size: 14.5px; line-height: 1.42; }
 .kx-club__meta b { font-weight: 700; color: var(--on); }
+.kx-club__t { align-self: stretch; display: flex; flex-direction: column; min-width: 0; }
+.kx-club__facts { display: grid; gap: 4px; margin-top: auto; padding-top: 12px; color: var(--on-2); font-size: 14.5px; font-weight: 600; line-height: 1.35; }
+.kx-club__facts > span { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 22px; }
+.kx-club__facts > span:first-child { color: var(--on); font-weight: 700; }
+.kx-club__facts svg { flex: none; width: 16px; height: 16px; }
+.kx-club__tel { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; padding-block: 9px; margin-block: -9px; color: var(--kx-link); font-weight: 700; font-variant-numeric: tabular-nums; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+.kx-club__tel:hover { color: #d9400e; text-decoration-color: currentColor; }
+/* an empty line keeps the cards aligned, but only while some club in the list has that field */
+.kx-clubs:not(:has(.kx-club__facts > :nth-child(1):not(:empty))) .kx-club__facts > :nth-child(1),
+.kx-clubs:not(:has(.kx-club__facts > :nth-child(2):not(:empty))) .kx-club__facts > :nth-child(2),
+.kx-clubs:not(:has(.kx-club__facts > :nth-child(3):not(:empty))) .kx-club__facts > :nth-child(3) { display: none; }
 .kx-club__go { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: var(--surface-2); color: var(--on); transition: background-color 0.25s, color 0.25s; }
 .kx-club__go::after { content: ''; position: absolute; inset: 0; border-radius: 26px; }
 .kx-club__go:focus-visible { outline-offset: 2px; }
@@ -248,13 +271,20 @@
 .kx-proj:hover { scale: 1.02; }
 .kx-proj__img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
 .kx-proj__body { display: flex; flex-direction: column; flex: 1; gap: 8px; padding: 18px 22px 22px; }
+.kx-proj__sum { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-bottom: 8px; }
 .kx-proj__meta { color: var(--on-2); font-size: 14.5px; font-weight: 600; }
 .kx-proj__title { font-family: var(--f-display); font-weight: 800; font-size: 21px; line-height: 1.2; letter-spacing: -0.015em; }
 .kx-proj__sum { color: var(--on-2); font-size: 15.5px; line-height: 1.5; }
-.kx-nums { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: auto 0 0; padding-top: 14px; border-top: 1px solid var(--line); }
-.kx-nums div { display: flex; flex-direction: column-reverse; }
-.kx-nums dt { color: var(--on-2); font-size: 13.5px; }
-.kx-nums dd { margin: 0; font: 800 19px/1.2 var(--f-display); font-variant-numeric: tabular-nums; }
+/* #1 is the newest shown in its avenue: cards the cap hides (display: none) are not counted */
+.kx-projs { counter-reset: kx-n; }
+.kx-proj[data-item]:not([hidden]) { counter-increment: kx-n; }
+.kx-proj::before { content: counter(kx-n); position: absolute; z-index: 2; top: 14px; left: 14px; display: grid; place-items: center; width: 50px; aspect-ratio: 1 / 1.1547; background: var(--b-ink, var(--ink)); color: var(--b, var(--pg)); clip-path: var(--kx-hex); font: 800 18px/1 var(--f-display); font-variant-numeric: tabular-nums; pointer-events: none; }
+.kx-proj__go { margin-top: auto; min-height: 44px; padding: 0 20px; font-size: 15px; transition: scale 0.35s var(--back), background-color 0.25s, color 0.25s; }
+.kx-proj__go svg { width: 14px; height: 14px; }
+.kx-proj__go::after { content: ''; position: absolute; inset: 0; }
+.kx-proj:hover .kx-proj__go { background: #d9400e; color: #ffffff; }
+.kx-proj:has(.kx-proj__go:focus-visible) { outline: 3px solid #d9400e; outline-offset: 4px; }
+.kx-proj__go:focus-visible { outline: none; }
 /* a last pair takes halves; a lone last card turns sideways and spans the row */
 .kx-proj:nth-child(3n + 1 of [data-item]:not([hidden])):nth-last-child(2 of [data-item]:not([hidden])),
 .kx-proj:nth-child(3n + 2 of [data-item]:not([hidden])):nth-last-child(1 of [data-item]:not([hidden])) { grid-column: span 3; }
@@ -262,7 +292,6 @@
 .kx-proj:nth-child(3n + 1 of [data-item]:not([hidden])):nth-last-child(1 of [data-item]:not([hidden])) .kx-proj__img { width: 50%; flex: none; aspect-ratio: 16 / 9; min-height: 0; align-self: stretch; }
 .kx-proj:nth-child(3n + 1 of [data-item]:not([hidden])):nth-last-child(1 of [data-item]:not([hidden])) .kx-proj__body { justify-content: center; padding: 30px 36px; }
 .kx-proj:nth-child(3n + 1 of [data-item]:not([hidden])):nth-last-child(1 of [data-item]:not([hidden])) .kx-proj__title { font-size: clamp(1.4rem, 2.2vw, 1.9rem); }
-.kx-proj:nth-child(3n + 1 of [data-item]:not([hidden])):nth-last-child(1 of [data-item]:not([hidden])) .kx-nums { margin-top: 10px; }
 
 /* ================= Club Service: a scene per project ================= */
 .kx-chap { --pg: var(--b); --ink: var(--b-ink); --ink-2: var(--b-ink2); position: relative; overflow-x: clip; padding-block: 44px 56px; background: var(--b); color: var(--ink); }
@@ -394,6 +423,231 @@
 .kx-form__note { color: var(--on-2); font-size: 14.5px; }
 .kx-form__done { margin-top: 18px; padding: 16px 20px; border-radius: 18px; background: var(--c3); color: var(--c-ink); font-weight: 700; }
 
+/* ---------- links on the list pages: the title's link covers its card (one action per card) ---------- */
+.kx-mem, .kx-proj { position: relative; }
+.kx-mem { transition: scale 0.35s var(--back); }
+.kx-mem__a::after, .kx-chap__title a::after, .kx-issue--ev h3 a::after { content: ''; position: absolute; inset: 0; }
+.kx-mem:has(.kx-mem__a:hover) { scale: 1.03; }
+.kx-chap__img { transition: scale 0.5s var(--ease); }
+.kx-chap__in:has(.kx-chap__title a:hover) .kx-chap__img { scale: 1.02; }
+.kx-mem:has(.kx-mem__a:focus-visible), .kx-chap__in:has(.kx-chap__title a:focus-visible), .kx-issue:has(h3 a:focus-visible) { outline: 3px solid #d9400e; outline-offset: 4px; }
+.kx-mem__a:focus-visible, .kx-chap__title a:focus-visible, .kx-issue h3 a:focus-visible { outline: none; }
+/* photos that open full size (the shared lightbox), and Share (the shared menu): Kinetic's colours for both */
+body:has(main.kx) { --lb-bg: rgba(5, 7, 46, 0.95); }
+:root[data-theme='dark'] body:has(main.kx) { --share-bg: #141845; --share-ink: #eef0ff; --share-hover: #1e2358; --share-ring: rgba(255, 255, 255, 0.16); }
+.kx-proj__img, .kx-chap__img { position: relative; z-index: 1; display: block; overflow: hidden; }
+.kx-proj__img > img, .kx-chap__img > img { width: 100%; height: 100%; object-fit: cover; }
+.kx-cover > a, .kx-shot a { display: block; }
+.kx-proj__img:focus-visible { outline: 3px solid #d9400e; outline-offset: -3px; border-radius: 0; }
+.kx-chap__img:focus-visible, .kx-cover > a:focus-visible, .kx-shot a:focus-visible { outline: 3px solid #d9400e; outline-offset: 4px; }
+/* Share: an outlined pill, the card's second and smaller control */
+.kx-share { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px 0 15px; border: 0; border-radius: 999px; background: transparent; color: inherit; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, currentColor 32%, transparent); font: 700 14.5px/1 var(--f-body); white-space: nowrap; cursor: pointer; transition: background-color 0.25s, color 0.25s, box-shadow 0.25s, scale 0.3s var(--back); }
+.kx-share:hover { box-shadow: inset 0 0 0 1.5px currentColor; scale: 1.05; }
+.kx-share:active { scale: 0.96; }
+.kx-share[aria-expanded='true'] { background: var(--on); color: var(--surface); box-shadow: none; }
+.kx-share svg { flex: none; width: 17px; height: 17px; }
+.kx-proj__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: auto; }
+.kx-proj__acts .kx-proj__go { margin-top: 0; }
+.kx-chap__in > .kx-share { margin-top: 20px; }
+.kx-copy__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 18px; }
+.kx-story__text > .kx-share { justify-self: start; }
+/* footer: who built the site, a plain link */
+.kx-by { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-color: rgba(255, 255, 255, 0.45); transition: color 0.2s; }
+.kx-by:hover { color: #ffffff; text-decoration-color: currentColor; }
+.kx-by:hover b { color: inherit; }
+.kx-ent__a { display: grid; gap: 2px; }
+.kx-ent:has(> .kx-ent__a) { transition: background-color 0.2s; }
+.kx-ent:has(> .kx-ent__a:hover) { background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+.kx-ent__a:hover b, .kx-evt:hover b { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+/* the homepage calendar's events (Calendar.tsx): the row looks as before, with a ring on hover */
+.kx-evt { transition: box-shadow 0.25s; }
+.kx-evt:hover { box-shadow: inset 0 0 0 2px var(--c); }
+
+/* ================= detail pages: club, project, event, dignitary, member ================= */
+/* the homepage's scene colours */
+.kx {
+  --t-sky: #8fdfff; --t-sky-i: #04283d; --t-sky-i2: #0e4560;
+  --t-ultra: #1a1fb0; --t-ultra-i: #ffffff; --t-ultra-i2: #d7dbff;
+  --t-mint: #cff5e6; --t-mint-i: #06302a; --t-mint-i2: #1e5247;
+  --t-lav: #ece6ff; --t-lav-i: #1c1150; --t-lav-i2: #473c7a;
+}
+:root[data-theme='dark'] .kx {
+  --t-sky: #06334c; --t-sky-i: #dff5ff; --t-sky-i2: #a8d6ec;
+  --t-ultra: #12149a; --t-ultra-i: #ffffff; --t-ultra-i2: #d7dbff;
+  --t-mint: #07302a; --t-mint-i: #dffbf1; --t-mint-i2: #a4dccb;
+  --t-lav: #181040; --t-lav-i: #eeeaff; --t-lav-i2: #bdb4ea;
+}
+/* each detail page's head takes its list page's colour (the event keeps the calendar's lavender) */
+.kx--club, :root[data-theme='dark'] .kx--club { --kx-hd: var(--t-sky); --kx-hd-ink: var(--t-sky-i); --kx-hd-ink2: var(--t-sky-i2); }
+.kx--project, :root[data-theme='dark'] .kx--project { --kx-hd: var(--t-ultra); --kx-hd-ink: #ffffff; --kx-hd-ink2: #d7dbff; }
+.kx--dignitary, .kx--member, :root[data-theme='dark'] .kx--dignitary, :root[data-theme='dark'] .kx--member { --kx-hd: var(--t-mint); --kx-hd-ink: var(--t-mint-i); --kx-hd-ink2: var(--t-mint-i2); }
+.kx--project .kx-head { --kx-chip: rgba(255, 255, 255, 0.14); --kx-chip-ink: #ffffff; }
+
+/* the item's head: the breadcrumb, then [mark] title [figures] on one line, then its facts as pills */
+.kx-crumbs [aria-current] { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kx-head--item .kx-head__line { flex-wrap: nowrap; gap: 14px 28px; margin-top: 14px; }
+.kx-head--item .kx-title { flex: 1 1 auto; min-width: 0; font-size: clamp(2.1rem, 4.4vw, 4.3rem); }
+.kx-head--item .kx-figs { flex: none; }
+.kx-mark { flex: none; display: grid; width: clamp(88px, 7.6vw, 114px); padding: 5px; background: #ffffff; clip-path: var(--kx-hex); animation: kx-fly 0.75s var(--back) both 0.1s; }
+.kx-mark > .kx-av { width: 100%; font-size: clamp(1.5rem, 2.3vw, 2.2rem); letter-spacing: -0.02em; }
+.kx-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.kx-pill { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 16px; border-radius: 21px; background: var(--kx-chip); color: var(--kx-chip-ink); font-size: 15px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.kx-pill b { font-weight: 700; }
+.kx-pill > span:not(.kx-pill__go) { opacity: 0.78; }
+.kx-pill svg { flex: none; width: 18px; height: 18px; }
+.kx-pill .kx-hx { width: 11px; height: 13px; }
+.kx-pill__go svg { width: 14px; height: 14px; }
+a.kx-pill { transition: background-color 0.25s, color 0.25s, scale 0.3s var(--back); }
+a.kx-pill:hover { background: #d9400e; color: #ffffff; scale: 1.04; }
+.kx-pill.is-hot { background: #d9400e; color: #ffffff; }
+
+/* scenes: a full-width colour field whose top fades from the one before it (the homepage's sections) */
+.kx-sc { --pg: var(--b); --ink: var(--b-ink); --ink-2: var(--b-ink2); --kx-chip: var(--surface); --kx-chip-ink: var(--on-2); position: relative; overflow-x: clip; padding-block: 64px 64px; background: var(--b); color: var(--ink); }
+.kx-sc::before { content: ''; position: absolute; inset: 0 0 auto; height: var(--fade); background: linear-gradient(var(--prev, var(--b)), var(--b)); pointer-events: none; }
+.kx-sc > .wrap { position: relative; }
+.kx-miss::after { content: ''; position: absolute; inset: auto 0 0; height: 110px; background: linear-gradient(transparent, var(--kx-base)); pointer-events: none; }
+.kx-tn-ultra { --b: var(--t-ultra); --b-ink: var(--t-ultra-i); --b-ink2: var(--t-ultra-i2); --kx-chip: rgba(255, 255, 255, 0.14); --kx-chip-ink: #ffffff; }
+.kx-tn-mint { --b: var(--t-mint); --b-ink: var(--t-mint-i); --b-ink2: var(--t-mint-i2); }
+.kx-tn-lav { --b: var(--t-lav); --b-ink: var(--t-lav-i); --b-ink2: var(--t-lav-i2); }
+
+/* section titles, counts, white cards, label / value rows */
+.kx-sec__head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 22px; }
+.kx-sec__head .kx-search { margin-left: auto; }
+.kx-sec__t { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.75rem, 2.8vw, 2.5rem); line-height: 1.06; letter-spacing: -0.03em; text-wrap: balance; transform-origin: 0 50%; }
+.kx-n { display: grid; place-items: center; flex: none; width: 48px; aspect-ratio: 1 / 1.1547; background: var(--ink); color: var(--pg); clip-path: var(--kx-hex); font: 800 16px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.kx-tag { display: inline-flex; align-items: center; min-height: 34px; padding: 0 14px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px currentColor; font-size: 14.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kx-sub { margin-bottom: 14px; font-family: var(--f-display); font-weight: 800; font-size: clamp(1.3rem, 1.8vw, 1.6rem); line-height: 1.15; letter-spacing: -0.02em; }
+.kx-card, .kx-tix { --kx-chip: var(--surface-2); --kx-chip-ink: var(--on); border-radius: 30px; background: var(--surface); color: var(--on); box-shadow: var(--shadow); }
+.kx-card { padding: clamp(22px, 2.4vw, 34px); }
+.kx-card .kx-pills { margin-top: 18px; }
+.kx-dl { margin: 0; }
+.kx-dl > div { display: grid; grid-template-columns: minmax(92px, 0.3fr) minmax(0, 1fr); gap: 4px 18px; padding: 13px 0; border-top: 1px solid var(--line); }
+.kx-dl > div:first-child { padding-top: 0; border-top: 0; }
+.kx-dl > div:last-child { padding-bottom: 0; }
+.kx-dl dt { padding-top: 1px; color: var(--on-2); font-size: 14.5px; font-weight: 600; }
+.kx-dl dd { margin: 0; font-size: 16.5px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
+.kx-copy { display: grid; gap: 0.8em; max-width: 66ch; color: var(--ink-2); font-size: 18px; line-height: 1.68; }
+.kx-copy__head { margin-bottom: 0.15em; }
+.kx-copy .kx-sec__t { color: var(--ink); }
+.kx-org { min-width: 0; }
+.kx-org .kx-club { max-width: 600px; }
+.kx-club:not(:has(.kx-club__go)):hover { scale: none; box-shadow: var(--kx-sh); }
+.kx-back { display: inline-flex; align-items: center; justify-self: start; gap: 10px; min-height: 46px; padding: 0 22px 0 18px; border-radius: 999px; box-shadow: inset 0 0 0 2px currentColor; color: var(--ink); font-weight: 700; transition: background-color 0.25s, color 0.25s, scale 0.3s var(--back); }
+.kx-back:hover { background: var(--ink); color: var(--pg); box-shadow: none; scale: 1.04; }
+/* CSS-only "show all": items past the cap carry .is-x */
+.kx-cap:has(> .kx-all input:not(:checked)) .is-x { display: none; }
+.kx-cap > .kx-all { --b: var(--pg); --b-ink: var(--ink); }
+
+/* ---------- Club profile ---------- */
+/* details card beside the homepage's honeycomb, on ultramarine */
+.kx-glance { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 40px clamp(32px, 5vw, 80px); }
+.kx-glance.is-solo { grid-template-columns: minmax(0, 1fr); }
+.kx-glance__figs { display: grid; justify-items: center; gap: 20px; }
+.kx-figs.kx-comb { --cell: clamp(132px, 11.6vw, 172px); display: grid; grid-template-columns: repeat(6, calc(var(--cell) / 2)); grid-auto-rows: calc(var(--cell) * 0.866); gap: 0; padding-bottom: calc(var(--cell) * 0.289); }
+.kx-comb .kx-fig { width: var(--cell); padding: 3px; }
+.kx-comb .kx-fig:nth-child(1) { grid-area: 1 / 1 / 2 / 3; } .kx-comb .kx-fig:nth-child(2) { grid-area: 1 / 3 / 2 / 5; } .kx-comb .kx-fig:nth-child(3) { grid-area: 1 / 5 / 2 / 7; }
+.kx-comb .kx-fig:nth-child(4) { grid-area: 2 / 2 / 3 / 4; } .kx-comb .kx-fig:nth-child(5) { grid-area: 2 / 4 / 3 / 6; }
+.kx-comb .kx-fig__n { font-size: calc(var(--cell) * 0.165); }
+.kx-comb .kx-fig__l { font-size: max(13px, calc(var(--cell) * 0.084)); }
+/* leadership and members on mint */
+.kx-people { display: grid; gap: 64px; }
+.kx-folk { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.kx-person { display: flex; align-items: center; gap: 16px; min-width: 0; padding: 10px 26px 10px 10px; border-radius: 999px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); }
+.kx-person__t { display: grid; min-width: 0; line-height: 1.3; }
+.kx-person__t b { font-family: var(--f-display); font-weight: 700; font-size: 18px; line-height: 1.25; letter-spacing: -0.01em; }
+.kx-person__t span { color: var(--on-2); font-size: 15px; font-weight: 600; }
+.kx-person--s { gap: 12px; padding: 7px 18px 7px 7px; box-shadow: 0 8px 22px rgba(11, 14, 85, 0.08); }
+.kx-person--s .kx-av { --c: var(--surface-2); --c-ink: var(--on); width: 46px; font-size: 15px; }
+.kx-person--s .kx-person__t b { font-size: 16.5px; }
+.kx-person--s .kx-person__t span { font-size: 14px; }
+.kx-roll .kx-more { margin-top: 24px; }
+/* its work on lavender, under big tabs */
+.kx-ptabs { width: max-content; margin-bottom: 26px; }
+.kx-ptabs .kx-ntab { min-height: 54px; padding: 0 24px; font-size: 18px; }
+
+/* ---------- Project and event: the photo (or the day) beside the story ---------- */
+.kx-story__in { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; gap: 40px clamp(32px, 4.4vw, 72px); }
+.kx-story__in--ev { grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); }
+.kx-story__in.is-solo { grid-template-columns: minmax(0, 860px); }
+.kx-story:has(+ .kx-gal) { padding-bottom: 36px; }
+.kx-story__text { display: grid; align-content: start; gap: 36px; min-width: 0; }
+.kx-story__side { display: grid; align-content: start; gap: 18px; min-width: 0; }
+.kx-cover { margin: 0; animation: kx-arrive 0.8s var(--ease) both 0.15s; }
+.kx-cover img { width: 100%; height: auto; max-height: min(640px, calc(100vh - var(--head) - 64px)); object-fit: cover; border-radius: 26px; background: var(--surface-2); box-shadow: var(--shadow); }
+@keyframes kx-arrive { from { opacity: 0; transform: translateY(26px) scale(0.98); } }
+/* the event's day card: the date big, the facts beside it */
+.kx-tix { display: grid; grid-template-columns: minmax(140px, 0.4fr) minmax(0, 1fr); overflow: hidden; animation: kx-arrive 0.8s var(--ease) both 0.15s; }
+.kx-tix__date { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 28px 14px; background: var(--c2); color: #0b0e55; text-align: center; }
+.kx-tix__date b { font: 800 clamp(4.2rem, 6.4vw, 6.4rem)/0.86 var(--f-display); letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.kx-tix__date span { font-family: var(--f-display); font-weight: 700; font-size: 17px; line-height: 1.2; }
+.kx-tix.is-today { box-shadow: 0 0 0 3px #d9400e, var(--shadow); }
+.kx-tix.is-today .kx-tix__date { background: #d9400e; color: #ffffff; }
+.kx-tix.is-today .tag-today, .kx-issue.is-today .tag-today { background: #ffffff; color: #d9400e; }
+.kx-tix__main { display: grid; align-content: center; gap: 18px; min-width: 0; padding: clamp(22px, 2.4vw, 32px); }
+.kx-tix__go { background: #d9400e; color: #ffffff; }
+/* photos, four to a row */
+.kx-gal { position: relative; padding-block: 24px 88px; }
+.kx-shots { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px 18px; }
+.kx-shots--1 { grid-template-columns: minmax(0, 760px); }
+.kx-shots--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kx-shots--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kx-shot { min-width: 0; }
+.kx-shot a { display: block; overflow: hidden; border-radius: 22px; background: var(--surface-2); box-shadow: var(--kx-sh); transition: scale 0.35s var(--back), box-shadow 0.35s; }
+.kx-shot a:hover { scale: 1.03; box-shadow: 0 22px 44px rgba(11, 14, 85, 0.2); }
+.kx-shot img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+/* a single photo keeps its own shape (a poster stays a poster) */
+.kx-shots--1 .kx-shot a { width: fit-content; max-width: 100%; }
+.kx-shots--1 .kx-shot img { width: auto; max-width: 100%; max-height: 560px; aspect-ratio: auto; object-fit: contain; }
+.kx-shot p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-top: 10px; color: var(--ink-2); font-size: 14.5px; line-height: 1.45; }
+.kx-gal .kx-all { margin-top: 30px; }
+/* events as dated rows (club profile) */
+.kx-issue--ev { padding-right: 20px; transition: scale 0.35s var(--back); }
+.kx-issue--ev .tag-today { margin-bottom: 4px; }
+.kx-issue.is-today .kx-issue__date { background: #d9400e; color: #ffffff; }
+.kx-issue__go { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--surface-2); color: var(--on); transition: background-color 0.25s, color 0.25s; }
+.kx-issue--ev:hover .kx-issue__go { background: #d9400e; color: #ffffff; }
+
+/* ---------- Dignitary and member: the portrait meets the words in the middle ---------- */
+.kx-meet { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); align-items: start; gap: 32px clamp(32px, 4.4vw, 72px); }
+.kx-meet__photo { justify-self: end; width: min(100%, 440px); margin: 0; animation: kx-meet 0.9s var(--ease) both 0.1s; }
+@keyframes kx-meet { from { opacity: 0; transform: translateX(-56px); } }
+.kx-meet__photo img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 18%; border-radius: 26px; background: var(--surface-2); box-shadow: var(--shadow); }
+.kx-meet__text { display: grid; align-content: start; gap: 34px; min-width: 0; max-width: 660px; padding-top: 4px; }
+/* beside a long biography the portrait stays in view, inside its own section, where it fits the screen */
+@media (min-width: 1101px) and (min-height: 720px) { .kx-meet:not(.kx-meet--member) .kx-meet__photo { position: sticky; top: calc(var(--head) + 24px); } }
+.kx-card--facts { max-width: 640px; }
+.kx-story__side .kx-card--facts { max-width: none; }
+/* the member: their photo, or their initials on the committee's colour, beside a short column */
+.kx-meet--member { align-items: center; }
+.kx-meet--member .kx-meet__photo { width: min(100%, 340px); aspect-ratio: 4 / 5; clip-path: none; border-radius: 26px; background: linear-gradient(150deg, var(--c), color-mix(in srgb, var(--c) 45%, #ffffff)); box-shadow: var(--shadow); font-size: clamp(4rem, 7vw, 6.4rem); letter-spacing: -0.04em; }
+.kx-meet--member .kx-meet__photo img { border-radius: 0; box-shadow: none; }
+.kx-meet--member .kx-meet__text { gap: 28px; }
+.kx-meet--member + .wrap, .kx-prof .kx-backrow { margin-top: 64px; }
+.kx-prof .kx-cg { gap: 20px; }
+/* the other dignitary, one card, one link */
+.kx-other { display: grid; grid-template-columns: 116px minmax(0, 1fr) auto; align-items: center; gap: 16px 28px; max-width: 980px; margin: 72px auto 0; padding: 14px 28px 14px 14px; border-radius: 30px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); transition: opacity 0.55s var(--ease), translate 0.6s var(--ease), scale 0.35s var(--back), box-shadow 0.35s; }
+.kx-other:hover { scale: 1.02; box-shadow: 0 22px 44px rgba(11, 14, 85, 0.18); }
+.kx-other img { width: 116px; height: 145px; object-fit: cover; object-position: center 18%; border-radius: 20px; background: var(--surface-2); }
+.kx-other__t { display: grid; gap: 6px; min-width: 0; }
+.kx-other__t b { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.4rem, 2.2vw, 2rem); line-height: 1.1; letter-spacing: -0.02em; text-wrap: balance; }
+.kx-other__t span { color: var(--on-2); font-size: 16px; font-weight: 600; }
+.kx-other .btn-go { align-self: center; background: var(--on); color: var(--surface); }
+.kx-other:hover .btn-go { background: #d9400e; color: #ffffff; }
+.kx-other--role { grid-template-columns: minmax(0, 1fr) auto; padding: 18px 18px 18px 30px; }
+
+
+/* ---------- not found ---------- */
+.kx-miss { min-height: min(680px, 72vh); }
+.kx-miss .kx-head__in { padding-bottom: 140px; }
+.kx-miss__in .btn-go { justify-self: center; }
+.kx-miss__in { display: grid; justify-items: center; gap: 24px; max-width: 920px; margin: 56px auto 0; text-align: center; }
+.kx-miss__comb { display: flex; align-items: flex-start; }
+.kx-miss__comb i { width: 60px; aspect-ratio: 1 / 1.1547; background: var(--c); clip-path: var(--kx-hex); animation: kx-fly 0.75s var(--back) both; }
+.kx-miss__comb i:nth-child(2) { margin: 52px -3px 0; animation-delay: 0.09s; }
+.kx-miss__comb i:nth-child(3) { animation-delay: 0.18s; }
+.kx-miss__t { font-size: clamp(1.9rem, 3.6vw, 3.4rem); transform-origin: 50% 50%; }
+.kx-miss__t > span { transform-origin: 50% 60%; }
+
 /* ---------- footer counter on the plain-HTML pages (the flip board needs its script) ---------- */
 .visits__static { display: inline-flex; gap: 5px; }
 .visits__static i { display: grid; place-items: center; width: 34px; height: 54px; border-radius: 10px; background: #4bd2ff; color: #0b0e55; font-family: var(--f-display); font-style: normal; font-weight: 800; font-size: 38px; }
@@ -406,8 +660,6 @@
   body:has(main.kx) .head__bar { animation: kx-bar linear both; animation-timeline: scroll(root); }
   /* the footer's district name stretches as the page ends, as on the homepage */
   .kx ~ .foot .mark { animation: kx-mark linear forwards; animation-timeline: view(); animation-range: entry 0% entry 100%; }
-  /* Committee: the spine fills down to the middle of the screen */
-  .kx-roster::after { content: ''; position: absolute; top: 24px; bottom: 0; left: 50%; width: 4px; margin-left: -2px; border-radius: 4px; background: linear-gradient(#ff8a3d, #d9400e); transform-origin: 50% 0; animation: kx-fill linear both; animation-timeline: view(); animation-range: entry 50% exit 50%; }
   /* the rest moves with the scroll on wider screens only: on a phone the reveals carry the motion */
   @media (min-width: 761px) {
     /* the title gives a little as the head scrolls away */
@@ -417,12 +669,12 @@
     .kx-issue__date b { transform-origin: 50% 50%; }
     /* About: each band rises into place */
     .kx-prose :is(h1, h2) { animation: kx-rise-band linear forwards; animation-timeline: view(); animation-range: entry 0% entry 100%; }
-    /* Committee: people come in from the sides and meet at the spine */
-    .kx-mem { animation: kx-from-r linear forwards; animation-timeline: view(); animation-range: entry 0% cover 30%; }
-    .kx-mem:nth-child(odd of [data-item]:not([hidden])) { animation-name: kx-from-l; }
+    /* Committee: the duo comes in from the sides and meets in the middle */
+    .kx-mem--lead { animation: kx-from-r linear forwards; animation-timeline: view(); animation-range: entry 0% cover 30%; }
+    .kx-mem--lead:nth-child(1 of :not([hidden])) { animation-name: kx-from-l; }
     /* Projects: cards are dealt into place */
-    .kx-proj { animation: kx-deal linear forwards; animation-timeline: view(); animation-range: entry 0% entry 80%; }
-    .kx-proj:nth-child(even) { --tilt: 2deg; }
+    .kx-proj, .kx-shot, .kx-faces > .kx-mem { animation: kx-deal linear forwards; animation-timeline: view(); animation-range: entry 0% entry 80%; }
+    .kx-proj:nth-child(even), .kx-shot:nth-child(even), .kx-faces > .kx-mem:nth-child(even) { --tilt: 2deg; }
     /* Service: the photo grows into place, the numbers turn in like the homepage's honeycomb */
     .kx-chap__img { animation: kx-grow linear forwards; animation-timeline: view(); animation-range: entry 0% cover 45%; }
     .kx-chap__nums .kx-fig { animation: kx-turn linear forwards; animation-timeline: view(); animation-range: entry 0% cover 30%; }
@@ -432,7 +684,6 @@
 @keyframes kx-squeeze { to { transform: scaleX(0.88); } }
 @keyframes kx-stretch { from { transform: scaleX(0.6); } }
 @keyframes kx-rise-band { from { transform: translateY(28px); } }
-@keyframes kx-fill { from { transform: scaleY(0); } }
 @keyframes kx-from-l { from { transform: translateX(-40px); } }
 @keyframes kx-from-r { from { transform: translateX(40px); } }
 @keyframes kx-deal { from { transform: translateY(36px) rotate(var(--tilt, -2deg)); } }
@@ -449,6 +700,13 @@
   .kx-projs .kx-proj:nth-child(n) .kx-proj__img { width: 100%; aspect-ratio: 16 / 10; min-height: 0; }
   .kx-projs .kx-proj:nth-child(n) .kx-proj__body { padding: 18px 22px 22px; }
   .kx-weeks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kx-faces { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* detail pages */
+  .kx-head--item .kx-head__line:has(.kx-figs) { flex-wrap: wrap; }
+  .kx-glance { grid-template-columns: minmax(0, 1fr); }
+  .kx-folk { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kx-story__in, .kx-story__in--ev { grid-template-columns: minmax(0, 1fr); }
+  .kx-shots--4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* ================= phones ================= */
@@ -456,7 +714,7 @@
   .kx-head__in { padding-block: 14px 16px; }
   .kx-crumbs a { min-height: 40px; }
   .kx-head__line { flex-wrap: nowrap; justify-content: space-between; gap: 8px 14px; margin-top: 8px; }
-  .kx-head__line:has(.kx-figs--4) { flex-wrap: wrap; }
+  .kx-head__line:has(:is(.kx-figs--3, .kx-figs--4, .kx-figs--5)) { flex-wrap: wrap; }
   .kx-title { font-size: clamp(1.95rem, 8.6vw, 2.5rem); }
   .kx-fig { width: 74px; }
   .kx-fig__in { padding-inline: 6px; }
@@ -464,18 +722,16 @@
   .kx-fig__l { font-size: 13px; }
   .kx-hot .kx-fig__n { font-size: 26px; }
   /* four numbers become a 2 x 2 of rounded tiles */
-  .kx-figs--4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
-  .kx-figs--4 .kx-fig { width: auto; }
-  .kx-figs--4 .kx-fig__in { flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 6px; aspect-ratio: auto; min-height: 38px; padding: 7px 10px; border-radius: 14px; clip-path: none; text-align: left; }
-  .kx-figs--4 .kx-fig__n { font-size: 15px; }
-  .kx-figs--4 .kx-fig__l { white-space: nowrap; }
-  .kx-figs--4 .kx-fig__n + .kx-fig__l { margin-top: 0; }
-  .kx-head__lead { margin-top: 6px; font-size: 15.5px; }
+  :is(.kx-figs--3, .kx-figs--4, .kx-figs--5) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+  :is(.kx-figs--3, .kx-figs--4, .kx-figs--5) .kx-fig { width: auto; }
+  :is(.kx-figs--3, .kx-figs--5) .kx-fig:last-child { grid-column: 1 / -1; }
+  :is(.kx-figs--3, .kx-figs--4, .kx-figs--5) .kx-fig__in { flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 6px; aspect-ratio: auto; min-height: 38px; padding: 7px 10px; border-radius: 14px; clip-path: none; text-align: left; }
+  :is(.kx-figs--3, .kx-figs--4, .kx-figs--5) .kx-fig__n { font-size: 15px; }
+  :is(.kx-figs--3, .kx-figs--4, .kx-figs--5) .kx-fig__l { white-space: nowrap; }
+  :is(.kx-figs--3, .kx-figs--4, .kx-figs--5) .kx-fig__n + .kx-fig__l { margin-top: 0; }
   .kx-tools { gap: 8px; margin-top: 12px; }
   .kx-search, .kx-search input { min-height: 48px; height: 48px; }
   .kx-search { flex: 1 1 100%; max-width: none; }
-  .kx-search__n { padding: 0 16px 0 12px; }
-  .kx-search__of { display: none; }
   /* chips and months: one row that swipes */
   .kx-chips, .kx-tools > .kx-chips, .kx-months { flex: none; flex-wrap: nowrap; width: calc(100% + 2 * var(--gutter)); margin-inline: calc(var(--gutter) * -1); padding: 2px var(--gutter); overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 30px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 30px), transparent); }
   .kx-chips::-webkit-scrollbar, .kx-months::-webkit-scrollbar { display: none; }
@@ -496,19 +752,23 @@
   .kx-prose :is(img[align], img[style*='float']) { float: none; max-width: 100%; margin: 24px auto; }
   .kx-prose table { font-size: 15px; }
 
-  /* Committee: the spine runs down the left, through the avatars */
+  /* Committee: the duo stacked, then two portraits to a row */
   .kx-roster { gap: 36px; }
-  .kx-roster::before, .kx-roster::after { left: 41px; }
-  .kx-cg { justify-items: stretch; gap: 14px; }
-  .kx-cg__name { justify-self: start; font-size: 1.08rem; }
-  .kx-pairs { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  .kx-mem, .kx-mem:nth-child(odd of [data-item]:not([hidden])) { flex-direction: row; justify-self: stretch; padding: 10px 20px 10px 10px; text-align: left; }
-  .kx-mem--lead, .kx-mem--lead:nth-child(odd of [data-item]:not([hidden])), .kx-mem--lead:nth-child(even of [data-item]:not([hidden])) { margin: 0; padding: 0; gap: 16px; }
-  .kx-mem--lead .kx-av { width: 128px; font-size: 2.6rem; }
+  .kx-cg { gap: 14px; }
+  .kx-cg__name { font-size: 1.08rem; }
+  .kx-duo { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 0; }
+  .kx-mem--lead, .kx-mem--lead:nth-child(1 of :not([hidden])), .kx-duo:not(:has(> .kx-mem:nth-child(2 of :not([hidden])))) > .kx-mem--lead { flex-direction: row; justify-self: stretch; gap: 16px; text-align: left; }
+  .kx-mem--lead > .kx-av { width: 128px; font-size: 2.6rem; }
   .kx-mem--lead .kx-mem__name { font-size: 1.45rem; }
   .kx-mem--lead .kx-mem__role { margin-top: 4px; font-size: 16px; }
   .kx-mem--lead .kx-mem__club { font-size: 15px; }
-  .kx-mem__name { font-size: 17px; }
+  .kx-faces { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kx-mem { border-radius: 20px; }
+  .kx-mem > .kx-av { font-size: 2.4rem; }
+  .kx-mem__t { padding: 10px 12px 14px; }
+  .kx-mem__name { font-size: 15.5px; }
+  .kx-mem__role { font-size: 13.5px; }
+  .kx-mem__club { font-size: 13px; }
 
   /* Finder */
   .kx-clubs { grid-template-columns: minmax(0, 1fr); gap: 10px; }
@@ -516,6 +776,10 @@
   .kx-club__hex { width: 54px; font-size: 17px; }
   .kx-club h3 { font-size: 17px; }
   .kx-club__go::after { border-radius: 22px; }
+  /* one card to a row: nothing to align with, so a missing field takes no room */
+  .kx-club__facts > :empty { display: none; }
+  .kx-club__facts { padding-top: 8px; }
+  .kx-club__tel { padding-block: 12px; margin-block: -12px; }
 
   /* Projects */
   .kx-avs { gap: 36px; padding-top: 16px; }
@@ -581,10 +845,81 @@
   .kx-form { margin-top: 0; padding: 22px 18px; border-radius: 26px; }
   .kx-form__grid { grid-template-columns: minmax(0, 1fr); }
   .kx-form textarea { min-height: 150px; }
+
+  /* Detail pages */
+  .kx-head--item .kx-head__line { justify-content: flex-start; gap: 10px 14px; }
+  .kx-head--item .kx-title { font-size: clamp(1.8rem, 7.6vw, 2.35rem); }
+  .kx-mark { width: 70px; padding: 4px; }
+  .kx-mark > .kx-av { font-size: 1.25rem; }
+  .kx-pills { gap: 6px; }
+  .kx-pill { padding: 7px 14px; font-size: 14.5px; }
+  .kx-sc { padding-block: 48px 56px; }
+  .kx-projs--club .kx-proj::before { top: 8px; left: 8px; width: 34px; font-size: 14px; }
+  .kx-sec__head { gap: 10px 12px; margin-bottom: 16px; }
+  .kx-sec__head .kx-search { margin-left: 0; }
+  .kx-card { padding: 20px 18px; border-radius: 24px; }
+  .kx-dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 11px 0; }
+  .kx-dl dd { font-size: 16px; }
+  .kx-copy { font-size: 16.5px; line-height: 1.65; }
+  /* club */
+  .kx-glance { gap: 28px; }
+  .kx-figs.kx-comb { --cell: 112px; }
+  .kx-people { gap: 44px; }
+  .kx-person { padding: 8px 18px 8px 8px; }
+  .kx-person .kx-av { width: 52px; font-size: 17px; }
+  .kx-folk { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .kx-person--s { gap: 10px; padding: 6px 10px 6px 6px; border-radius: 20px; }
+  .kx-person--s .kx-av { width: 40px; font-size: 14px; }
+  .kx-person--s .kx-person__t b { font-size: 15px; }
+  .kx-person--s .kx-person__t span { font-size: 13px; }
+  .kx-ptabs { width: 100%; margin-bottom: 18px; }
+  .kx-ptabs .kx-ntab { flex-direction: column; gap: 3px; min-height: 60px; padding: 6px; font-size: 15px; }
+  /* its projects as compact rows (!important: the desktop rule that turns a lone last card sideways is more specific) */
+  .kx-projs--club { gap: 10px; }
+  .kx-projs--club .kx-proj { flex-direction: row !important; border-radius: 22px; }
+  .kx-projs--club .kx-proj .kx-proj__img { flex: none; width: 108px !important; height: auto; aspect-ratio: 1 / 1 !important; }
+  .kx-projs--club .kx-proj .kx-proj__body { justify-content: center; gap: 4px; padding: 12px 16px !important; }
+  .kx-projs--club .kx-proj .kx-proj__title { font-size: 17px !important; }
+  .kx-projs--club .kx-proj__sum { display: none; }
+  .kx-projs--club .kx-proj__acts { gap: 8px; }
+  .kx-projs--club .kx-share { width: 44px; padding: 0; }
+  .kx-projs--club .kx-share > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .kx-issue--ev .kx-issue__main { padding-bottom: 16px; }
+  .kx-issue__go { display: none; }
+  /* project / event */
+  .kx-story__text { gap: 28px; }
+  .kx-cover img { max-height: 440px; border-radius: 22px; }
+  .kx-tix { grid-template-columns: 100px minmax(0, 1fr); border-radius: 24px; }
+  .kx-tix__date { padding: 18px 8px; }
+  .kx-tix__date b { font-size: 3.3rem; }
+  .kx-tix__date span { font-size: 14px; }
+  .kx-tix__main { gap: 14px; padding: 18px 16px; }
+  .kx-shots--3, .kx-shots--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kx-shots { gap: 14px 10px; }
+  .kx-shot a { border-radius: 16px; }
+  .kx-shot p { font-size: 13.5px; }
+  .kx-gal { padding-bottom: 56px; }
+  /* dignitary: portrait beside the name, everything else under them */
+  .kx-meet { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .kx-meet__photo { justify-self: start; width: min(100%, 300px); }
+  .kx-meet__photo img { border-radius: 22px; }
+  .kx-meet--member .kx-meet__photo { width: 200px; border-radius: 22px; font-size: 3.6rem; }
+  .kx-meet__text { gap: 26px; }
+  .kx-meet--member + .wrap, .kx-prof .kx-backrow { margin-top: 44px; }
+  .kx-other { grid-template-columns: 84px minmax(0, 1fr); gap: 12px 16px; margin-top: 48px; padding: 12px 14px 14px 12px; border-radius: 24px; }
+  .kx-other img { width: 84px; height: 105px; border-radius: 16px; }
+  .kx-other .btn-go { grid-column: 1 / -1; justify-self: stretch; justify-content: center; }
+  .kx-other--role { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  /* member, not found */
+  .kx-miss .kx-head__in { padding-bottom: 96px; }
+  .kx-miss__in { gap: 18px; margin-top: 36px; }
+  .kx-miss__comb i { width: 46px; }
+  .kx-miss__comb i:nth-child(2) { margin-top: 40px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .kx-title, .kx-title > span, .kx-fig, .kx-stretch, .kx-issue__date b, .kx-prose :is(h1, h2),
-  .kx-roster::after, .kx-mem, .kx-proj, .kx-chap__img, .kx-chap__nums .kx-fig, .kx-wk[open] .kx-day, .kx ~ .foot .mark, body:has(main.kx) .head__bar { animation: none !important; }
+  .kx-mem, .kx-proj, .kx-chap__img, .kx-chap__nums .kx-fig, .kx-wk[open] .kx-day, .kx ~ .foot .mark, body:has(main.kx) .head__bar,
+  .kx-mark, .kx-cover, .kx-tix, .kx-meet__photo, .kx-miss__comb i, .kx-shot { animation: none !important; }
   .rv-on .kx [data-rv]:not(.is-in) { opacity: 1; translate: none; }
 }

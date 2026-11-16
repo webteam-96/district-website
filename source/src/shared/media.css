@@ -1,0 +1,44 @@
+/* The photo lightbox and the share menu that shared/inner.js builds at the end of <body> (both versions).
+   Neutral, so every theme can use them as they are; a theme may tune them with
+   --lb-bg (backdrop), --share-bg, --share-ink, --share-hover, --share-ring. */
+
+/* ---------- lightbox ---------- */
+html.lb-open { overflow: hidden; }
+.lb { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 64px 84px; background: var(--lb-bg, rgba(5, 9, 22, 0.94)); color: #fff; }
+.lb[hidden] { display: none; }
+.lb__stage { display: grid; justify-items: center; gap: 14px; max-width: 100%; max-height: 100%; margin: 0; }
+.lb__img { display: block; width: auto; height: auto; max-width: min(1500px, 100%); max-height: calc(100vh - 170px); max-height: calc(100dvh - 170px); object-fit: contain; border-radius: 6px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5); }
+.lb__cap { max-width: 72ch; margin: 0; font-size: 15px; line-height: 1.5; text-align: center; color: rgba(255, 255, 255, 0.86); }
+.lb__cap[hidden] { display: none; }
+.lb__count { position: absolute; top: 24px; left: 24px; margin: 0; font-size: 14px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; color: rgba(255, 255, 255, 0.72); }
+.lb__btn { position: absolute; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.12); color: #fff; cursor: pointer; transition: background-color 0.2s; }
+.lb__btn:hover { background: rgba(255, 255, 255, 0.24); }
+.lb__btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.lb__close { top: 12px; right: 12px; }
+.lb__prev, .lb__next { top: 50%; translate: 0 -50%; }
+.lb__prev { left: 16px; }
+.lb__next { right: 16px; }
+.lb--single .lb__prev, .lb--single .lb__next, .lb--single .lb__count { display: none; }
+@media (max-width: 760px) {
+  .lb { padding: 64px 12px 88px; }
+  .lb__img { max-height: calc(100vh - 210px); max-height: calc(100dvh - 210px); }
+  .lb__prev, .lb__next { top: auto; bottom: 18px; translate: none; }
+  .lb__prev { left: calc(50% - 60px); }
+  .lb__next { right: calc(50% - 60px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lb:not([hidden]) { animation: lb-in 0.22s ease-out; }
+  .lb:not([hidden]) .lb__img { animation: lb-zoom 0.28s ease-out; }
+}
+@keyframes lb-in { from { opacity: 0; } }
+@keyframes lb-zoom { from { scale: 0.96; } }
+[data-lightbox] { cursor: zoom-in; }
+
+/* ---------- share menu ---------- */
+.share-menu { position: fixed; z-index: 2147482000; display: grid; gap: 2px; min-width: 200px; padding: 6px; border-radius: 14px; background: var(--share-bg, #fff); color: var(--share-ink, #14182b); box-shadow: 0 16px 40px rgba(10, 16, 40, 0.22), 0 0 0 1px var(--share-ring, rgba(10, 16, 40, 0.08)); font-size: 15px; font-weight: 500; line-height: 1.2; }
+.share-menu[hidden] { display: none; }
+.share-menu > a, .share-menu > button { display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 12px; border: 0; border-radius: 9px; background: none; color: inherit; font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+.share-menu > a:hover, .share-menu > button:hover, .share-menu > :focus-visible { background: var(--share-hover, rgba(10, 16, 40, 0.07)); outline: none; }
+.share-menu > [data-to='whatsapp'] svg { color: #25d366; }
+.share-menu > [data-to='facebook'] svg { color: #1877f2; }
+.share-menu > [data-to='linkedin'] svg { color: #0a66c2; }

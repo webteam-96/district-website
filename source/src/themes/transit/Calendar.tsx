@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import MonthPicker from '../../shared/MonthPicker';
 import { Title } from './Sections';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
+import { eventHref } from '../../shared/detail';
 
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
@@ -15,7 +16,7 @@ function Entry({ e }: { e: CalEntry }) {
   if (e.type === 'club' || e.type === 'district') return (
     <li className={`dep dep--${e.type}`}>
       <span className="dep__time">{e.time ?? '—'}</span>
-      <span className="dep__main"><b>{e.title}</b>{e.club && <span>{e.club}</span>}{e.venue && <span>{e.venue}</span>}</span>
+      <span className="dep__main"><b><a className="dep__link" href={eventHref(e)}>{e.title}</a></b>{e.club && <span>{e.club}</span>}{e.venue && <span>{e.venue}</span>}</span>
     </li>
   );
   if (e.type === 'birthday') return (

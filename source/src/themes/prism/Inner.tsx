@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { R, initials, monthLabel, parseISO, shortDate, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
+import { Fragment, useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { R, initials, longDate, monthLabel, parseISO, shortDate, toISO, weekdayName, type CalEntry, type Photo } from '../../shared/rotary';
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
   calMonths, todayMonthKey, monthEntries, entriesByDate, pressYears, AdminContent, type PageKey, type Project
 } from '../../shared/inner';
+import {
+  D, paras, memberId, clubHref, clubIdOf, projectHref, eventHref, dignitaryHref, memberHref, useDocTitle,
+  clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile
+} from '../../shared/detail';
 import { Header, TopStrip } from './Chrome';
 import Footer from './Footer';
 import { ThemeCtx, readTheme, saveTheme, type Theme } from './theme';
@@ -24,13 +28,33 @@ const I = {
   search: <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="11" cy="11" r="7" /><path {...sw} d="m20 20-3.5-3.5" /></svg>,
   arrow: <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path {...sw} d="M4 12 12 4M6 4h6v6" /></svg>,
   next: <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path {...sw} d="M3 8h10M9 4l4 4-4 4" /></svg>,
+  user: <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="12" cy="8" r="3.8" /><path {...sw} d="M4.5 20a7.5 7.5 0 0 1 15 0" /></svg>,
   people: <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="9" cy="8" r="3.5" /><path {...sw} d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.2a6.5 6.5 0 0 1 3 5.8" /></svg>,
   mail: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect {...sw} x="3" y="5" width="18" height="14" rx="3" /><path {...sw} d="m4 7 8 6 8-6" /></svg>,
   phone: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" /></svg>,
   join: <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="10" cy="8" r="3.5" /><path {...sw} d="M3.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6" /></svg>,
   pin: <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" /><circle {...sw} cx="12" cy="10" r="2.4" /></svg>,
-  check: <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} strokeWidth={2.4} d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+  check: <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} strokeWidth={2.4} d="m5 12.5 4.5 4.5L19 7.5" /></svg>,
+  cal: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect {...sw} x="3.5" y="5" width="17" height="15.5" rx="3" /><path {...sw} d="M3.5 10h17M8 3v4M16 3v4" /></svg>,
+  clock: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="12" cy="12" r="8.5" /><path {...sw} d="M12 7.5V12l3 2" /></svg>,
+  globe: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="12" cy="12" r="8.5" /><path {...sw} d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5s1.1-5.9 3.5-8.5z" /></svg>,
+  club: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M4 10.5 12 4l8 6.5V20H4z" /><path {...sw} d="M9.5 20v-5h5v5" /></svg>,
+  tag: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8-9 9z" /><circle {...sw} cx="8.5" cy="8.5" r="1.6" /></svg>,
+  photo: <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect {...sw} x="3" y="5" width="18" height="14" rx="3" /><circle {...sw} cx="9" cy="10" r="1.8" /><path {...sw} d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5" /></svg>,
+  back: <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path {...sw} d="M13 8H3M7 4 3 8l4 4" /></svg>,
+  share: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" x2="12" y1="2" y2="15" /></svg>
 };
+
+/* Share (shared/inner.js: the phone's share sheet, else a menu of WhatsApp, Facebook, X, LinkedIn, Copy link).
+   On cards it is a round icon beside "Read more"; `label` shows the word too (the project page). */
+const Share = ({ p, label = false }: { p: { id: number | string; title: string }; label?: boolean }) => (
+  <button type="button" className={label ? 'px-share px-share--label' : 'px-share'} data-share data-share-url={projectHref(p)} data-share-title={p.title}
+    aria-haspopup="menu" aria-expanded="false" aria-label={`Share: ${p.title}`}>{I.share}<span>Share</span></button>
+);
+/* a photo that opens full size in the shared lightbox; one `group` = one gallery (prev/next) */
+const Zoom = ({ ph, group, className, children }: { ph: Photo; group: string; className?: string; children: ReactNode }) => (
+  <a className={className} href={ph.src} data-lightbox={group} data-caption={ph.alt}>{children}</a>
+);
 
 /* the last word in the homepage's spectrum gradient (.stitle__hl) */
 const HL = ({ text }: { text: string }) => {
@@ -38,6 +62,7 @@ const HL = ({ text }: { text: string }) => {
   return i > 0 ? <>{text.slice(0, i)} <span className="px-hl">{text.slice(i + 1)}</span></> : <span className="px-hl">{text}</span>;
 };
 
+/* always two levels: Home / the page (on a detail page: Home / the item) */
 const Crumbs = ({ title }: { title: string }) => (
   <nav className="px-crumbs" aria-label={P.breadcrumb}>
     <a href={R.nav[0].href}>{P.home}</a>
@@ -46,16 +71,16 @@ const Crumbs = ({ title }: { title: string }) => (
   </nav>
 );
 
-/* ---------- page head: tinted band, title left, the blue panel right (bleeds to the screen edge) ---------- */
-function PageHead({ k, children, keyClass = '' }: { k: PageKey; children: ReactNode; keyClass?: string }) {
-  const p = pageInfo(k);
+/* ---------- page head: tinted band with the breadcrumb and the title only, the blue panel right (bleeds to the
+   screen edge). Detail pages pass the item's name as the title; `wide` gives the panel the larger share. ---------- */
+function PageHead({ k, children, keyClass = '', title, wide = false }: { k: PageKey; children: ReactNode; keyClass?: string; title?: string; wide?: boolean }) {
+  const t = title ?? pageInfo(k).title;
   return (
-    <section className="px-head" id="top">
+    <section className={wide ? 'px-head px-head--wide' : 'px-head'} id="top">
       <div className="wrap px-head__in">
         <div className="px-head__text" data-rv>
-          <Crumbs title={p.title} />
-          <h1 className="px-head__title"><HL text={p.title} /></h1>
-          <p className="px-head__lead">{p.lead}</p>
+          <Crumbs title={t} />
+          <h1 className={title ? 'px-head__title px-head__title--item' : 'px-head__title'}><HL text={t} /></h1>
         </div>
         <div className={`px-head__key ${keyClass}`.trim()} data-glow data-rv>{children}</div>
       </div>
@@ -69,7 +94,8 @@ const Search = ({ label, count, hero = false }: { label: string; count?: number;
     {I.search}
     <span className="sr-only">{label}</span>
     <input type="search" data-f-search placeholder={label} autoComplete="off" />
-    {count != null && <span className="px-search__n" aria-live="polite"><b data-f-count>{num(count)}</b><span className="sr-only"> shown</span></span>}
+    {/* the live count is for screen readers only (client: no count inside the search bar) */}
+    {count != null && <span className="sr-only" aria-live="polite"><b data-f-count>{num(count)}</b> shown</span>}
   </label>
 );
 
@@ -115,19 +141,8 @@ function About() {
   );
 }
 
-/* ================= District Committee: Governor spotlight + officer ledger, then committee ledgers ================= */
+/* ================= District Committee: the Governor featured beside the executive; every committee as a row of portrait cards ================= */
 type Member = ReturnType<typeof committee>[number]['members'][number];
-
-const MemberRow = ({ m, g }: { m: Member; g: string }) => (
-  <li className="px-row px-member" data-item data-q={m.q} data-group={g}>
-    {m.photo
-      ? <img className="px-tile" src={m.photo.src} alt="" width={50} height={50} loading="lazy" />
-      : <span className="px-tile" aria-hidden="true">{m.initials}</span>}
-    <h3 className="px-member__name">{m.name}</h3>
-    <p className="px-member__role">{m.role}</p>
-    {m.club && <p className="px-member__club">{clubName(m.club)}</p>}
-  </li>
-);
 
 const Spotlight = ({ m, g }: { m: Member; g: string }) => (
   <article className="px-spot px-blue" data-item data-q={m.q} data-group={g} data-glow data-rv>
@@ -139,13 +154,30 @@ const Spotlight = ({ m, g }: { m: Member; g: string }) => (
       </span>
     </figure>
     <div className="px-spot__text">
-      <h3 className="px-spot__name">{m.name}</h3>
+      <h3 className="px-spot__name"><a href={memberHref(m)}>{m.name}</a></h3>
       <p className="px-spot__role">{m.role}</p>
       {m.club && <p className="px-spot__club">{clubName(m.club)}</p>}
     </div>
   </article>
 );
 
+/* a member as a portrait card (initials on the committee's tint when there is no photo); the name links to the
+   profile, except on that profile's own page, where the card is marked as the current one instead */
+const MemberCard = ({ m, g, current = false }: { m: Member; g: string; current?: boolean }) => (
+  <li className={current ? 'px-mcard is-current' : 'px-mcard'} data-item data-q={m.q} data-group={g} {...(current ? { 'aria-current': 'page' as const } : {})}>
+    <span className="px-mcard__photo">
+      {m.photo
+        ? <img src={m.photo.src} alt="" width={m.photo.w} height={m.photo.h} loading="lazy" />
+        : <span className="px-mcard__mono" aria-hidden="true">{m.initials}</span>}
+    </span>
+    <h3 className="px-mcard__name">{current ? m.name : <a href={memberHref(m)}>{m.name}</a>}</h3>
+    {m.role && <p className="px-mcard__role">{m.role}</p>}
+    {m.club && <p className="px-mcard__club">{clubName(m.club)}</p>}
+  </li>
+);
+
+/* Each committee shows one row of cards (two rows beside the Governor) until its own "show all"; a search or a
+   committee chip lifts the cap (inner.css), so a match is never hidden behind it. */
 function Committee() {
   const groups = committee();
   const total = groups.reduce((s, g) => s + g.members.length, 0);
@@ -162,7 +194,7 @@ function Committee() {
           <Chips attr="group" all="All committees" label="Committee" items={groups.map((g, i) => ({ v: g.key, label: g.title, n: g.members.length, color: ACC[i % ACC.length] }))} />
         </div>
         {lead && first && (
-          <section className="px-lead" data-f-group style={css({ '--accent': ACC[0] })}>
+          <section className="px-cmte px-lead" data-f-group style={css({ '--accent': ACC[0] })}>
             <header className="px-ghead">
               <h2 className="px-h2">{lead.title}</h2>
               <Pill n={lead.members.length} noun="members" />
@@ -170,24 +202,24 @@ function Committee() {
             <div className="px-lead__grid">
               <Spotlight m={first} g={lead.key} />
               {officers.length > 0 && (
-                <ul className="px-ledger px-rows" data-f-group data-rv style={css({ '--i': 1 })}>
-                  {officers.map((m, i) => <MemberRow key={i} m={m} g={lead.key} />)}
+                <ul className="px-mcards px-mcards--exec" data-f-group data-rv style={css({ '--i': 1 })}>
+                  {officers.map((m, i) => <MemberCard key={i} m={m} g={lead.key} />)}
                 </ul>
               )}
             </div>
+            {officers.length > 4 && <ShowAll n={lead.members.length} noun="members" />}
           </section>
         )}
-        <div className="px-ledgers">
-          {rest.map((g, i) => (
-            <section key={g.key} className="px-ledger px-cmte" data-f-group data-rv style={css({ '--accent': ACC[(i + 1) % ACC.length], '--i': i % 3 })}>
-              <header className="px-cmte__head">
-                <h2>{g.title}</h2>
-                <Pill n={g.members.length} noun="members" />
-              </header>
-              <ul className="px-rows">{g.members.map((m, j) => <MemberRow key={j} m={m} g={g.key} />)}</ul>
-            </section>
-          ))}
-        </div>
+        {rest.map((g, i) => (
+          <section key={g.key} className="px-cmte" data-f-group data-rv style={css({ '--accent': ACC[(i + 1) % ACC.length] })}>
+            <header className="px-ghead">
+              <h2 className="px-h2">{g.title}</h2>
+              <Pill n={g.members.length} noun="members" />
+            </header>
+            <ul className="px-mcards">{g.members.map((m, j) => <MemberCard key={j} m={m} g={g.key} />)}</ul>
+            {g.members.length > 2 && <ShowAll n={g.members.length} noun="members" />}
+          </section>
+        ))}
         <Empty text={P.committee.empty} />
       </div>
     </div>
@@ -238,9 +270,13 @@ function Finder() {
               <li key={c.id} className="px-row px-club" data-item data-q={c.q} data-day={c.day ?? ''}>
                 <span className={`px-tile px-tile--day${isWeekend(c.day) ? ' is-weekend' : ''}${c.day ? '' : ' is-none'}`} aria-hidden="true">{c.day ? c.day.slice(0, 3) : '—'}</span>
                 <h3 className="px-club__name">
-                  <a href={c.href} target="_blank" rel="noopener">Rotary Club of {c.name}<span className="sr-only">{c.day ? `, meets every ${c.day}` : ''} (opens in a new tab)</span></a>
+                  <a href={c.href}>Rotary Club of {c.name}{c.day && <span className="sr-only">, meets every {c.day}</span>}</a>
                 </h3>
-                {c.place && <p className="px-club__place" title={c.place}>{c.place}</p>}
+                {/* president and phone (either may be missing: the cell stays, so the columns line up); the venue is still searched (data-q) */}
+                <p className="px-club__pres">{c.president && <>{I.user}<span><span className="sr-only">President: </span>{c.president}</span></>}</p>
+                <p className="px-club__tel">{c.phone && (c.tel
+                  ? <a href={`tel:${c.tel}`}>{I.phone}<span><span className="sr-only">Phone: </span>{c.phone}</span></a>
+                  : <>{I.phone}<span><span className="sr-only">Phone: </span>{c.phone}</span></>)}</p>
                 <span className="px-go" aria-hidden="true">{I.arrow}</span>
               </li>
             ))}
@@ -254,18 +290,25 @@ function Finder() {
 }
 
 /* ================= Club Projects / Club Service ================= */
+const lakh = (n: number) => `₹${R.fmt.num(n, 1)} L`;
 const Totals = ({ list }: { list: Project[] }) => {
   const t = totals(list), L = P.projects.statLabels;
-  const cells: [string, string][] = [[L.projects, num(t.projects)], [L.beneficiaries, num(t.beneficiaries)], [L.amount, `₹${R.fmt.num(t.amount, 1)} L`], [L.hours, num(t.hours)]];
+  const cells: [string, string][] = [[L.projects, num(t.projects)], [L.beneficiaries, num(t.beneficiaries)], [L.amount, lakh(t.amount)], [L.hours, num(t.hours)]];
   return <dl className="px-kquad">{cells.map(([l, v]) => <div key={l}><dt>{l}</dt><dd data-count>{v}</dd></div>)}</dl>;
 };
 
+/* newest first: the cards are numbered in this order (#1 = the latest), by a CSS counter over the visible ones */
+const latest = (list: Project[]) => [...list].sort((a, b) => b.date.localeCompare(a.date));
+
+/* "Read more" is the card's action and covers the card; above it sit the two smaller controls: the photo (opens
+   full size in the lightbox) and Share */
 function ProjectItem({ p, i, glow = false }: { p: Project; i: number; glow?: boolean }) {
-  const L = P.projects.statLabels;
-  const figs: [string, string][] = [[L.beneficiaries, num(p.beneficiaries)], [L.amount, `₹${R.fmt.num(p.amount, 1)} L`], [L.hours, num(p.hours)]];
   return (
     <li className="px-proj" style={css({ '--accent': AVENUE[p.avenue] ?? ACC[0], '--i': glow ? 0 : i % 3 })} data-item data-q={`${p.title} ${p.club} ${avenueLabel(p.avenue)}`.toLowerCase()} data-avenue={p.avenue} data-rv>
-      <figure className="px-proj__photo"><img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} {...(i ? { loading: 'lazy' as const } : {})} /></figure>
+      <figure className="px-proj__photo">
+        <Zoom ph={p.photo} group={`p-${p.id}`} className="px-proj__img"><img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} {...(i ? { loading: 'lazy' as const } : {})} /></Zoom>
+        <span className="px-proj__no" aria-hidden="true" />
+      </figure>
       <div className="px-proj__body" {...(glow ? { 'data-glow': '' } : {})}>
         <h3 className="px-proj__title">{p.title}</h3>
         <p className="px-proj__meta">
@@ -273,7 +316,10 @@ function ProjectItem({ p, i, glow = false }: { p: Project; i: number; glow?: boo
           <span>{shortDate(p.date)}{p.club ? ` · ${clubName(p.club)}` : ''}</span>
         </p>
         <p className="px-proj__sum">{p.summary}</p>
-        <dl className="px-proj__nums">{figs.map(([l, v]) => <div key={l}><dt>{l}</dt><dd>{v}</dd></div>)}</dl>
+        <div className="px-proj__acts">
+          <a className="btn px-proj__more" href={projectHref(p)}>Read more<span className="sr-only">: {p.title}</span>{I.next}</a>
+          <Share p={p} />
+        </div>
       </div>
     </li>
   );
@@ -282,7 +328,7 @@ function ProjectItem({ p, i, glow = false }: { p: Project; i: number; glow?: boo
 /* Projects: a spectrum of the avenues over one sheet; the first visible project is drawn as a small hero */
 function Projects() {
   const x = P.projects;
-  const list = projectsOf();
+  const list = latest(projectsOf());
   const n = (k: string) => list.filter(p => p.avenue === k).length;
   const used = x.avenues.filter(a => n(a.key) > 0);
   return (
@@ -304,13 +350,18 @@ function Projects() {
   );
 }
 
-/* Club Service: the few projects as a poster trio, figures in a blue foot */
+/* Club Service: the five counters as one strip in the head (production's labels, in its order), the projects as a poster trio */
 function Service() {
   const x = P.projects;
-  const list = projectsOf('club');
+  const list = latest(projectsOf('club'));
+  const t = totals(list);
+  const strip: [string, string][] = [['Projects', num(t.projects)], ['Clubs Involved', num(new Set(list.map(p => p.club)).size)],
+    ['Beneficiaries', num(t.beneficiaries)], ['Volunteer Hours', num(t.hours)], ['Amount Spent', lakh(t.amount)]];
   return (
     <div data-filter data-page-size={x.pageSize}>
-      <PageHead k="service"><Totals list={list} /></PageHead>
+      <PageHead k="service" wide>
+        <dl className="px-kquad px-kquad--lead px-kstrip">{strip.map(([l, v]) => <div key={l}><dt>{l}</dt><dd data-count>{v}</dd></div>)}</dl>
+      </PageHead>
       <div className="wrap px-body">
         <div className="px-bar" data-rv><Search label={x.searchLabel} count={list.length} /></div>
         <ul className="px-posters">{list.map((p, i) => <ProjectItem key={p.id} p={p} i={i} />)}</ul>
@@ -368,22 +419,25 @@ function TypeBlock({ type, list, cap }: { type: (typeof R.calendar.types)[number
             return (
               <li key={i} className="px-event" data-item data-type={e.type}>
                 <span className="px-event__time">{e.time ?? '—'}</span>
-                <span className="px-event__text"><b>{e.title}</b>{sub && <span>{sub}</span>}</span>
+                <span className="px-event__text"><b><a href={eventHref(e)}>{e.title}</a></b>{sub && <span>{sub}</span>}</span>
               </li>
             );
           })}
         </ul>
       )}
-      {people && list.length > cap && (
-        <label className="px-all">
-          <input type="checkbox" />
-          <span className="px-all__more">Show all {num(list.length)} {type.group.toLowerCase()}</span>
-          <span className="px-all__less">Show fewer</span>
-        </label>
-      )}
+      {people && list.length > cap && <ShowAll n={list.length} noun={type.group.toLowerCase()} />}
     </section>
   );
 }
+
+/* the CSS-only "show all": a checkbox pill; while it is unchecked the list past its cap is hidden (inner.css) */
+const ShowAll = ({ n, noun }: { n: number; noun: string }) => (
+  <label className="px-all">
+    <input type="checkbox" />
+    <span className="px-all__more">Show all {num(n)} {noun}</span>
+    <span className="px-all__less">Show fewer</span>
+  </label>
+);
 
 function DayPage({ iso, list, today = false }: { iso: string; list: CalEntry[]; today?: boolean }) {
   const C = R.calendar;
@@ -488,18 +542,18 @@ function CalendarPage() {
 
 /* ================= Newsletters: section tabs in the head panel, a broadsheet with a lead story ================= */
 const footLine = (vals: Record<string, string | number>) => R.fmt.fill(R.press.club.footer, vals).split(' on the {link}')[0] + '.';
+/* Preview opens the PDF in a new tab, Download saves it */
+const acts = (pdf: string) => (
+  <div className="px-story__acts">
+    <a className="newsbtn newsbtn--solid" href={pdf} target="_blank" rel="noopener">{R.press.actions.preview}</a>
+    <a className="newsbtn" href={pdf} download>{R.press.actions.download}</a>
+  </div>
+);
 
 function Newsletters({ year }: { year: string }) {
   const N = P.newsletters;
-  const A = R.press.actions;
   const years = pressYears();
   const per = (f: (y: (typeof years)[number]) => ReactNode) => years.map(y => <span key={y.year} data-year={y.year} hidden={y.year !== year}>{f(y)}</span>);
-  const acts = (pdf: string) => (
-    <div className="px-story__acts">
-      <a className="newsbtn newsbtn--solid" href={pdf} target="_blank" rel="noopener">{A.preview}</a>
-      <a className="newsbtn" href={pdf} download>{A.download}</a>
-    </div>
-  );
   return (
     <div data-tabs data-tabs-hash>
       <PageHead k="newsletters">
@@ -627,6 +681,469 @@ function Contact() {
   );
 }
 
+/* ================= Detail pages: shared/detail.tsx hands each page one item (null → not found) =================
+   The same frame as the list pages: the item's name on the tinted band, its figures, date or portrait in the
+   blue panel; then sheets and ledgers. Long lists are capped by the CSS "show all" pill or paged by inner.js. */
+interface Fact { icon: ReactNode; label: string; value: ReactNode }
+const Facts = ({ rows }: { rows: Fact[] }) => (
+  <dl className="px-facts">
+    {rows.map((r, i) => (
+      <div key={i} className="px-fact">
+        <dt><span className="px-fact__ic" aria-hidden="true">{r.icon}</span>{r.label}</dt>
+        <dd>{r.value}</dd>
+      </div>
+    ))}
+  </dl>
+);
+
+/* the line under an item's title: icon + text pairs, the empty ones left out */
+const Meta = ({ bits }: { bits: [ReactNode, ReactNode][] }) => {
+  const list = bits.filter(([, t]) => t);
+  return list.length ? <ul className="px-meta">{list.map(([ic, t], i) => <li key={i}>{ic}<span>{t}</span></li>)}</ul> : null;
+};
+
+/* figures in the head panel, counting up; an odd number gives the first one the whole width */
+const Figures = ({ title, cells }: { title: string; cells: [string, string][] }) => (
+  <>
+    <h2 className="sr-only">{title}</h2>
+    <dl className={cells.length % 2 ? 'px-kquad px-kquad--lead' : 'px-kquad'}>
+      {cells.map(([l, v]) => <div key={l}><dt>{l}</dt><dd data-count>{v}</dd></div>)}
+    </dl>
+  </>
+);
+
+/* Text from the admin: a run of short lines (a list typed with Enter) stays one block of lines; otherwise
+   paragraphs, the first set as a lede only when more follow and it is not itself a wall of text. */
+const Paras = ({ text: raw }: { text: string[] }) => {
+  /* a line broken mid-sentence in the source (no closing punctuation, the next starting in lower case) is rejoined */
+  const text = raw.reduce<string[]>((a, t) => {
+    const prev = a[a.length - 1];
+    if (prev && !/[.!?:;"')\]]$/.test(prev) && /^[a-z]/.test(t)) a[a.length - 1] = `${prev} ${t}`; else a.push(t);
+    return a;
+  }, []);
+  if (text.length > 2 && text.filter(t => t.length < 60).length > text.length * 0.6)
+    return <p className="px-lines">{text.map((t, i) => <Fragment key={i}>{i > 0 && <br />}{t}</Fragment>)}</p>;
+  return <>{text.map((t, i) => <p key={i} className={i === 0 && text.length > 1 && t.length <= 320 ? 'px-lede' : undefined}>{t}</p>)}</>;
+};
+
+const Back = ({ href, label }: { href: string; label: string }) => (
+  <p className="px-back" data-rv><a className="btn btn--line px-btn" href={href}>{I.back}{label}</a></p>
+);
+
+/* who organised it: a club (linked when the club is known) or the district itself */
+const OrgRow = ({ club, id }: { club: string; id: string }) => {
+  const label = club ? `Rotary Club of ${club}` : R.site.name;
+  return (
+    <div className="px-row px-orgrow">
+      <span className="px-tile" aria-hidden="true">{club ? initials(club) : R.site.district}</span>
+      <p className="px-orgrow__name">{id ? <a href={clubHref(id)}>{label}</a> : label}</p>
+      {id && <span className="px-go" aria-hidden="true">{I.arrow}</span>}
+    </div>
+  );
+};
+
+/* photos past the cover; capped at eight (six on a phone) until "show all". Each opens in the lightbox, in the
+   cover's gallery (`group`), so the lightbox runs through every photo even while the grid is capped. */
+function Gallery({ photos, group }: { photos: Photo[]; group: string }) {
+  if (!photos.length) return null;
+  const T = D.project.gallery;
+  return (
+    <section className="px-gallery" aria-label={T} data-rv>
+      <header className="px-ghead">
+        <h2 className="px-h2">{T}</h2>
+        <span className="px-pill">{I.photo}<b>{num(photos.length)}</b><span className="sr-only"> {T.toLowerCase()}</span></span>
+      </header>
+      <ul className="px-photos">
+        {photos.map((ph, i) => <li key={i}><Zoom ph={ph} group={group} className="px-photos__a"><img src={ph.src} alt={ph.alt} width={ph.w} height={ph.h} loading="lazy" /></Zoom></li>)}
+      </ul>
+      {photos.length > 6 && <ShowAll n={photos.length} noun={T.toLowerCase()} />}
+    </section>
+  );
+}
+
+/* the selector found nothing: the head says so in its blue panel and points back to the list */
+function Missing({ k, via, text, back }: { k: PageKey; via?: PageKey; text: string; back: string }) {
+  return (
+    <>
+      <PageHead k={k}>
+        <div className="px-knone">
+          <span className="px-empty__ring" aria-hidden="true" />
+          <p>{text}</p>
+          <a className="btn btn--solid px-btn" href={via ? pageInfo(via).file : R.nav[0].href}>{back}{I.next}</a>
+        </div>
+      </PageHead>
+      {/* the page's usual space before the footer, so the blue panel never meets the blue footer */}
+      <div className="px-body" />
+    </>
+  );
+}
+
+const Mono = ({ photo, name }: { photo: Photo | null | undefined; name: string }) => (photo
+  ? <img src={photo.src} alt="" width={photo.w} height={photo.h} />
+  : <span className="px-koffice__mono" aria-hidden="true">{initials(name)}</span>);
+
+/* ---------- Club profile: figures in the head; details (meeting first) as one strip; leadership; the roster;
+   projects | newsletters | events ---------- */
+function ClubPage() {
+  const c = clubProfile();
+  const name = c ? `Rotary Club of ${c.name}` : '';
+  useDocTitle(name);
+  if (!c) return <Missing k="club" via="finder" text={D.club.missing} back={D.club.back} />;
+  const W = D.club, L = P.projects.statLabels, g = c.glance, m = c.meeting, ct = c.contact;
+  const facts: Fact[] = [
+    ...(m.day ? [{ icon: I.cal, label: 'Meeting day', value: m.day }] : []),
+    ...(m.time ? [{ icon: I.clock, label: 'Meeting time', value: m.time }] : []),
+    ...(m.place ? [{ icon: I.pin, label: 'Meeting place', value: m.place }] : []),
+    ...c.details.map(f => ({ icon: I.tag, label: f.label, value: f.value })),
+    ...(ct?.email ? [{ icon: I.mail, label: D.member.email, value: <a href={`mailto:${ct.email}`}>{ct.email}</a> }] : []),
+    ...(ct?.phone ? [{ icon: I.phone, label: 'Phone', value: <a href={`tel:${ct.phone.replace(/[^\d+]/g, '')}`}>{ct.phone}</a> }] : []),
+    ...(ct?.web ? [{ icon: I.globe, label: 'Website', value: <a href={ct.web} target="_blank" rel="noopener">{ct.web.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a> }] : [])
+  ];
+  const events = [...c.events].sort((a, b) => a.date.localeCompare(b.date));
+  const tabs = [['projects', c.projects.length], ['bulletins', c.bulletins.length], ['events', events.length]] as const;
+  return (
+    <>
+      <PageHead k="club" title={name}>
+        <Figures title={W.glance} cells={[['Members', num(g.members)], [L.projects, num(g.projects)], [L.beneficiaries, num(g.beneficiaries)], [L.amount, lakh(g.amount)], [L.hours, num(g.hours)]]} />
+      </PageHead>
+      <div className="wrap px-body px-detail">
+        {facts.length > 0 && (
+          <section aria-label={W.details} data-rv>
+            <header className="px-ghead"><h2 className="px-h2">{W.details}</h2></header>
+            <div className="px-sheet px-facts-strip"><Facts rows={facts} /></div>
+          </section>
+        )}
+
+        <section className="px-leaders" aria-label={W.leadership} data-rv>
+          <header className="px-ghead">
+            <h2 className="px-h2">{W.leadership}</h2>
+            {c.leaders.length > 0 && <Pill n={c.leaders.length} noun="people" />}
+          </header>
+          {c.leaders.length ? (
+            <ul className="px-ledger px-grid">
+              {c.leaders.map((l, i) => (
+                <li key={i} className="px-row px-member">
+                  {l.photo ? <img className="px-tile" src={l.photo.src} alt="" width={50} height={50} loading="lazy" /> : <span className="px-tile" aria-hidden="true">{initials(l.name)}</span>}
+                  <h3 className="px-member__name">{l.name}</h3>
+                  <p className="px-member__role">{l.role}</p>
+                </li>
+              ))}
+            </ul>
+          ) : <Empty text={W.none.leaders} live={false} hidden={false} />}
+          {/* a real board runs to 20+: three rows of three until "show all" */}
+          {c.leaders.length > 9 && <ShowAll n={c.leaders.length} noun="people" />}
+        </section>
+
+        {c.members.length > 0 && (
+          <section className="px-roster" aria-label={W.members} data-filter data-page-size={W.pageSize} data-rv>
+            <header className="px-ghead px-ghead--split">
+              <h2 className="px-h2">{W.members}</h2>
+              <Search label={W.searchLabel} count={c.members.length} />
+            </header>
+            <ul className="px-ledger px-mates">
+              {c.members.map((p, i) => (
+                <li key={i} className="px-mate" data-item data-q={`${p.name} ${p.role}`.toLowerCase()}>
+                  {p.photo ? <img className="px-mate__av" src={p.photo.src} alt="" width={44} height={44} loading="lazy" /> : <span className="px-mate__av" aria-hidden="true">{initials(p.name)}</span>}
+                  <span className="px-mate__text"><b>{p.name}</b>{p.role && <span>{p.role}</span>}</span>
+                </li>
+              ))}
+            </ul>
+            <Empty text={W.empty} />
+            <More label={W.more} />
+          </section>
+        )}
+
+        <section className="px-ctabs" data-tabs data-rv>
+          <div className="px-chips px-tabbar" role="tablist" aria-label={name}>
+            {tabs.map(([k, n], i) => (
+              <button key={k} type="button" role="tab" className={i ? 'px-chip px-tab' : 'px-chip px-tab is-on'} data-tab={k} aria-selected={!i} tabIndex={i ? -1 : 0}>
+                {W.tabs[k]}<b>{num(n)}</b>
+              </button>
+            ))}
+          </div>
+          <div className="px-ctab px-ctab--projects" data-panel="projects" role="tabpanel" aria-label={W.tabs.projects}>
+            {c.projects.length ? (
+              <>
+                <ul className="px-ledger px-projs">{latest(c.projects).map((p, i) => <ProjectItem key={p.id} p={p} i={i} glow />)}</ul>
+                {c.projects.length > 6 && <ShowAll n={c.projects.length} noun={W.tabs.projects.toLowerCase()} />}
+              </>
+            ) : <Empty text={W.none.projects} live={false} hidden={false} />}
+          </div>
+          <div className="px-ctab px-ctab--bulletins" data-panel="bulletins" role="tabpanel" aria-label={W.tabs.bulletins} hidden>
+            {c.bulletins.length ? (
+              <>
+                <div className="px-news">
+                  <ol className="px-stories">
+                    {c.bulletins.map((b, i) => (
+                      <li key={i} className="px-story">
+                        <h3 className="px-story__h">{b.title}</h3>
+                        <p className="px-story__date">{shortDate(b.date)}</p>
+                        {acts(b.pdf)}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                {c.bulletins.length > 9 && <ShowAll n={c.bulletins.length} noun={W.tabs.bulletins.toLowerCase()} />}
+              </>
+            ) : <Empty text={W.none.bulletins} live={false} hidden={false} />}
+          </div>
+          <div className="px-ctab px-ctab--events" data-panel="events" role="tabpanel" aria-label={W.tabs.events} hidden>
+            {events.length ? (
+              <>
+                <ul className="px-ledger px-erows">
+                  {events.map((e, i) => {
+                    const d = parseISO(e.date), today = e.date === R.calendar.today, sub = [e.time, e.venue].filter(Boolean).join(' · ');
+                    return (
+                      <li key={i} className={today ? 'px-row px-erow is-today' : 'px-row px-erow'}>
+                        <span className="px-dtile" aria-hidden="true"><span>{weekdayName(d).slice(0, 3)}</span><b>{d.getDate()}</b><span>{monthLabel(d).slice(0, 3)}</span></span>
+                        <h3 className="px-erow__title"><a href={eventHref(e)}>{e.title}<span className="sr-only">, {longDate(d)}</span></a></h3>
+                        {(sub || today) && <p className="px-erow__meta">{today && <em className="px-today">{R.calendar.todayTag}</em>}{sub}</p>}
+                        <span className="px-go" aria-hidden="true">{I.arrow}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {events.length > 6 && <ShowAll n={events.length} noun={W.tabs.events.toLowerCase()} />}
+              </>
+            ) : <Empty text={W.none.events} live={false} hidden={false} />}
+          </div>
+        </section>
+
+        <Back href={pageInfo('finder').file} label={W.back} />
+      </div>
+    </>
+  );
+}
+
+/* ---------- Project: its figures in the head; the cover beside the story; the rest of the photos ---------- */
+function ProjectPage() {
+  const p = projectDetail();
+  useDocTitle(p?.title);
+  if (!p) return <Missing k="project" via="projects" text={D.project.missing} back={D.project.back} />;
+  const via: PageKey = p.avenue === 'club' ? 'service' : 'projects';
+  const L = P.projects.statLabels;
+  const cells: [string, string][] = [[L.beneficiaries, num(p.beneficiaries)], [L.amount, lakh(p.amount)], [L.hours, num(p.hours)]];
+  if (p.rotarians != null) cells.push(['Rotarians', num(p.rotarians)]);
+  const [cover, ...rest] = p.gallery.length ? p.gallery : [p.photo];
+  return (
+    <>
+      <PageHead k="project" title={p.title}>
+        <Figures title={D.project.figures} cells={cells} />
+      </PageHead>
+      <div className="wrap px-body px-detail">
+        <div className="px-split">
+          {cover && (
+            <figure className="px-cover" data-rv>
+              <Zoom ph={cover} group={`p-${p.id}`} className="px-cover__a"><img src={cover.src} alt={cover.alt} width={cover.w} height={cover.h} /></Zoom>
+              {cover.alt && <figcaption>{cover.alt}</figcaption>}
+            </figure>
+          )}
+          <article className="px-sheet px-read" data-rv style={css({ '--i': 1 })}>
+            <header className="px-read__head">
+              <h2 className="px-h2">{D.project.about}</h2>
+              <Share p={p} label />
+            </header>
+            {/* what, when, where: the avenue, the date, the place and the area of focus (each left out when empty) */}
+            <Meta bits={[
+              [<i className="dot" aria-hidden="true" style={css({ '--accent': AVENUE[p.avenue] ?? ACC[0] })} />, avenueLabel(p.avenue)],
+              [I.cal, p.date && shortDate(p.date)],
+              [I.pin, p.location],
+              [I.tag, p.focus]
+            ]} />
+            <Paras text={paras(p.description || p.summary)} />
+            {p.club && (
+              <div className="px-org">
+                <h3 className="px-org__h">{D.project.organiser}</h3>
+                <OrgRow club={p.club} id={p.clubId} />
+              </div>
+            )}
+          </article>
+        </div>
+        <Gallery photos={rest} group={`p-${p.id}`} />
+        <Back href={pageInfo(via).file} label={via === 'service' ? pageInfo('service').title : D.project.back} />
+      </div>
+    </>
+  );
+}
+
+/* ---------- Event: a tear-off date (and Register) in the head; when, where, who as one strip; the story beside
+   its first photo; the rest of the photos ---------- */
+function EventPage() {
+  const e = eventDetail();
+  useDocTitle(e?.title);
+  if (!e) return <Missing k="event" via="calendar" text={D.event.missing} back={D.event.back} />;
+  const C = R.calendar;
+  const d = parseISO(e.date);
+  const today = e.date === C.today;
+  const text = paras(e.description);
+  const ct = e.contact;
+  const [cover, ...more] = e.gallery;
+  const org = e.club ? `Rotary Club of ${e.club}` : R.site.name;
+  const rows: Fact[] = [
+    { icon: I.cal, label: D.event.when, value: <>{longDate(d)}{e.time && ` · ${e.time}`}{today && <em className="px-today">{C.todayTag}</em>}</> },
+    ...(e.venue ? [{ icon: I.pin, label: D.event.where, value: e.venue }] : []),
+    { icon: I.club, label: D.event.organiser, value: e.club && e.clubId ? <a href={clubHref(e.clubId)}>{org}</a> : org },
+    ...(ct && (ct.name || ct.email || ct.phone) ? [{
+      icon: I.phone, label: D.event.contact, value: (
+        <span className="px-fact__lines">
+          {ct.name && <span>{ct.name}</span>}
+          {ct.email && <a href={`mailto:${ct.email}`}>{ct.email}</a>}
+          {ct.phone && <a href={`tel:${ct.phone.replace(/[^\d+]/g, '')}`}>{ct.phone}</a>}
+        </span>
+      )
+    }] : [])
+  ];
+  return (
+    <>
+      <PageHead k="event" title={e.title} keyClass="px-head__key--date">
+        <div className="px-kday">
+          <p className="px-kday__date">
+            <b className="px-kday__num">{d.getDate()}</b>
+            <span className="px-kday__wd">{weekdayName(d)}</span>
+            <span className="px-kday__mo">{monthLabel(d)}</span>
+            {today && <em className="px-today">{C.todayTag}</em>}
+          </p>
+          {/* the kind of event and its time (the venue is in the strip below) */}
+          <p className="px-kday__line">
+            <span className="px-kday__kind"><i className={`dot dot--${e.kind}`} aria-hidden="true" />{C.types.find(t => t.key === e.kind)?.label}</span>
+            {e.time && <span>{e.time}</span>}
+          </p>
+          {e.registration && <a className="btn btn--solid px-btn px-kday__go" href={e.registration} target="_blank" rel="noopener">{D.event.register}{I.next}</a>}
+        </div>
+      </PageHead>
+      <div className="wrap px-body px-detail">
+        <div className="px-sheet px-facts-strip" data-rv><Facts rows={rows} /></div>
+        {(cover || text.length > 0) && (
+          <div className={cover && text.length ? 'px-split' : 'px-split is-solo'}>
+            {cover && (
+              <figure className="px-cover" data-rv>
+                <Zoom ph={cover} group={`e-${e.id}`} className="px-cover__a"><img src={cover.src} alt={cover.alt} width={cover.w} height={cover.h} /></Zoom>
+                {cover.alt && <figcaption>{cover.alt}</figcaption>}
+              </figure>
+            )}
+            {text.length > 0 && (
+              <article className="px-sheet px-read" data-rv style={css({ '--i': 1 })}>
+                <h2 className="px-h2">{D.event.about}</h2>
+                <Paras text={text} />
+              </article>
+            )}
+          </div>
+        )}
+        <Gallery photos={more} group={`e-${e.id}`} />
+        <Back href={pageInfo('calendar').file} label={D.event.back} />
+      </div>
+    </>
+  );
+}
+
+/* ---------- Dignitary: the portrait in the head panel; the biography beside the other dignitary; Rotary details ---------- */
+function DignitaryPage() {
+  const d = dignitaryProfile();
+  useDocTitle(d?.name);
+  if (!d) return <Missing k="dignitary" text={D.dignitary.missing} back={D.dignitary.back} />;
+  const ot = d.type === 'dg' ? 'president' : 'dg';
+  const o = D.dignitary.item?.[ot] ?? R.dignitaries.byYear[R.years.current]?.[ot];
+  const ct = d.contact;
+  const bio = paras(d.bio);
+  return (
+    <>
+      <PageHead k="dignitary" title={d.name} wide>
+        <div className="px-koffice px-koffice--lg">
+          <span className="px-koffice__ring"><Mono photo={d.photo} name={d.name} /></span>
+          <div className="px-koffice__text">
+            <p className="px-koffice__role">{d.role}</p>
+            {d.term && <p className="px-koffice__term">{d.term}</p>}
+            {ct && (ct.email || ct.phone) && (
+              <div className="px-klinks">
+                {ct.email && <a className="px-klink" href={`mailto:${ct.email}`}>{I.mail}<span>{ct.email}</span></a>}
+                {ct.phone && <a className="px-klink" href={`tel:${ct.phone.replace(/[^\d+]/g, '')}`}>{I.phone}<span>{ct.phone}</span></a>}
+              </div>
+            )}
+          </div>
+        </div>
+      </PageHead>
+      <div className="wrap px-body px-detail">
+        {(bio.length > 0 || o) && (
+          <div className={bio.length && o ? 'px-split' : 'px-split is-solo'}>
+            {bio.length > 0 && (
+              <article className="px-sheet px-read" data-rv>
+                <h2 className="px-h2">{D.dignitary.bio}</h2>
+                <Paras text={bio} />
+              </article>
+            )}
+            {/* the other dignitary, as the homepage's white banner; it stays in view beside a long biography */}
+            {o && (
+              <aside className="px-aside">
+                <article className="px-other" data-rv style={css({ '--i': 1 })}>
+                  <span className="px-other__ring"><Mono photo={o.photo} name={o.name} /></span>
+                  <div className="px-other__text">
+                    <h2 className="px-other__name"><a href={dignitaryHref(ot)}>{o.name}</a></h2>
+                    <p className="px-other__role">{o.role}</p>
+                    <span className="btn-read" aria-hidden="true">{R.dignitaries.readMore}{I.arrow}</span>
+                  </div>
+                </article>
+              </aside>
+            )}
+          </div>
+        )}
+        {d.facts.length > 0 && (
+          <section aria-label={D.dignitary.details} data-rv>
+            <header className="px-ghead"><h2 className="px-h2">{D.dignitary.details}</h2></header>
+            <div className="px-sheet px-facts-strip"><Facts rows={d.facts.map(f => ({ icon: I.tag, label: f.label, value: f.value }))} /></div>
+          </section>
+        )}
+        <Back href={R.nav[0].href} label={D.dignitary.back} />
+      </div>
+    </>
+  );
+}
+
+/* ---------- Committee member: the profile in the head panel; their committee as portrait cards (one row until
+   "show all", as on the District Committee page), this member's card marked ---------- */
+function MemberPage() {
+  const m = memberProfile();
+  useDocTitle(m?.name);
+  if (!m) return <Missing k="member" via="committee" text={D.member.missing} back={D.member.back} />;
+  const groups = committee();
+  const gi = groups.findIndex(g => g.title === m.group);
+  const g = groups[gi];
+  const cid = clubIdOf(m.club);
+  return (
+    <>
+      <PageHead k="member" title={m.name}>
+        <div className="px-koffice">
+          <span className="px-koffice__ring"><Mono photo={m.photo} name={m.name} /></span>
+          <div>
+            {m.role && <p className="px-koffice__h">{m.role}</p>}
+            {m.group && <p className="px-koffice__who"><span className="sr-only">{D.member.committee}: </span>{m.group}</p>}
+          </div>
+        </div>
+        {(m.club || m.email) && (
+          <div className="px-klinks">
+            {m.club && (cid
+              ? <a className="px-klink" href={clubHref(cid)}>{I.club}<span><span className="sr-only">{D.member.club}: </span>Rotary Club of {m.club}</span></a>
+              : <p className="px-klink">{I.club}<span><span className="sr-only">{D.member.club}: </span>Rotary Club of {m.club}</span></p>)}
+            {m.email && <a className="px-klink" href={`mailto:${m.email}`}>{I.mail}<span><span className="sr-only">{D.member.email}: </span>{m.email}</span></a>}
+          </div>
+        )}
+      </PageHead>
+      <div className="wrap px-body px-detail">
+        {g && g.members.length > 1 && (
+          <section className="px-cmte" aria-label={g.title} style={css({ '--accent': ACC[gi % ACC.length] })} data-rv>
+            <header className="px-ghead">
+              <h2 className="px-h2">{g.title}</h2>
+              <Pill n={g.members.length} noun="members" />
+            </header>
+            <ul className="px-mcards">{g.members.map((x, i) => <MemberCard key={i} m={x} g={g.key} current={memberId(x) === m.id} />)}</ul>
+            {g.members.length > 2 && <ShowAll n={g.members.length} noun="members" />}
+          </section>
+        )}
+        <Back href={pageInfo('committee').file} label={D.member.back} />
+      </div>
+    </>
+  );
+}
+
 const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   about: () => <About />,
   committee: () => <Committee />,
@@ -635,7 +1152,12 @@ const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   service: () => <Service />,
   calendar: () => <CalendarPage />,
   newsletters: ({ year }) => <Newsletters year={year} />,
-  contact: () => <Contact />
+  contact: () => <Contact />,
+  club: () => <ClubPage />,
+  project: () => <ProjectPage />,
+  event: () => <EventPage />,
+  dignitary: () => <DignitaryPage />,
+  member: () => <MemberPage />
 };
 
 function Body({ page, year }: { page: PageKey; year: string }) {

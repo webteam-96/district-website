@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import { R, initials, longDate, parseISO, shortDate } from '../../shared/rotary';
+import { R, initials, longDate, parseISO, shortDate, type Bulletin, type CalEntry, type Photo } from '../../shared/rotary';
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, AdminContent, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
   calMonths, todayMonthKey, monthEntries, typesOf, entryText, pressYears, toISO, type PageKey, type Project
 } from '../../shared/inner';
+import {
+  D, clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, paras, useDocTitle,
+  clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, eventId, clubIdOf
+} from '../../shared/detail';
 import { Header, UtilityBar } from './Chrome';
 import Footer from './Footer';
 import { ThemeCtx, readTheme, saveTheme, type Theme } from './theme';
@@ -23,20 +27,33 @@ const I = {
   clock: <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="12" cy="12" r="8.5" /><path {...sw} d="M12 7.5V12l3 2" /></svg>,
   mail: <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect {...sw} x="3" y="5" width="18" height="14" rx="3" /><path {...sw} d="m4 7 8 6 8-6" /></svg>,
   phone: <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" /></svg>,
+  user: <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="12" cy="8.5" r="3.6" /><path {...sw} d="M5 20c.8-3.7 3.6-5.8 7-5.8s6.2 2.1 7 5.8" /></svg>,
+  next: <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path {...sw} d="M3 8h10M9 4l4 4-4 4" /></svg>,
   doc: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M7 3h7l5 5v13H7z" /><path {...sw} d="M14 3v5h5M10 13h6M10 17h6" /></svg>,
-  check: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="12" cy="12" r="9" /><path {...sw} d="m8 12.5 2.6 2.6L16 9.6" /></svg>
+  pin: <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" /><circle {...sw} cx="12" cy="10" r="2.4" /></svg>,
+  cal: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect {...sw} x="3.5" y="5" width="17" height="15.5" rx="3" /><path {...sw} d="M3.5 9.5h17M8 3v4M16 3v4" /></svg>,
+  globe: <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="12" cy="12" r="8.5" /><path {...sw} d="M3.5 12h17M12 3.5c2.4 2.3 3.6 5.1 3.6 8.5s-1.2 6.2-3.6 8.5c-2.4-2.3-3.6-5.1-3.6-8.5s1.2-6.2 3.6-8.5z" /></svg>,
+  group: <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle {...sw} cx="9" cy="8.5" r="3" /><path {...sw} d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8" /><circle {...sw} cx="16.5" cy="9.5" r="2.4" /><path {...sw} d="M15.5 14.4c2.6-.3 4.5 1.3 5 4.1" /></svg>,
+  back: <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path {...sw} d="M13 8H3M7 4 3 8l4 4" /></svg>,
+  share: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" x2="12" y1="2" y2="15" /></svg>
 };
-/* the District Snapshot's own icons (Sections.tsx) */
+/* the District Snapshot's own icons (Sections.tsx), plus a building for "Clubs Involved" */
 const SNAP = {
   projects: <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path {...sw} d="M3.5 7.5h6l2 2h9v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" /><path {...sw} d="m9 14.5 2 2 4-4" /></svg>,
   beneficiaries: <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle {...sw} cx="9" cy="8.5" r="3" /><path {...sw} d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8" /><circle {...sw} cx="16.5" cy="9.5" r="2.4" /><path {...sw} d="M15.5 14.4c2.6-.3 4.5 1.3 5 4.1" /></svg>,
   amount: <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle {...sw} cx="12" cy="12" r="8.5" /><path {...sw} d="M9 8h6M9 11h6M13 8c1.7 0 2.5 1.2 2.5 1.5S14.7 11 13 11h-1l4 5" /></svg>,
-  hours: <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle {...sw} cx="12" cy="12" r="8.5" /><path {...sw} d="M12 7.5V12l3 2" /></svg>
+  hours: <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle {...sw} cx="12" cy="12" r="8.5" /><path {...sw} d="M12 7.5V12l3 2" /></svg>,
+  clubs: <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path {...sw} d="M6.5 21V4.5a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5V21z" /><path {...sw} d="M6.5 11.5h-2a1.5 1.5 0 0 0-1.5 1.5v8h3.5M17.5 9h2a1.5 1.5 0 0 1 1.5 1.5V21h-3.5M10 7h4M10 11h4M10 15h4" /></svg>,
+  members: <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle {...sw} cx="10" cy="8.5" r="3.4" /><path {...sw} d="M3.8 19.5c.7-3.3 3.1-5.2 6.2-5.2 1.6 0 3 .5 4.1 1.4" /><path {...sw} d="M18 13.5v6M15 16.5h6" /></svg>
 };
 /* the homepage's four accent hues, in the order it uses them (theme-aware tokens, see inner.css) */
 const HUE = ['var(--c-club)', 'var(--c-district)', 'var(--c-birthday)', 'var(--c-anniversary)'];
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const wd = (d: Date) => R.calendar.weekdays[(d.getDay() - R.calendar.weekStartsOn + 7) % 7];
+const pad = (n: number) => String(n).padStart(2, '0');
+const lakh = (n: number) => `₹${R.fmt.num(n, 1)} L`;
 
-/* ---------- page head: a band of liquid light under the header, title left, the page's key control right ---------- */
+/* ---------- page head: a band of liquid light under the header, title + breadcrumb left, the page's key control right ---------- */
 const Fluid = () => <div className="phead__fluid" aria-hidden="true"><i /><i /></div>;
 const Crumbs = ({ title }: { title: string }) => (
   <nav className="crumbs" aria-label={P.breadcrumb}>
@@ -45,16 +62,15 @@ const Crumbs = ({ title }: { title: string }) => (
     <span aria-current="page">{title}</span>
   </nav>
 );
-function PageHead({ k, children }: { k: PageKey; children?: ReactNode }) {
-  const p = pageInfo(k);
+function PageHead({ k, title, children }: { k: PageKey; title?: string; children?: ReactNode }) {
+  const t = title || pageInfo(k).title;
   return (
     <section className={`phead phead--${k}`} id="top">
       <Fluid />
       <div className="wrap phead__row">
         <div className="phead__text" data-rv>
-          <h1 className="phead__title">{p.title}</h1>
-          <p className="phead__lead">{p.lead}</p>
-          <Crumbs title={p.title} />
+          <h1 className="phead__title">{t}</h1>
+          <Crumbs title={t} />
         </div>
         {children && <div className="phead__key" data-rv style={v({ '--d': '80ms' })}>{children}</div>}
       </div>
@@ -62,19 +78,45 @@ function PageHead({ k, children }: { k: PageKey; children?: ReactNode }) {
   );
 }
 
-/* search with the live count inside the field */
+/* search; the live result count is announced to screen readers, not shown in the field */
 function Search({ label, total, noun, placeholder = label, className = '' }: { label: string; total: number; noun: string; placeholder?: string; className?: string }) {
   return (
     <label className={`gsearch ${className}`.trim()}>
       {I.search}
       <span className="sr-only">{label}</span>
       <input type="search" data-f-search placeholder={placeholder} autoComplete="off" />
-      <span className="gsearch__n" aria-live="polite"><b data-f-count>{num(total)}</b> {noun}</span>
+      <span className="sr-only" aria-live="polite"><b data-f-count>{num(total)}</b> {noun}</span>
     </label>
   );
 }
 const Empty = ({ text }: { text: string }) => <p className="gempty" data-f-empty hidden>{text}</p>;
 const More = ({ label }: { label: string }) => <div className="gmore"><button type="button" className="pill-btn pill-btn--lg" data-f-more hidden>{label}</button></div>;
+/* "Show all N": a checkbox in a pill, no script; inner.css shows a list's first rows until it is ticked */
+const ShowAll = ({ n }: { n: number }) => (
+  <label className="cmore pill-btn">
+    <input type="checkbox" className="cmore__box" />
+    <span className="cmore__all">Show all <span className="cmore__n">{num(n)}</span></span>
+    <span className="cmore__less">Show fewer</span>
+    {I.chevron}
+  </label>
+);
+/* Share (shared/inner.js: the phone's share sheet, else a menu of WhatsApp, Facebook, X, LinkedIn, Copy link) */
+const Share = ({ href, title, className }: { href: string; title: string; className: string }) => (
+  <button type="button" className={className} data-share data-share-url={href} data-share-title={title} aria-haspopup="menu" aria-expanded="false" aria-label={`Share: ${title}`}>{I.share}<span>Share</span></button>
+);
+/* a person as a card: a large photo (or initials), name, role, club; the name links when there is a page to open */
+function PersonCard({ m, href, q, group }: { m: { name: string; role?: string; club?: string; photo?: Photo | null }; href?: string; q?: string; group?: string }) {
+  return (
+    <li className={`ccard glass ${href ? 'ccard--link' : ''}`.trim()} data-item={q === undefined ? undefined : true} data-q={q} data-group={group}>
+      <span className="ccard__photo">
+        {m.photo ? <img src={m.photo.src} alt="" width={m.photo.w} height={m.photo.h} loading="lazy" /> : <span className="ccard__plate" aria-hidden="true">{initials(m.name)}</span>}
+      </span>
+      <h3 className="ccard__name">{href ? <a className="ccard__link" href={href}>{m.name}</a> : m.name}</h3>
+      {m.role && <p className="ccard__role">{m.role}</p>}
+      {m.club && <p className="ccard__club">{clubName(m.club)}</p>}
+    </li>
+  );
+}
 
 /* ================= About =================
    The backend has one field for this page, "content" (HTML from the admin's editor). The page is a
@@ -99,7 +141,10 @@ function About() {
 
 /* ================= District Committee =================
    The homepage's mirrored stage: the District Governor (the first member of the first committee) at
-   the left, the committees as the filter at the right. Under it one ledger of everybody else. */
+   the left, the committees as the filter at the right. Under it every committee is a section of member
+   cards with large photos. Each committee shows one row of cards and a "Show all N" checkbox (CSS only,
+   in its heading), so a committee of 120 club presidents never makes the page run on; choosing a
+   committee with its chip shows all of it. */
 function Committee() {
   const groups = committee();
   const total = groups.reduce((s, g) => s + g.members.length, 0);
@@ -116,7 +161,7 @@ function Committee() {
                   {gov.photo ? <img src={gov.photo.src} alt={gov.photo.alt} width={gov.photo.w} height={gov.photo.h} /> : <span className="portrait__plate" aria-hidden="true">{gov.initials}</span>}
                 </div>
                 <div className="cstage__who">
-                  <h2>{gov.name}</h2>
+                  <h2><a className="cstage__link" href={memberHref(gov)}>{gov.name}</a></h2>
                   <p className="cstage__role">{gov.role}</p>
                   {gov.club && <p className="cstage__club">{clubName(gov.club)}</p>}
                 </div>
@@ -137,23 +182,19 @@ function Committee() {
             </div>
           </div>
 
-          <div className="cledger glass" data-rv style={v({ '--d': '60ms' })}>
+          <div className="cgroups">
             {groups.map((g, gi) => {
               const list = gi === 0 ? g.members.slice(1) : g.members;
               if (!list.length) return null;
               return (
-                <section key={g.key} className="cgroup" data-f-group style={v({ '--c': HUE[gi % 4] })}>
-                  <h2 className="cgroup__title"><i aria-hidden="true" />{g.title}</h2>
-                  <ul>
-                    {list.map((m, i) => (
-                      <li key={i} className="cperson" data-item data-q={m.q} data-group={g.key}>
-                        <span className="avatar">{m.photo ? <img src={m.photo.src} alt="" width="44" height="44" loading="lazy" /> : <span aria-hidden="true">{m.initials}</span>}</span>
-                        <h3 className="cperson__name">{m.name}</h3>
-                        <p className="cperson__role">{m.role}</p>
-                        <p className="cperson__club">{clubName(m.club)}</p>
-                      </li>
-                    ))}
-                  </ul>
+                <section key={g.key} className="cgroup" data-f-group data-rv aria-labelledby={`cg-${g.key}`} style={v({ '--c': HUE[gi % 4] })}>
+                  <header className="cgroup__head">
+                    <i aria-hidden="true" />
+                    <h2 id={`cg-${g.key}`}>{g.title}</h2>
+                    <b data-f-group-count>{num(list.length)}</b>
+                    {list.length > CAP_MIN && <ShowAll n={list.length} />}
+                  </header>
+                  <ul className="cgrid">{list.map((m, i) => <PersonCard key={i} m={m} href={memberHref(m)} q={m.q} group={g.key} />)}</ul>
                 </section>
               );
             })}
@@ -164,9 +205,13 @@ function Committee() {
     </div>
   );
 }
+/* the fewest cards a committee shows before "Show all" (one row of four, or two rows of two on a phone; see inner.css) */
+const CAP_MIN = 4;
 
 /* ================= Club Finder =================
-   A console that stays in view (search + the seven meeting days drawn as bars) beside the clubs. */
+   A console that stays in view (search + the seven meeting days drawn as bars) beside the clubs. Each club
+   row: the name (the link to the club), then the meeting day, the president and the president's phone in
+   fixed slots, so the rows line up when a club has no president or phone on record. */
 function Finder() {
   const f = P.finder;
   const list = clubs();
@@ -194,11 +239,12 @@ function Finder() {
             <ul className="flist" data-rv>
               {list.map(c => (
                 <li key={c.id} className="fclub glass" data-item data-q={c.q} data-day={c.day ?? ''} data-glow>
-                  <div className="fclub__text">
-                    <h3><a className="fclub__link" href={c.href} target="_blank" rel="noopener">Rotary Club of {c.name}</a></h3>
-                    {c.place && <p className="fclub__place">{c.place}</p>}
-                  </div>
-                  {c.day && <p className="fclub__day">{I.clock}{c.day}</p>}
+                  <h3><a className="fclub__link" href={c.href}>Rotary Club of {c.name}</a></h3>
+                  <p className="fclub__meta">
+                    <span className="fclub__cell">{c.day && <span className="fclub__day">{I.clock}{c.day}</span>}</span>
+                    <span className="fclub__cell">{c.president && <span className="fclub__pres">{I.user}<span className="sr-only">President: </span>{c.president}</span>}</span>
+                    <span className="fclub__cell">{c.phone && <a className="fclub__tel" href={`tel:${c.tel || c.phone.replace(/[^\d+]/g, '')}`}>{I.phone}{c.phone}</a>}</span>
+                  </p>
                   <span className="fclub__go" aria-hidden="true">{I.arrow}{I.chevron}</span>
                 </li>
               ))}
@@ -212,25 +258,29 @@ function Finder() {
   );
 }
 
-/* ================= Club Projects / Club Service ================= */
+/* ================= Club Projects / Club Service =================
+   Cards newest first; each card's number (#1 = the latest) is a CSS counter over the cards that show,
+   so it stays 1, 2, 3 … after a search, an avenue chip or "Show more". The photo opens full size (lightbox),
+   "Read more" opens the project, Share is the second, smaller control. */
 function ProjectCard({ p }: { p: Project }) {
-  const L = P.projects.statLabels;
   return (
     <li className="pcard glass" data-item data-q={`${p.title} ${p.club} ${avenueLabel(p.avenue)}`.toLowerCase()} data-avenue={p.avenue} data-glow>
       <div className="pcard__in">
         <figure className="pcard__photo">
-          <img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} loading="lazy" />
+          <a className="pcard__zoom" href={p.photo.src} data-lightbox={`p-${p.id}`} data-caption={p.photo.alt}>
+            <img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} loading="lazy" />
+          </a>
           <span className={`pcard__tag pcard__tag--${p.avenue}`}><i aria-hidden="true" />{avenueLabel(p.avenue)}</span>
+          <span className="pcard__no" aria-hidden="true" />
         </figure>
         <div className="pcard__body">
           <h3>{p.title}</h3>
           <p className="pcard__meta"><span>{clubName(p.club)}</span><span>{shortDate(p.date)}</span></p>
           <p className="pcard__sum">{p.summary}</p>
-          <dl className="pcard__nums">
-            <div><dt>{L.beneficiaries}</dt><dd>{num(p.beneficiaries)}</dd></div>
-            <div><dt>{L.amount}</dt><dd>₹{R.fmt.num(p.amount, 1)} L</dd></div>
-            <div><dt>{L.hours}</dt><dd>{num(p.hours)}</dd></div>
-          </dl>
+          <div className="pcard__acts">
+            <a className="pill-btn pcard__more" href={projectHref(p)}>Read more<span className="sr-only">: {p.title}</span>{I.next}</a>
+            <Share href={projectHref(p)} title={p.title} className="pcard__share" />
+          </div>
         </div>
       </div>
     </li>
@@ -240,13 +290,22 @@ function ProjectCard({ p }: { p: Project }) {
 function Projects({ service = false }: { service?: boolean }) {
   const x = P.projects;
   const L = x.statLabels;
-  const list = projectsOf(service ? 'club' : undefined);
+  const list = [...projectsOf(service ? 'club' : undefined)].sort((a, b) => b.date.localeCompare(a.date));
   const t = totals(list);
+  const amount = `₹${R.fmt.num(t.amount, 1)} L`;
   const stats = [
     { key: 'projects' as const, label: L.projects, value: num(t.projects), accent: HUE[1] },
     { key: 'beneficiaries' as const, label: L.beneficiaries, value: num(t.beneficiaries), accent: HUE[2] },
-    { key: 'amount' as const, label: L.amount, value: `₹${R.fmt.num(t.amount, 1)} L`, accent: HUE[3] },
+    { key: 'amount' as const, label: L.amount, value: amount, accent: HUE[3] },
     { key: 'hours' as const, label: L.hours, value: num(t.hours), accent: HUE[0] }
+  ];
+  /* Club Service: the counter strip of production's project pages, in its order and words */
+  const strip = [
+    { key: 'projects' as const, label: 'Projects', value: num(t.projects), accent: HUE[1] },
+    { key: 'clubs' as const, label: 'Clubs Involved', value: num(new Set(list.map(p => p.club)).size), accent: HUE[3] },
+    { key: 'beneficiaries' as const, label: 'Beneficiaries', value: num(t.beneficiaries), accent: HUE[2] },
+    { key: 'hours' as const, label: 'Volunteer Hours', value: num(t.hours), accent: HUE[0] },
+    { key: 'amount' as const, label: 'Amount Spent', value: amount, accent: HUE[1] }
   ];
   const search = <Search label={x.searchLabel} total={list.length} noun="projects" className="gsearch--head" />;
   return (
@@ -264,14 +323,15 @@ function Projects({ service = false }: { service?: boolean }) {
       <section className="psec psec--top">
         <div className="wrap">
           {service ? (
-            <div className="sbento">
-              {stats.map((s, i) => (
-                <div key={s.key} className={`sbento__cell sbento__cell--${s.key}`} data-glow data-rv style={v({ '--accent': s.accent, '--d': `${i * 60}ms` })}>
-                  <p className="sbento__top"><span className="sbento__icon">{SNAP[s.key]}</span><span className="sbento__label">{s.label}</span></p>
-                  <b className="sbento__num" data-count>{s.value}</b>
-                </div>
+            <ul className="sstrip">
+              {strip.map((s, i) => (
+                <li key={s.key} className={`sstrip__cell sstrip__cell--${s.key}`} data-glow data-rv style={v({ '--accent': s.accent, '--d': `${i * 60}ms` })}>
+                  <span className="sstrip__icon" aria-hidden="true">{SNAP[s.key]}</span>
+                  <span className="sstrip__label">{s.label}</span>
+                  <b className="sstrip__num" data-count>{s.value}</b>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <div className="gchips" role="group" aria-label="Avenue of service" data-rv>
               <button type="button" className="gchip" data-f-chip="avenue" data-v="" aria-pressed="true">{x.allLabel}<b>{num(list.length)}</b></button>
@@ -298,8 +358,6 @@ function CalendarPage() {
   const months = calMonths();
   const open = todayMonthKey();
   const today = parseISO(C.today);
-  const wd = (d: Date) => C.weekdays[(d.getDay() - C.weekStartsOn + 7) % 7];
-  const pad = (n: number) => String(n).padStart(2, '0');
   return (
     <div className="calroot" data-tabs>
       <PageHead k="calendar">
@@ -372,7 +430,7 @@ function CalendarPage() {
                                 <span className="tentry__date" aria-hidden="true"><i>{wd(d.date)}</i><b>{pad(d.date.getDate())}</b></span>
                                 <div className="tentry__text">
                                   <span className="sr-only">{longDate(d.date)}: </span>
-                                  <b>{tx.head}</b>
+                                  <b>{e.type === 'club' || e.type === 'district' ? <a className="tentry__link" href={eventHref(e)}>{tx.head}</a> : tx.head}</b>
                                   {tx.sub && <span>{tx.sub}</span>}
                                 </div>
                               </li>
@@ -390,6 +448,23 @@ function CalendarPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+/* a newsletter as the homepage's paper: text only, Preview + Download */
+function Paper({ b, i, filter = false }: { b: Bulletin; i: number; filter?: boolean }) {
+  const A = R.press.actions;
+  return (
+    <li className={`doc glass ${i % 2 ? 'doc--gold' : ''}`.trim()} data-item={filter || undefined} data-q={filter ? `${b.title} ${b.club}`.toLowerCase() : undefined} data-glow>
+      <span className="doc__icon" aria-hidden="true">{I.doc}</span>
+      <h3>{b.title}</h3>
+      <p className="doc__club">{clubName(b.club)}</p>
+      <p className="doc__date">{shortDate(b.date)}</p>
+      <div className="doc__acts">
+        <a className="pill-btn pill-btn--solid" href={b.pdf} target="_blank" rel="noopener">{A.preview}</a>
+        <a className="pill-btn" href={b.pdf} download>{A.download}</a>
+      </div>
+    </li>
   );
 }
 
@@ -417,18 +492,7 @@ function Newsletters({ year }: { year: string }) {
                 <h2 className="sr-only">{N.club}</h2>
                 {y.bulletins.length > 0 && (
                   <ul className="nwall" data-rv style={v({ '--d': '60ms' })}>
-                    {y.bulletins.map((b, i) => (
-                      <li key={i} className={`doc glass ${i % 2 ? 'doc--gold' : ''}`.trim()} data-item data-q={`${b.title} ${b.club}`.toLowerCase()} data-glow>
-                        <span className="doc__icon" aria-hidden="true">{I.doc}</span>
-                        <h3>{b.title}</h3>
-                        <p className="doc__club">{clubName(b.club)}</p>
-                        <p className="doc__date">{shortDate(b.date)}</p>
-                        <div className="doc__acts">
-                          <a className="pill-btn pill-btn--solid" href={b.pdf} target="_blank" rel="noopener">{A.preview}</a>
-                          <a className="pill-btn" href={b.pdf} download>{A.download}</a>
-                        </div>
-                      </li>
-                    ))}
+                    {y.bulletins.map((b, i) => <Paper key={i} b={b} i={i} filter />)}
                   </ul>
                 )}
                 <p className="gempty" data-f-empty hidden={y.bulletins.length > 0}>{R.fmt.fill(R.press.club.empty, { year: y.year })}</p>
@@ -463,65 +527,458 @@ function Newsletters({ year }: { year: string }) {
   );
 }
 
-/* ================= Contact =================
-   One row read from the centre outwards, like the homepage's stage: the form in the middle, the
-   Governor's office at its left, Join Rotary and Find a club at its right. */
-function Contact() {
-  const c = P.contact;
-  const d = R.contact;
-  const F = c.fields;
-  const dg = R.dignitaries.byYear[R.years.current]?.dg;
+/* ================= Detail pages: club, project, event, dignitary, member =================
+   One item each (shared/detail.tsx); the static HTML shows the example item. The head is the inner pages'
+   band with the item's name and "Home / name". The body reuses the homepage's objects: the Snapshot's
+   bento and stat cells, the mirrored stage and its portrait, the calendar's day tile and lanes, the
+   newsletter paper, and the committee's member cards. People and photos show their first rows and a
+   CSS-only "Show all N"; lists that can run to hundreds (a roster, a club's projects) page with "Show more". */
+
+/* not found: the head with the page's own name, the data's sentence and the way back to the list */
+function Missing({ k, text, href, label }: { k: PageKey; text: string; href: string; label: string }) {
   return (
     <>
-      <PageHead k="contact" />
+      <PageHead k={k} />
       <section className="psec psec--top">
-        <div className="wrap kgrid">
-          <form className="kform glass glass--stage" data-demo-form data-glow data-rv>
-            <h2>{c.title}</h2>
-            <p className="kform__hours">{c.hours}</p>
-            <div className="kform__grid">
-              <label><span>{F.name}</span><input name="name" required autoComplete="name" /></label>
-              <label><span>{F.email}</span><input name="email" type="email" required autoComplete="email" /></label>
-              <label><span>{F.phone}</span><input name="phone" type="tel" autoComplete="tel" /></label>
-              <label><span>{F.club}</span><input name="club" /></label>
-              <label className="kform__wide"><span>{F.message}</span><textarea name="message" rows={5} required /></label>
-            </div>
-            <div className="kform__end">
-              <button type="submit" className="pill-btn pill-btn--solid pill-btn--lg">{F.send}</button>
-              <p className="kform__note">{c.formNote}</p>
-            </div>
-            <p className="kform__done" data-form-done hidden tabIndex={-1} role="status">{I.check}<span>{c.sent}</span></p>
-          </form>
-          <aside className="koffice glass" data-glow data-rv style={v({ '--d': '60ms' })}>
-            <div className="portrait koffice__portrait">
-              {dg?.photo ? <img src={dg.photo.src} alt={dg.photo.alt} width={dg.photo.w} height={dg.photo.h} loading="lazy" /> : <span className="portrait__plate" aria-hidden="true">{initials(dg?.name ?? '')}</span>}
-            </div>
-            <div className="koffice__who">
-              <h2>{c.office}</h2>
-              {dg && <p className="koffice__name"><b>{dg.name}</b><span>{dg.role}</span></p>}
-            </div>
-            <div className="koffice__rows">
-              {d.email && <a className="krow" href={`mailto:${d.email}`}>{I.mail}<span>{d.email.split('@')[0]}@<wbr />{d.email.split('@').slice(1).join('@')}</span></a>}
-              {d.tel && <a className="krow" href={`tel:${d.tel}`}>{I.phone}<span>{d.phoneDisplay}</span></a>}
-            </div>
-          </aside>
-          <div className="ktile glass" data-glow data-rv style={v({ '--accent': 'var(--c-anniversary)', '--d': '60ms' })}>
-            <h2>{c.join.title}</h2>
-            <p>{c.join.text}</p>
-            <a className="pill-btn pill-btn--solid" href={R.ctas.join.href} target="_blank" rel="noopener">{R.ctas.join.label}</a>
-          </div>
-          <div className="ktile glass" data-glow data-rv style={v({ '--accent': 'var(--c-club)', '--d': '120ms' })}>
-            <h2>{c.finder.title}</h2>
-            <p>{c.finder.text}</p>
-            <a className="link-arrow" href={pageInfo('finder').file}>{pageInfo('finder').title}{I.arrow}</a>
+        <div className="wrap">
+          <div className="gempty dmissing" data-rv>
+            <p>{text}</p>
+            <a className="pill-btn pill-btn--solid pill-btn--lg" href={href}>{label}</a>
           </div>
         </div>
       </section>
     </>
   );
 }
+const Back = ({ href, label }: { href: string; label: string }) => (
+  <div className="dback"><a className="pill-btn" href={href}>{I.back}{label}</a></div>
+);
+const Facts = ({ list }: { list: { label: string; value: ReactNode }[] }) => (
+  <dl className="dfacts">{list.map(f => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>
+);
+const telOf = (s: string) => s.replace(/[^\d+]/g, '');
+const webOf = (s: string) => (/^https?:\/\//i.test(s) ? s : `https://${s}`);
 
-const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
+/* photos, the first is the cover: one keeps its own shape, two stand side by side, three or more are a cover
+   with two beside it and the rest a strip of thumbnails, two rows until "Show all N" (no photo is cut to a sliver) */
+function Gallery({ photos, label, group }: { photos: Photo[]; label: string; group: string }) {
+  const n = photos.length;
+  if (!n) return null;
+  const ar = (x: Photo) => (x.w > 0 && x.h > 0 ? (x.w / x.h).toFixed(3) : '1.5');
+  const img = (x: Photo, lazy: boolean) => (
+    <a href={x.src} data-lightbox={group} data-caption={x.alt}>
+      <img src={x.src} alt={x.alt} width={x.w || undefined} height={x.h || undefined} loading={lazy ? 'lazy' : undefined} />
+    </a>
+  );
+  const rest = photos.slice(3);
+  return (
+    <section className="pgal" aria-label={label} data-rv>
+      <div className={`pgal__lead pgal__lead--${Math.min(n, 3)}`}>
+        {photos.slice(0, 3).map((x, i) => <figure key={i} className="pgal__ph" style={v({ '--ar': ar(x) })}>{img(x, i > 0)}</figure>)}
+      </div>
+      {rest.length > 0 && (
+        <div className="dlist dlist--12">
+          <ul className="pgal__grid">{rest.map((x, i) => <li key={i} className="pgal__ph">{img(x, true)}</li>)}</ul>
+          {rest.length > 12 && <div className="dlist__foot"><ShowAll n={rest.length} /></div>}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* an event as a tile: the calendar's date badge, the title (the link), time and venue */
+function EventTile({ e, club = false, item = false }: { e: CalEntry; club?: boolean; item?: boolean }) {
+  const d = parseISO(e.date);
+  const sub = [e.time, e.venue, club && e.club ? clubName(e.club) : ''].filter(Boolean).join(' · ');
+  return (
+    <li className={`etile glass ${e.date === R.calendar.today ? 'is-today' : ''}`.trim()} data-item={item || undefined} data-glow>
+      <span className="etile__date" aria-hidden="true"><i>{wd(d)}</i><b>{pad(d.getDate())}</b><em>{MON[d.getMonth()]}</em></span>
+      <div className="etile__text">
+        <h3><a className="etile__link" href={eventHref(e)}><span className="sr-only">{longDate(d)}: </span>{e.title}</a></h3>
+        {sub && <p>{sub}</p>}
+      </div>
+      <span className="etile__go" aria-hidden="true">{I.arrow}</span>
+    </li>
+  );
+}
+
+/* the organising club as one card, linked to its profile when the club is known */
+function ClubCard({ name, id, label }: { name: string; id: string; label: string }) {
+  const full = `Rotary Club of ${name}`;
+  return (
+    <section className={`dorg glass ${id ? 'dorg--link' : ''}`.trim()} data-glow>
+      <h2 className="dorg__label">{label}</h2>
+      <div className="dorg__row">
+        <span className="dorg__mono" aria-hidden="true">{initials(name) || name.slice(0, 1)}</span>
+        <p className="dorg__name">{id ? <a className="dorg__link" href={clubHref(id)}>{full}</a> : full}</p>
+        {id && <span className="dorg__go" aria-hidden="true">{I.arrow}</span>}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- club profile: the club's own Snapshot (details + five figures), its board as photo cards, its
+   roster as compact tiles (search, 24 at a time), then its projects, newsletters and events as tabs ---------- */
+function ClubPage() {
+  const c = clubProfile();
+  const name = c ? `Rotary Club of ${c.name}` : '';
+  useDocTitle(name);
+  if (!c) return <Missing k="club" text={D.club.missing} href={pageInfo('finder').file} label={D.club.back} />;
+  const C = D.club;
+  const g = c.glance;
+  const ct = c.contact;
+  const when = [c.meeting.day, c.meeting.time].filter(Boolean).join(' · ');
+  const links = ct ? [ct.email, ct.phone, ct.web].filter(Boolean).length : 0;
+  const hasDetails = !!(when || c.meeting.place || c.details.length || links);
+  /* the five figures of production's club page, in its order and words */
+  const stats = [
+    { key: 'members' as const, label: C.members, value: num(g.members), accent: HUE[3] },
+    { key: 'projects' as const, label: 'Projects', value: num(g.projects), accent: HUE[1] },
+    { key: 'beneficiaries' as const, label: 'Beneficiaries', value: num(g.beneficiaries), accent: HUE[2] },
+    { key: 'hours' as const, label: 'Volunteer Hours', value: num(g.hours), accent: HUE[0] },
+    { key: 'amount' as const, label: 'Amount Spent', value: lakh(g.amount), accent: HUE[1] }
+  ];
+  const projects = [...c.projects].sort((a, b) => b.date.localeCompare(a.date));
+  const events = [...c.events].sort((a, b) => a.date.localeCompare(b.date));
+  const tabs = [
+    { key: 'projects', label: C.tabs.projects, n: projects.length },
+    { key: 'bulletins', label: C.tabs.bulletins, n: c.bulletins.length },
+    { key: 'events', label: C.tabs.events, n: events.length }
+  ];
+  return (
+    <>
+      <PageHead k="club" title={name} />
+      <section className="psec psec--top">
+        <div className="wrap dstack">
+          <div className={`cbento ${hasDetails ? '' : 'cbento--figures'}`.trim()}>
+            {hasDetails && (
+              <section className="cbento__feature" data-glow data-rv aria-labelledby="cd-t">
+                <div className="cbento__top"><span className="sstrip__icon" aria-hidden="true">{I.cal}</span><h2 id="cd-t" className="sstrip__label">{C.details}</h2></div>
+                {when && <p className="cbento__when"><span className="sr-only">{P.finder.dayLabel}: </span>{when}</p>}
+                {c.meeting.place && <p className="cbento__place">{I.pin}<span>{c.meeting.place}</span></p>}
+                {c.details.length > 0 && <Facts list={c.details} />}
+                {ct && links > 0 && (
+                  <div className="cbento__links">
+                    {ct.email && <a className="cbento__link" href={`mailto:${ct.email}`}>{I.mail}<span>{ct.email}</span></a>}
+                    {ct.phone && <a className="cbento__link" href={`tel:${telOf(ct.phone)}`}>{I.phone}<span>{ct.phone}</span></a>}
+                    {ct.web && <a className="cbento__link" href={webOf(ct.web)} target="_blank" rel="noopener">{I.globe}<span>{ct.web.replace(/^https?:\/\//i, '').replace(/\/$/, '')}</span></a>}
+                  </div>
+                )}
+              </section>
+            )}
+            <h2 className="sr-only">{C.glance}</h2>
+            {stats.map((s, i) => (
+              <div key={s.key} className={`sstrip__cell ${i ? '' : 'sstrip__cell--wide'}`.trim()} data-glow data-rv style={v({ '--accent': s.accent, '--d': `${(i + 1) * 60}ms` })}>
+                <span className="sstrip__icon" aria-hidden="true">{SNAP[s.key]}</span>
+                <span className="sstrip__label">{s.label}</span>
+                <b className="sstrip__num" data-count>{s.value}</b>
+              </div>
+            ))}
+          </div>
+
+          <section className="cgroup" data-rv aria-labelledby="cl-t" style={v({ '--c': HUE[1] })}>
+            <header className="cgroup__head">
+              <i aria-hidden="true" /><h2 id="cl-t">{C.leadership}</h2><span className="dterm">{R.years.current}</span>
+              {c.leaders.length > CAP_MIN && <ShowAll n={c.leaders.length} />}
+            </header>
+            {c.leaders.length ? <ul className="cgrid cgrid--6">{c.leaders.map((l, i) => <PersonCard key={i} m={l} />)}</ul> : <p className="gempty">{C.none.leaders}</p>}
+          </section>
+
+          {c.members.length > 0 && (
+            <section className="cgroup croster" data-filter data-page-size={C.pageSize} data-rv aria-labelledby="cm-t" style={v({ '--c': HUE[0] })}>
+              <header className="cgroup__head">
+                <i aria-hidden="true" /><h2 id="cm-t">{C.members}</h2><b>{num(c.members.length)}</b>
+                <Search label={C.searchLabel} total={c.members.length} noun="members" className="croster__search" />
+              </header>
+              <ul className="rgrid">
+                {c.members.map((m, i) => (
+                  <li key={i} className="rtile" data-item data-q={`${m.name} ${m.role}`.toLowerCase()}>
+                    <span className="avatar">{m.photo ? <img src={m.photo.src} alt="" width="52" height="52" loading="lazy" /> : <span aria-hidden="true">{initials(m.name)}</span>}</span>
+                    <span className="rtile__who"><b>{m.name}</b>{m.role && <span>{m.role}</span>}</span>
+                  </li>
+                ))}
+              </ul>
+              <Empty text={C.empty} />
+              <More label={C.more} />
+            </section>
+          )}
+
+          <section className="ctabs" data-tabs aria-labelledby="ct-t">
+            <h2 id="ct-t" className="sr-only">{name}</h2>
+            <div className="ndock__tabs ctabs__bar" role="tablist" aria-labelledby="ct-t" data-rv>
+              {tabs.map((t, i) => (
+                <button key={t.key} type="button" role="tab" className={`ntab ${i ? '' : 'is-on'}`.trim()} data-tab={t.key} aria-selected={!i} tabIndex={i ? -1 : 0}>{t.label}<b>{num(t.n)}</b></button>
+              ))}
+            </div>
+            <div data-panel="projects" role="tabpanel" aria-label={C.tabs.projects}>
+              {projects.length ? (
+                <div data-filter data-page-size="8">
+                  <ul className="dwall">{projects.map(p => <ProjectCard key={p.id} p={p} />)}</ul>
+                  <More label={P.projects.more} />
+                </div>
+              ) : <p className="gempty">{C.none.projects}</p>}
+            </div>
+            <div data-panel="bulletins" role="tabpanel" aria-label={C.tabs.bulletins} hidden>
+              {c.bulletins.length ? (
+                <div data-filter data-page-size="8">
+                  <ul className="dpapers">{c.bulletins.map((b, i) => <Paper key={i} b={b} i={i} filter />)}</ul>
+                  <More label="Show more" />
+                </div>
+              ) : <p className="gempty">{C.none.bulletins}</p>}
+            </div>
+            <div data-panel="events" role="tabpanel" aria-label={C.tabs.events} hidden>
+              {events.length ? (
+                <div data-filter data-page-size="6">
+                  <ul className="evlist">{events.map(e => <EventTile key={eventId(e)} e={e} item />)}</ul>
+                  <More label="Show more" />
+                </div>
+              ) : <p className="gempty">{C.none.events}</p>}
+            </div>
+          </section>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ---------- project: its figures in the head (as on Club Projects), the photos, then the story beside the
+   organising club and the facts ---------- */
+function ProjectPage() {
+  const p = projectDetail();
+  useDocTitle(p?.title);
+  if (!p) return <Missing k="project" text={D.project.missing} href={pageInfo('projects').file} label={D.project.back} />;
+  const list = pageInfo(p.avenue === 'club' ? 'service' : 'projects');
+  const L = P.projects.statLabels;
+  const figs = [
+    { key: 'beneficiaries', label: L.beneficiaries, value: num(p.beneficiaries), accent: HUE[2] },
+    { key: 'amount', label: L.amount, value: lakh(p.amount), accent: HUE[3] },
+    { key: 'hours', label: L.hours, value: num(p.hours), accent: HUE[0] },
+    ...(p.rotarians != null ? [{ key: 'rotarians', label: 'Rotarians', value: num(p.rotarians), accent: HUE[1] }] : [])
+  ];
+  const text = paras(p.description);
+  const facts = [
+    { label: 'Avenue of service', value: avenueLabel(p.avenue) },
+    { label: 'Date', value: longDate(parseISO(p.date)) },
+    ...(p.location ? [{ label: 'Location', value: p.location }] : []),
+    ...(p.focus ? [{ label: 'Area of focus', value: p.focus }] : [])
+  ];
+  return (
+    <>
+      <PageHead k="project" title={p.title}>
+        <ul className="hticker glass" aria-label={D.project.figures}>
+          {figs.map(f => <li key={f.key} style={v({ '--accent': f.accent })}><b data-count>{f.value}</b><span>{f.label}</span></li>)}
+        </ul>
+      </PageHead>
+      <section className="psec psec--top">
+        <div className="wrap dstack">
+          <Gallery photos={p.gallery} label={D.project.gallery} group={`p-${p.id}`} />
+          <div className="dbody">
+            {text.length > 0 && (
+              <article className="dsheet glass" data-rv aria-labelledby="pa-t">
+                <h2 id="pa-t" className="dsheet__title">{D.project.about}</h2>
+                <div className="dprose">{text.map((t, i) => <p key={i}>{t}</p>)}</div>
+              </article>
+            )}
+            <aside className="dside" data-rv style={v({ '--d': '60ms' })}>
+              {p.club && <ClubCard name={p.club} id={p.clubId} label={D.project.organiser} />}
+              <div className="dpanel glass">
+                <Facts list={facts} />
+                <Share href={projectHref(p)} title={p.title} className="pill-btn dshare" />
+              </div>
+            </aside>
+          </div>
+          <Back href={list.file} label={p.avenue === 'club' ? list.title : D.project.back} />
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ---------- event: the day as the homepage's day tile in the head (today is gold), then When / Where /
+   Organised by / Contact as the calendar's lanes, the story, the photos and what comes next ---------- */
+function EventPage() {
+  const e = eventDetail();
+  useDocTitle(e?.title);
+  const cal = pageInfo('calendar');
+  if (!e) return <Missing k="event" text={D.event.missing} href={cal.file} label={D.event.back} />;
+  const E = D.event;
+  const date = parseISO(e.date);
+  const today = e.date === R.calendar.today;
+  const kind = R.calendar.types.find(t => t.key === e.kind);
+  const text = paras(e.description);
+  const ct = e.contact;
+  /* the next events on the calendar: sample/static only (live, the page loads just its own event, so the
+     calendar there is still the sample's) */
+  const more = D.event.item ? [] : R.calendar.entries
+    .filter(x => (x.type === 'club' || x.type === 'district') && x.date >= e.date && eventId(x) !== e.id)
+    .sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
+  return (
+    <>
+      <PageHead k="event" title={e.title}>
+        <p className={`ticket ${today ? 'is-today' : ''}`.trim()} aria-hidden="true">
+          {today && <em>{R.calendar.todayTag}</em>}
+          <i>{wd(date)}</i><b>{pad(date.getDate())}</b><span>{MON[date.getMonth()]} {date.getFullYear()}</span>
+        </p>
+      </PageHead>
+      <section className="psec psec--top">
+        <div className="wrap dstack">
+          <div className="elanes">
+            <section className={`elane glass ${today ? 'is-today' : ''}`.trim()} style={v({ '--c': e.kind === 'district' ? 'var(--c-district)' : 'var(--c-club)' })} data-glow data-rv>
+              <h2 className="elane__label"><span className="elane__icon" aria-hidden="true">{I.cal}</span>{E.when}</h2>
+              <p className="elane__value">{longDate(date)}{today && <span className="tag-today">{R.calendar.todayTag}</span>}</p>
+              {e.time && <p className="elane__sub">{I.clock}{e.time}</p>}
+              {e.registration && <a className="pill-btn pill-btn--solid elane__cta" href={e.registration} target="_blank" rel="noopener">{E.register}{I.arrow}</a>}
+            </section>
+            {e.venue && (
+              <section className="elane glass" style={v({ '--c': 'var(--c-anniversary)' })} data-glow data-rv>
+                <h2 className="elane__label"><span className="elane__icon" aria-hidden="true">{I.pin}</span>{E.where}</h2>
+                <p className="elane__value">{e.venue}</p>
+              </section>
+            )}
+            <section className={`elane glass ${e.clubId ? 'elane--link' : ''}`.trim()} style={v({ '--c': 'var(--c-district)' })} data-glow data-rv>
+              <h2 className="elane__label"><span className="elane__icon" aria-hidden="true">{I.group}</span>{E.organiser}</h2>
+              <p className="elane__value">
+                {e.club ? (e.clubId ? <a className="elane__link" href={clubHref(e.clubId)}>Rotary Club of {e.club}</a> : `Rotary Club of ${e.club}`) : R.site.name}
+              </p>
+              {kind && <p className="elane__sub"><i className={`mark mark--${e.kind}`} aria-hidden="true" />{kind.label}</p>}
+            </section>
+            {ct && (ct.name || ct.email || ct.phone) && (
+              <section className="elane glass" style={v({ '--c': 'var(--c-birthday)' })} data-glow data-rv>
+                <h2 className="elane__label"><span className="elane__icon" aria-hidden="true">{I.phone}</span>{E.contact}</h2>
+                {ct.name && <p className="elane__value">{ct.name}</p>}
+                {ct.email && <a className="elane__row" href={`mailto:${ct.email}`}>{I.mail}<span>{ct.email}</span></a>}
+                {ct.phone && <a className="elane__row" href={`tel:${telOf(ct.phone)}`}>{I.phone}<span>{ct.phone}</span></a>}
+              </section>
+            )}
+          </div>
+          {text.length > 0 && (
+            <article className="dsheet dsheet--solo glass" data-rv aria-labelledby="ea-t">
+              <h2 id="ea-t" className="dsheet__title">{E.about}</h2>
+              <div className="dprose">{text.map((t, i) => <p key={i}>{t}</p>)}</div>
+            </article>
+          )}
+          <Gallery photos={e.gallery} label={D.project.gallery} group={`e-${e.id}`} />
+          {more.length > 0 && (
+            <section className="dmore" data-rv aria-labelledby="em-t">
+              <h2 id="em-t" className="dtitle">More events</h2>
+              <ul className="evlist">{more.map(x => <EventTile key={eventId(x)} e={x} club />)}</ul>
+            </section>
+          )}
+          <Back href={cal.file} label={E.back} />
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ---------- dignitary: the homepage's stage for one person (portrait, role and term, biography), the Rotary
+   details and contact beside it, and the other dignitary one step away ---------- */
+function DignitaryPage() {
+  const d = dignitaryProfile();
+  useDocTitle(d?.name);
+  if (!d) return <Missing k="dignitary" text={D.dignitary.missing} href={R.nav[0].href} label={D.dignitary.back} />;
+  const G = D.dignitary;
+  const otherKey = d.type === 'dg' ? 'president' : 'dg';
+  const other = R.dignitaries.byYear[R.years.current]?.[otherKey];
+  const text = paras(d.bio);
+  const ct = d.contact;
+  const contact = !!ct && !!(ct.email || ct.phone);
+  return (
+    <>
+      <PageHead k="dignitary" title={d.name} />
+      <section className="psec psec--top">
+        <div className="wrap dprofile">
+          <article className={`dstage glass glass--stage dstage--${d.type}`} data-rv>
+            <div className="portrait dstage__portrait">
+              {d.photo ? <img src={d.photo.src} alt={d.photo.alt} width={d.photo.w} height={d.photo.h} /> : <span className="portrait__plate" aria-hidden="true">{initials(d.name)}</span>}
+            </div>
+            <div className="dstage__text">
+              <p className="dstage__role">{d.role}{d.term && <span className="dterm">{d.term}</span>}</p>
+              {text.length > 0 && (
+                <>
+                  <h2 className="sr-only">{G.bio}</h2>
+                  <div className="dprose">{text.map((t, i) => <p key={i}>{t}</p>)}</div>
+                </>
+              )}
+            </div>
+          </article>
+          {(d.facts.length > 0 || contact || other) && (
+            <aside className="dside" data-rv style={v({ '--d': '60ms' })}>
+              {d.facts.length > 0 && (
+                <section className="dpanel glass" aria-labelledby="dd-t">
+                  <h2 id="dd-t" className="dpanel__title">{G.details}</h2>
+                  <Facts list={d.facts} />
+                </section>
+              )}
+              {contact && ct && (
+                <section className="dpanel glass" aria-labelledby="dc-t">
+                  <h2 id="dc-t" className="dpanel__title">{G.contact}</h2>
+                  {ct.email && <a className="drow" href={`mailto:${ct.email}`}>{I.mail}<span>{ct.email}</span></a>}
+                  {ct.phone && <a className="drow" href={`tel:${telOf(ct.phone)}`}>{I.phone}<span>{ct.phone}</span></a>}
+                </section>
+              )}
+              {other && (
+                <a className="dother glass" href={dignitaryHref(otherKey)} data-glow>
+                  <span className="dother__photo">{other.photo ? <img src={other.photo.src} alt="" width={other.photo.w} height={other.photo.h} loading="lazy" /> : <span className="ccard__plate" aria-hidden="true">{initials(other.name)}</span>}</span>
+                  <span className="dother__who"><b>{other.name}</b><span>{other.role}</span></span>
+                  <span className="dother__go" aria-hidden="true">{I.arrow}</span>
+                </a>
+              )}
+            </aside>
+          )}
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ---------- committee member: the person on the stage with the facts, then the rest of the committee ---------- */
+function MemberPage() {
+  const m = memberProfile();
+  useDocTitle(m?.name);
+  const list = pageInfo('committee');
+  if (!m) return <Missing k="member" text={D.member.missing} href={list.file} label={D.member.back} />;
+  const M = D.member;
+  const clubId = clubIdOf(m.club);
+  const groups = committee();
+  const gi = groups.findIndex(x => x.title === m.group);
+  const others = gi < 0 ? [] : groups[gi].members.filter(x => memberId(x) !== m.id && x.name !== m.name);
+  const facts = [
+    ...(m.group ? [{ label: M.committee, value: m.group }] : []),
+    ...(m.club ? [{ label: M.club, value: clubId ? <a className="dlink" href={clubHref(clubId)}>{clubName(m.club)}</a> : clubName(m.club) }] : []),
+    ...(m.email ? [{ label: M.email, value: <a className="dlink" href={`mailto:${m.email}`}>{m.email}</a> }] : [])
+  ];
+  return (
+    <>
+      <PageHead k="member" title={m.name} />
+      <section className="psec psec--top">
+        <div className="wrap dstack">
+          <article className="mcard glass glass--stage" data-rv>
+            <div className="portrait mcard__portrait">
+              {m.photo ? <img src={m.photo.src} alt={m.photo.alt || m.name} width={m.photo.w} height={m.photo.h} /> : <span className="portrait__plate" aria-hidden="true">{initials(m.name)}</span>}
+            </div>
+            <div className="mcard__text">
+              {m.role && <p className="mcard__role">{m.role}</p>}
+              {facts.length > 0 && <Facts list={facts} />}
+            </div>
+          </article>
+          {others.length > 0 && (
+            <section className="cgroup" data-rv aria-labelledby="mo-t" style={v({ '--c': HUE[gi % 4] })}>
+              <header className="cgroup__head">
+                <i aria-hidden="true" /><h2 id="mo-t">{groups[gi].title}</h2><b>{num(others.length)}</b>
+                {others.length > CAP_MIN && <ShowAll n={others.length} />}
+              </header>
+              <ul className="cgrid">{others.map((o, i) => <PersonCard key={i} m={o} href={memberHref(o)} />)}</ul>
+            </section>
+          )}
+          <Back href={list.file} label={M.back} />
+        </div>
+      </section>
+    </>
+  );
+}
+
+const BODY: Partial<Record<PageKey, (p: { year: string }) => ReactNode>> = {
   about: () => <About />,
   committee: () => <Committee />,
   finder: () => <Finder />,
@@ -529,12 +986,16 @@ const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   service: () => <Projects service />,
   calendar: () => <CalendarPage />,
   newsletters: ({ year }) => <Newsletters year={year} />,
-  contact: () => <Contact />
+  club: () => <ClubPage />,
+  project: () => <ProjectPage />,
+  event: () => <EventPage />,
+  dignitary: () => <DignitaryPage />,
+  member: () => <MemberPage />
 };
 
 function Body({ page, year }: { page: PageKey; year: string }) {
   const ref = useBehaviours<HTMLElement>();
-  return <main id="main" ref={ref} className={`inner inner--${page}`}>{BODY[page]({ year })}</main>;
+  return <main id="main" ref={ref} className={`inner inner--${page}`}>{BODY[page]?.({ year })}</main>;
 }
 
 export default function Inner({ page }: { page: PageKey }) {

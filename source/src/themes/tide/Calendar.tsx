@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
+import { eventHref } from '../../shared/detail';
 
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
@@ -109,7 +110,7 @@ export default function Calendar() {
                           <li key={k} className={`ticket ticket--${e.type}`}>
                             <span className="ticket__stub"><b>{e.time ?? '—'}</b><small>{g.t.label}</small></span>
                             <span className="ticket__main">
-                              <b>{e.title}</b>
+                              <b><a className="ticket__go" href={eventHref(e)}>{e.title}</a></b>
                               {e.club && <span>{e.club}</span>}
                               {e.venue && <span className="ticket__venue">{e.venue}</span>}
                             </span>

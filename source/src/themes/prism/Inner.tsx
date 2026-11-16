@@ -3,7 +3,7 @@ import { R, initials, longDate, monthLabel, parseISO, shortDate, toISO, weekdayN
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
-  calMonths, todayMonthKey, monthEntries, entriesByDate, pressYears, AdminContent, type PageKey, type Project
+  calMonths, todayMonthKey, monthEntries, entriesByDate, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
   D, paras, memberId, clubHref, clubIdOf, projectHref, eventHref, dignitaryHref, memberHref, useDocTitle,
@@ -302,12 +302,12 @@ const latest = (list: Project[]) => [...list].sort((a, b) => b.date.localeCompar
 
 /* "Read more" is the card's action and covers the card; above it sit the two smaller controls: the photo (opens
    full size in the lightbox) and Share */
-function ProjectItem({ p, i, glow = false }: { p: Project; i: number; glow?: boolean }) {
+function ProjectItem({ p, i, glow = false, no }: { p: Project; i: number; glow?: boolean; no?: string }) {
   return (
     <li className="px-proj" style={css({ '--accent': AVENUE[p.avenue] ?? ACC[0], '--i': glow ? 0 : i % 3 })} data-item data-q={`${p.title} ${p.club} ${avenueLabel(p.avenue)}`.toLowerCase()} data-avenue={p.avenue} data-rv>
       <figure className="px-proj__photo">
         <Zoom ph={p.photo} group={`p-${p.id}`} className="px-proj__img"><img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} {...(i ? { loading: 'lazy' as const } : {})} /></Zoom>
-        <span className="px-proj__no" aria-hidden="true" />
+        <span className="px-proj__no" aria-hidden="true" data-no={no} />
       </figure>
       <div className="px-proj__body" {...(glow ? { 'data-glow': '' } : {})}>
         <h3 className="px-proj__title">{p.title}</h3>
@@ -342,7 +342,7 @@ function Projects() {
           </div>
           <Chips attr="avenue" all={x.allLabel} label="Avenue of service" items={x.avenues.map(a => ({ v: a.key, label: a.label, n: n(a.key), color: AVENUE[a.key] ?? ACC[0] }))} />
         </div>
-        <ul className="px-ledger px-projs">{list.map((p, i) => <ProjectItem key={p.id} p={p} i={i} glow />)}</ul>
+        <ul className="px-ledger px-projs">{list.map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} glow />)}</ul>
         <Empty text={x.empty} />
         <More label={x.more} />
       </div>
@@ -364,7 +364,7 @@ function Service() {
       </PageHead>
       <div className="wrap px-body">
         <div className="px-bar" data-rv><Search label={x.searchLabel} count={list.length} /></div>
-        <ul className="px-posters">{list.map((p, i) => <ProjectItem key={p.id} p={p} i={i} />)}</ul>
+        <ul className="px-posters">{list.map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} />)}</ul>
         <Empty text={x.empty} />
         <More label={x.more} />
       </div>
@@ -864,7 +864,7 @@ function ClubPage() {
           <div className="px-ctab px-ctab--projects" data-panel="projects" role="tabpanel" aria-label={W.tabs.projects}>
             {c.projects.length ? (
               <>
-                <ul className="px-ledger px-projs">{latest(c.projects).map((p, i) => <ProjectItem key={p.id} p={p} i={i} glow />)}</ul>
+                <ul className="px-ledger px-projs">{latest(c.projects).map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} glow />)}</ul>
                 {c.projects.length > 6 && <ShowAll n={c.projects.length} noun={W.tabs.projects.toLowerCase()} />}
               </>
             ) : <Empty text={W.none.projects} live={false} hidden={false} />}

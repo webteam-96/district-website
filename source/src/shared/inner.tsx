@@ -72,6 +72,8 @@ export const AdminContent = ({ className = '' }: { className?: string }) => (
 export const num = (n: number) => R.fmt.num(n);
 export const crore = (n: number) => `₹${R.fmt.num(n, 2)} L`;
 export const clubName = (c: string) => (c ? `RC ${c}` : '');
+/* a project card's number: the newest shows the highest, the oldest 01 (client: "10 - 01", no "#") */
+export const projNo = (i: number, total: number) => String(total - i).padStart(2, '0');
 
 /* photo: the backend sends a photo per member (live data, shared/live.ts), used when there is one.
    The sample has none: there the District Governor's comes from the dignitaries data and everyone

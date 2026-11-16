@@ -38,12 +38,30 @@ if (!themes.length) { console.error('usage: node scripts/pages.mjs <theme> [...]
 const ROT = loadRotary();
 const pages = ROT.pages.list;
 
+/* The district's real data saved by scripts/snapshot.mjs (themes-sample/data/), when there is one: every page's
+   patch over content.js, and the example item of each detail page. The static pages then show real data. */
+const DATA = resolve(OUT, 'data');
+const isRow = v => !!v && typeof v === 'object' && !Array.isArray(v);
+const merge = (t, s) => { for (const k of Object.keys(s)) { if (isRow(s[k]) && isRow(t[k])) merge(t[k], s[k]); else t[k] = s[k]; } };
+const json = f => JSON.parse(readFileSync(resolve(DATA, f), 'utf8'));
+const SNAP = existsSync(resolve(DATA, 'index.json')) ? json('index.json') : null;
+const applySnapshot = R => {
+  if (!SNAP) return;
+  for (const p of SNAP.pages) merge(R, json(`page/${p}.json`));
+  for (const kind of ['club', 'project', 'event', 'member']) {
+    const id = String(R.pages[kind].example ?? '');
+    if (SNAP[kind]?.includes(id)) R.pages[kind].item = json(`${kind}/${id}.json`);
+  }
+  if (SNAP.dignitary) R.pages.dignitary.item = json('dignitary.json');
+};
+
 /* a Node stand-in for the browser globals the components read while rendering */
 const fakeBrowser = () => {
   const store = () => { const m = new Map(); return { getItem: k => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k) }; };
   const win = globalThis;
   win.window = win;
   win.ROTARY = loadRotary();
+  applySnapshot(win.ROTARY);
   win.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} });
   win.localStorage = store();
   win.sessionStorage = store();
@@ -93,6 +111,9 @@ export const render = (k: PageKey) => { setPage(k); return renderToStaticMarkup(
     .replace('<script src="../../shared/inner.js"></script>', '<script src="../../shared/inner.js"></script>\n  <script src="../../shared/lenis.min.js"></script>');
   const opts = JSON.stringify(CHROME[theme]);
   for (const p of pages) {
+    /* each page's own saved data goes on last: another page's patch may carry a shorter copy of a shared list
+       (the club page's club list has no presidents, the Club Finder's has) */
+    if (SNAP?.pages.includes(p.key)) merge(globalThis.ROTARY, json(`page/${p.key}.json`));
     const body = render(p.key)
       .replace(/(src|href)="\.\.\/shared\//g, '$1="../../shared/')
       .replace(/href="index\.html"/g, `href="../../${theme}/index.html"`)
@@ -107,7 +128,7 @@ export const render = (k: PageKey) => { setPage(k); return renderToStaticMarkup(
       .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${p.lead}">`)}</head>
 <body data-page="${p.key}">
   <a class="skip" href="#main">Skip to content</a>
-  <!-- Static page: no framework. Content below is sample data from shared/content.js; bind your own. -->
+  <!-- Static page: no framework. ${SNAP ? `Content below is the district's real data as saved on ${SNAP.date} (themes-sample/data, scripts/snapshot.mjs)` : 'Content below is sample data from shared/content.js'}; bind your own. -->
 ${body}
   <script>RInner.mount(document.getElementById('main')); RInner.chrome(${opts});</script>
 </body>

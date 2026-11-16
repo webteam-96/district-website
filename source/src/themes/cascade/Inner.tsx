@@ -3,7 +3,7 @@ import { R, initials, longDate, monthLabel, parseISO, shortDate, toISO, weekdayN
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
-  calMonths, todayMonthKey, monthEntries, typesOf, pressYears, AdminContent, type PageKey, type Project
+  calMonths, todayMonthKey, monthEntries, typesOf, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
   D, paras, clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, clubIdOf, useDocTitle,
@@ -267,12 +267,12 @@ const Zoom = ({ ph, group, label, cls = 'ci-zoom', children }: { ph: Photo; grou
   : <a className={cls} href={ph.src} data-lightbox={group} data-caption={ph.alt} aria-label={label}>{children}</a>);
 /* a project card: the photo (it opens full size) rises out of its top edge on an offset block (the ramp, item i
    of n), its rank among the cards shown (a CSS counter: 1 is the newest) on it; Read more, then Share */
-const ProjCard = ({ p, i, n }: { p: Project; i: number; n: number }) => (
+const ProjCard = ({ p, i, n, no }: { p: Project; i: number; n: number; no?: string }) => (
   <li className="ci-proj" data-item data-q={projQ(p)} data-avenue={p.avenue}>
     <figure className="ci-proj__photo ci-t" style={tone(i % n, n)}>
       <Zoom ph={p.photo} group={`p-${p.id}`}><img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} loading="lazy" /></Zoom>
       <figcaption className="ci-pill">{avenueLabel(p.avenue)}</figcaption>
-      <span className="ci-proj__no" aria-hidden="true" />
+      <span className="ci-proj__no" aria-hidden="true" data-no={no} />
     </figure>
     <h3 className="ci-proj__title">{p.title}</h3>
     <p className="ci-proj__meta">{shortDate(p.date)} · {clubName(p.club)}</p>
@@ -296,7 +296,7 @@ function Projects() {
       <section className="ci-sheet">
         <div className="wrap">
           <div className="ci-tools" data-rv><Search label={x.searchLabel} /><Count n={list.length} one="project" many="projects" /></div>
-          <ul className="ci-projs">{list.map((p, i) => <ProjCard key={p.id} p={p} i={i} n={x.pageSize} />)}</ul>
+          <ul className="ci-projs">{list.map((p, i, a) => <ProjCard key={p.id} p={p} i={i} n={x.pageSize} no={projNo(i, a.length)} />)}</ul>
           <Empty text={x.empty} />
           <More label={x.more} />
         </div>
@@ -807,7 +807,7 @@ function ClubPage() {
         </div>
         <div className="wrap">
           {panel('projects', c.projects.length
-            ? <ul className="ci-projs">{newest(c.projects).map((p, i) => <ProjCard key={p.id} p={p} i={i} n={6} />)}</ul>
+            ? <ul className="ci-projs">{newest(c.projects).map((p, i, a) => <ProjCard key={p.id} p={p} i={i} n={6} no={projNo(i, a.length)} />)}</ul>
             : <p className="ci-empty">{X.none.projects}</p>, c.projects.length > 3 && <ShowAll id="projects" n={c.projects.length} />)}
           {panel('bulletins', c.bulletins.length
             ? <ul className="ci-stack">{c.bulletins.map((b, i) => <Strip key={b.title + i} n={i} title={b.title} date={b.date} pdf={b.pdf} />)}</ul>

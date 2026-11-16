@@ -3,7 +3,7 @@ import { R, initials, longDate, parseISO, shortDate, toISO, weekdayName, type Bu
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
-  calMonths, todayMonthKey, monthEntries, entryText, pressYears, AdminContent, type PageKey, type Project
+  calMonths, todayMonthKey, monthEntries, entryText, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
   D, clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, paras, clubHref, projectHref, eventHref,
@@ -288,11 +288,11 @@ const Ledger = ({ rows, rv = true }: { rows: Stat[]; rv?: boolean }) => (
   </ul>
 );
 /* one project card: one action, "Read more", which covers the card */
-const ProjCard = ({ p, club = true }: { p: Project; club?: boolean }) => (
+const ProjCard = ({ p, club = true, no }: { p: Project; club?: boolean; no?: string }) => (
   <li className="oi-proj oi-card" data-item data-q={projQ(p)} data-avenue={p.avenue} data-glow data-rv>
     <figure className="oi-proj__photo"><Zoom ph={p.photo} group={`p-${p.id}`} /></figure>
     <span className="oi-tab">{avenueLabel(p.avenue)}</span>
-    <span className="oi-tab oi-tab--n" aria-hidden="true" />
+    <span className="oi-tab oi-tab--n" aria-hidden="true" data-no={no} />
     <DateHub iso={p.date} />
     <div className="oi-proj__body">
       <div className="oi-proj__text">
@@ -319,7 +319,7 @@ function Projects() {
             {x.avenues.map(a => <Chip key={a.key} attr="avenue" v={a.key}>{a.label}</Chip>)}
           </div>
           <ul className="oi-pgrid">
-            {list.map(p => <ProjCard key={p.id} p={p} />)}
+            {list.map((p, i, a) => <ProjCard key={p.id} p={p} no={projNo(i, a.length)} />)}
           </ul>
           <Empty text={x.empty} />
           <More label={x.more} />
@@ -358,10 +358,10 @@ function Service() {
           </div>
           <div className="oi-svc__list">
             <ul className="oi-stories">
-              {list.map(p => (
+              {list.map((p, i, a) => (
                 <li key={p.id} className="oi-story oi-card" data-item data-q={projQ(p)} data-avenue={p.avenue} data-glow data-rv>
                   <figure className="oi-story__photo"><Zoom ph={p.photo} group={`p-${p.id}`} /></figure>
-                  <span className="oi-tab oi-tab--n" aria-hidden="true" />
+                  <span className="oi-tab oi-tab--n" aria-hidden="true" data-no={projNo(i, a.length)} />
                   <div className="oi-story__body">
                     <div className="oi-story__head">
                       <DateHub iso={p.date} />
@@ -850,7 +850,7 @@ function ClubPage() {
           </div>
           <div data-panel="projects" role="tabpanel" aria-label={C.tabs.projects} {...paged(c.projects.length)}>
             {c.projects.length ? <>
-              <ul className="oi-pgrid">{newest(c.projects).map(p => <ProjCard key={p.id} p={p} club={false} />)}</ul>
+              <ul className="oi-pgrid">{newest(c.projects).map((p, i, a) => <ProjCard key={p.id} p={p} club={false} no={projNo(i, a.length)} />)}</ul>
               <More label={P.projects.more} />
             </> : <p className="oi-empty">{C.none.projects}</p>}
           </div>
@@ -932,9 +932,12 @@ function ProjectPage() {
                 <div className="oi-cover__img">
                   <Zoom ph={cover} group={`p-${p.id}`} cls="oi-cover__zoom" eager />
                   <span className="oi-tab">{avenueLabel(p.avenue)}</span>
+                </div>
+                {/* the date disc sits under the photo, beside its caption, so nothing covers the photo */}
+                <div className="oi-cover__foot">
+                  {cover.alt && <figcaption>{cover.alt}</figcaption>}
                   <p className="oi-hub oi-cover__date"><b>{t.d}</b><span>{t.m} {t.y}</span></p>
                 </div>
-                {cover.alt && <figcaption>{cover.alt}</figcaption>}
               </figure>
               {rest.length > 0 && (
                 <div className="oi-pbody__photos">

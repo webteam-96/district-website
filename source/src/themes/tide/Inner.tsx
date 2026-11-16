@@ -3,7 +3,7 @@ import { R, initials, longDate, monthLabel, parseISO, shortDate, weekdayName, ty
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
-  calMonths, todayMonthKey, monthEntries, pressYears, AdminContent, type PageKey, type Project
+  calMonths, todayMonthKey, monthEntries, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
   D, clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, paras,
@@ -307,7 +307,7 @@ const Zoom = ({ ph, group, lazy = true }: { ph: Photo; group: string; lazy?: boo
 );
 
 /* the number on the photo comes from a CSS counter over the visible cards: #1 is the latest project */
-function ProjectCard({ p }: { p: Project }) {
+function ProjectCard({ p, no }: { p: Project; no?: string }) {
   const [day, mon, yr] = shortDate(p.date).split(' ');
   return (
     <li className="tp-pj" data-item data-q={q(p)} data-avenue={p.avenue}>
@@ -315,7 +315,7 @@ function ProjectCard({ p }: { p: Project }) {
         <figure className="tp-pj__photo">
           {p.photo && <Zoom ph={p.photo} group={`p-${p.id}`} />}
           <span className="tp-pj__tag">{avenueLabel(p.avenue)}</span>
-          <span className="tp-pj__no" aria-hidden="true" />
+          <span className="tp-pj__no" aria-hidden="true" data-no={no} />
         </figure>
         <div className="tp-pj__body">
           <p className="tp-pj__meta">
@@ -365,6 +365,7 @@ function Projects({ service = false }: { service?: boolean }) {
     [L.hours, num(t.hours), '#7CC4FF']
   ];
   const months = new Map<string, Project[]>();
+  const nos = new Map(list.map((p, i) => [p.id, projNo(i, list.length)]));     /* one countdown across the months */
   list.forEach(p => months.set(p.date.slice(0, 7), [...(months.get(p.date.slice(0, 7)) ?? []), p]));
   return (
     <div className="tp-flt" data-filter data-page-size={x.pageSize}>
@@ -397,7 +398,7 @@ function Projects({ service = false }: { service?: boolean }) {
                         <h2><b>{monthLabel(d).slice(0, 3)}</b> <span>{d.getFullYear()}</span></h2>
                         <p className="tp-log__n">{L.projects} <b data-f-group-count>{num(ps.length)}</b></p>
                       </header>
-                      <ul className="tp-log__cards">{ps.map(p => <ProjectCard key={p.id} p={p} />)}</ul>
+                      <ul className="tp-log__cards">{ps.map(p => <ProjectCard key={p.id} p={p} no={nos.get(p.id)} />)}</ul>
                     </section>
                   );
                 })}
@@ -854,7 +855,7 @@ function ClubPage() {
               {projects.length ? (
                 <div className={capBox(projects.length, 6, 3)}>
                   {projects.length > 3 && <ShowAll n={projects.length} />}
-                  <ul className="tp-cprj">{projects.map(p => <ProjectCard key={p.id} p={p} />)}</ul>
+                  <ul className="tp-cprj">{projects.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} />)}</ul>
                 </div>
               ) : <Empty text={D.club.none.projects} hidden={false} filter={false} />}
             </div>

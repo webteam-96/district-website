@@ -382,7 +382,7 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-proj { counter-increment: tx-proj; }
 .tx-proj__top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
 .tx-proj__no { display: grid; place-items: center; min-width: 48px; height: 48px; padding: 0 8px; border-radius: 14px; background: var(--c); color: #fff; font: 800 17px/1 var(--f-display); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; box-shadow: 0 8px 18px color-mix(in srgb, var(--c) 32%, transparent); }
-.tx-proj__no::before { content: '#' counter(tx-proj); }
+.tx-proj__no::before { content: attr(data-no); }
 /* the card's one action: "Read more", whose link covers the card */
 /* the foot: "Read more" (the card's action) and Share (the second, smaller control) */
 .tx-proj__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: auto; padding-top: 4px; }

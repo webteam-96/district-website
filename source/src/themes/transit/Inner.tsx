@@ -3,7 +3,7 @@ import { R, initials, longDate, monthLabel, parseISO, shortDate, monthMatrix, to
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
-  calMonths, todayMonthKey, monthEntries, pressYears, AdminContent, type PageKey, type Project
+  calMonths, todayMonthKey, monthEntries, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
   D, paras, clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, clubIdOf, useDocTitle,
@@ -255,7 +255,7 @@ const BENTO = ['var(--green)', 'var(--azure)', 'var(--cranberry)', 'var(--teal)'
    the lightbox and Share is the second, smaller control, both above that link.
    The number is a CSS counter over the cards on screen, so after a search, a chip or "Show more" they still run
    1, 2, 3 … and #1 is the newest shown. */
-function ProjectCard({ p, i, line }: { p: Project; i: number; line: boolean }) {
+function ProjectCard({ p, i, line, no }: { p: Project; i: number; line: boolean; no?: string }) {
   const date = shortDate(p.date);
   const [day, ...rest] = date.split(' ');
   return (
@@ -270,7 +270,7 @@ function ProjectCard({ p, i, line }: { p: Project; i: number; line: boolean }) {
           </figure>
           <div className="tx-proj__body">
             <div className="tx-proj__top">
-              <span className="tx-proj__no" aria-hidden="true" />
+              <span className="tx-proj__no" aria-hidden="true" data-no={no} />
               <div><p className="tx-proj__club">{clubName(p.club)}</p><h3>{p.title}</h3></div>
             </div>
             <p className="tx-proj__sum">{p.summary}</p>
@@ -335,7 +335,7 @@ function Projects({ service = false }: { service?: boolean }) {
             </div>
           )}
           <ul className={service ? 'tx-line' : 'tx-bricks'}>
-            {list.map((p, i) => <ProjectCard key={p.id} p={p} i={i} line={service} />)}
+            {list.map((p, i, a) => <ProjectCard key={p.id} p={p} i={i} line={service} no={projNo(i, a.length)} />)}
           </ul>
           <Empty text={x.empty} />
           <More label={x.more} />
@@ -756,7 +756,7 @@ function ClubPage() {
           </div>
           <div className="tx-cpanel" data-panel="projects" role="tabpanel" data-filter data-page-size="6">
             {c.projects.length
-              ? <><ul className="tx-bricks">{c.projects.map((p, i) => <ProjectCard key={p.id} p={p} i={i} line={false} />)}</ul><More label={P.projects.more} /></>
+              ? <><ul className="tx-bricks">{c.projects.map((p, i, a) => <ProjectCard key={p.id} p={p} i={i} line={false} no={projNo(i, a.length)} />)}</ul><More label={P.projects.more} /></>
               : <p className="tx-empty">{N.projects}</p>}
           </div>
           <div className="tx-cpanel" data-panel="bulletins" role="tabpanel" hidden data-filter data-page-size="8">

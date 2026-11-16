@@ -3,7 +3,7 @@ import { R, monthMatrix, shortDate, longDate, monthLabel, parseISO, toISO, initi
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
-  calMonths, todayMonthKey, monthEntries, typesOf, entryText, pressYears, AdminContent, type PageKey, type Project
+  calMonths, todayMonthKey, monthEntries, typesOf, entryText, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
   D, paras, clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, clubIdOf, useDocTitle,
@@ -248,9 +248,9 @@ const qOf = (p: Project) => `${p.title} ${p.club} ${avenueLabel(p.avenue)}`.toLo
 
 /* a listing card: its number in a hexagon (a CSS counter: #1 is the newest shown, inner.css), no figures;
    "Read more" is the card's action (its link covers the card), the photo opens full size, Share is the second control */
-function ProjectCard({ p, extra }: { p: Project; extra?: boolean }) {
+function ProjectCard({ p, extra, no }: { p: Project; extra?: boolean; no?: string }) {
   return (
-    <li className={`kx-proj${extra ? ' is-x' : ''}`} data-item data-q={qOf(p)} data-avenue={p.avenue} data-rv>
+    <li className={`kx-proj${extra ? ' is-x' : ''}`} data-item data-no={no} data-q={qOf(p)} data-avenue={p.avenue} data-rv>
       <Ph className="kx-proj__img" photo={p.photo} group={`p-${p.id}`} />
       <div className="kx-proj__body">
         <p className="kx-proj__meta"><time dateTime={p.date}>{shortDate(p.date)}</time> · {clubName(p.club)}</p>
@@ -291,7 +291,7 @@ function Projects() {
                   <h2 className="kx-avn__title" id={`kx-av-${k}`}>{avenueLabel(k)}</h2>
                   <b className="kx-avn__n" data-f-group-count>{items.length}</b>
                 </div>
-                <ul className="kx-projs">{items.map(p => <ProjectCard key={p.id} p={p} />)}</ul>
+                <ul className="kx-projs">{items.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} />)}</ul>
                 {/* a real year holds hundreds: each avenue shows its latest three, the rest on request (CSS, inner.css) */}
                 {items.length > 3 && <ShowAll n={items.length} />}
               </section>
@@ -814,7 +814,7 @@ function ClubPage() {
           </div>
           <div className="kx-cap" data-panel="projects" role="tabpanel" aria-label={T.tabs.projects}>
             {projects.length
-              ? <ul className="kx-projs kx-projs--club">{projects.map((p, i) => <ProjectCard key={p.id} p={p} extra={i >= CAP} />)}</ul>
+              ? <ul className="kx-projs kx-projs--club">{projects.map((p, i, a) => <ProjectCard key={p.id} p={p} extra={i >= CAP} no={projNo(i, a.length)} />)}</ul>
               : <p className="kx-empty">{T.none.projects}</p>}
             {projects.length > CAP && <ShowAll n={projects.length} />}
           </div>

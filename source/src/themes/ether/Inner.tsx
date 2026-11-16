@@ -3,7 +3,7 @@ import { R, initials, longDate, parseISO, shortDate, type Bulletin, type CalEntr
 import { startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, AdminContent, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
-  calMonths, todayMonthKey, monthEntries, typesOf, entryText, pressYears, toISO, type PageKey, type Project
+  calMonths, todayMonthKey, monthEntries, typesOf, entryText, pressYears, toISO, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
   D, clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, paras, useDocTitle,
@@ -262,7 +262,7 @@ function Finder() {
    Cards newest first; each card's number (#1 = the latest) is a CSS counter over the cards that show,
    so it stays 1, 2, 3 … after a search, an avenue chip or "Show more". The photo opens full size (lightbox),
    "Read more" opens the project, Share is the second, smaller control. */
-function ProjectCard({ p }: { p: Project }) {
+function ProjectCard({ p, no }: { p: Project; no?: string }) {
   return (
     <li className="pcard glass" data-item data-q={`${p.title} ${p.club} ${avenueLabel(p.avenue)}`.toLowerCase()} data-avenue={p.avenue} data-glow>
       <div className="pcard__in">
@@ -271,7 +271,7 @@ function ProjectCard({ p }: { p: Project }) {
             <img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} loading="lazy" />
           </a>
           <span className={`pcard__tag pcard__tag--${p.avenue}`}><i aria-hidden="true" />{avenueLabel(p.avenue)}</span>
-          <span className="pcard__no" aria-hidden="true" />
+          <span className="pcard__no" aria-hidden="true" data-no={no} />
         </figure>
         <div className="pcard__body">
           <h3>{p.title}</h3>
@@ -341,7 +341,7 @@ function Projects({ service = false }: { service?: boolean }) {
               })}
             </div>
           )}
-          <ul className="pwall" data-rv style={v({ '--d': '60ms' })}>{list.map(p => <ProjectCard key={p.id} p={p} />)}</ul>
+          <ul className="pwall" data-rv style={v({ '--d': '60ms' })}>{list.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} />)}</ul>
           <Empty text={x.empty} />
           <More label={x.more} />
         </div>
@@ -713,7 +713,7 @@ function ClubPage() {
             <div data-panel="projects" role="tabpanel" aria-label={C.tabs.projects}>
               {projects.length ? (
                 <div data-filter data-page-size="8">
-                  <ul className="dwall">{projects.map(p => <ProjectCard key={p.id} p={p} />)}</ul>
+                  <ul className="dwall">{projects.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} />)}</ul>
                   <More label={P.projects.more} />
                 </div>
               ) : <p className="gempty">{C.none.projects}</p>}

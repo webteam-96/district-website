@@ -371,7 +371,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 .tp-logs { counter-reset: tp-no; }
 .tp-pj { counter-increment: tp-no; }
 .tp-pj__no { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; min-width: 50px; height: 42px; padding: 0 11px 3px; border-radius: 10px; background: var(--deep); box-shadow: inset 0 -4px 0 var(--turq-b), 0 10px 24px rgba(6, 43, 51, 0.32); color: #fff; font-family: var(--f-display); font-weight: 800; font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
-.tp-pj__no::before { content: '#' counter(tp-no); }
+.tp-pj__no::before { content: attr(data-no); }
 @container (min-width: 480px) {
   .tp-pj__in { display: grid; grid-template-columns: 45% minmax(0, 1fr); min-height: 236px; }
   .tp-pj__photo { aspect-ratio: auto; height: 100%; min-height: 100%; }
@@ -892,10 +892,10 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 .tp-cprj > .tp-pj { flex: 1 1 300px; }
 
 /* ---- Project: the Club Service spread, the story beside its impact, then the photos ---- */
-.tp-pd__spread { --ov: 72px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; }
+/* the card sits BESIDE the photo, never over it (client: no image may be cut) */
+.tp-pd__spread { --ov: 0px; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: 28px; align-items: center; }
 .tp-pd__cover { grid-area: 1 / 1; max-height: 560px; margin: 0; overflow: hidden; border-radius: 18px; background: var(--tint); box-shadow: 0 24px 54px rgba(6, 43, 51, 0.2); }
-.tp-pd__cover img { width: 100%; height: 100%; object-fit: cover; transition: scale 0.8s var(--ease); }
-@media (hover: hover) { .tp-pd__cover:hover img { scale: 1.03; } }
+.tp-pd__cover img { width: 100%; height: 100%; object-fit: cover; }
 .tp-pd__cover.is-none { display: grid; place-items: center; aspect-ratio: 16 / 10; }
 .tp-pd__cover.is-none .tp-rule { flex: none; width: 40%; }
 .tp-pd__card { grid-area: 1 / 2; z-index: 1; min-width: 0; margin-left: calc(-1 * var(--ov)); padding: 26px 28px 20px; border-radius: 16px; border-top: 5px solid var(--turq); background: var(--surface); box-shadow: 0 22px 50px rgba(6, 43, 51, 0.16); }
@@ -1001,7 +1001,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 
 @media (max-width: 1000px) {
   .tp--club .tp-dock { width: 100%; max-width: none; }
-  .tp-pd__spread { --ov: 40px; }
+  .tp-pd__spread { --ov: 0px; column-gap: 20px; }
   .tp-evp__in { grid-template-columns: minmax(0, 1fr); }
   .tp-adm { grid-column: 1; grid-row: 1; }
   .tp-evp__main { grid-column: 1; grid-row: 2; }
@@ -1042,7 +1042,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   /* project */
   .tp-pd__spread { grid-template-columns: minmax(0, 1fr); }
   .tp-pd__cover { max-height: 420px; border-radius: 14px; }
-  .tp-pd__card { grid-area: 2 / 1; margin: -40px 12px 0; padding: 18px; }
+  .tp-pd__card { grid-area: 2 / 1; margin: 14px 0 0; padding: 18px; }
   .tp-impact { padding: 18px 16px; }
   .tp-impact h2 { font-size: 26px; }
   .tp-gal__grid { --gh: 118px; gap: 8px; }

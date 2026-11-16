@@ -278,7 +278,7 @@
 /* #1 is the newest shown in its avenue: cards the cap hides (display: none) are not counted */
 .kx-projs { counter-reset: kx-n; }
 .kx-proj[data-item]:not([hidden]) { counter-increment: kx-n; }
-.kx-proj::before { content: counter(kx-n); position: absolute; z-index: 2; top: 14px; left: 14px; display: grid; place-items: center; width: 50px; aspect-ratio: 1 / 1.1547; background: var(--b-ink, var(--ink)); color: var(--b, var(--pg)); clip-path: var(--kx-hex); font: 800 18px/1 var(--f-display); font-variant-numeric: tabular-nums; pointer-events: none; }
+.kx-proj::before { content: attr(data-no); position: absolute; z-index: 2; top: 14px; left: 14px; display: grid; place-items: center; width: 50px; aspect-ratio: 1 / 1.1547; background: var(--b-ink, var(--ink)); color: var(--b, var(--pg)); clip-path: var(--kx-hex); font: 800 18px/1 var(--f-display); font-variant-numeric: tabular-nums; pointer-events: none; }
 .kx-proj__go { margin-top: auto; min-height: 44px; padding: 0 20px; font-size: 15px; transition: scale 0.35s var(--back), background-color 0.25s, color 0.25s; }
 .kx-proj__go svg { width: 14px; height: 14px; }
 .kx-proj__go::after { content: ''; position: absolute; inset: 0; }

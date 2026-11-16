@@ -34,6 +34,15 @@ html.lb-open { overflow: hidden; }
 @keyframes lb-zoom { from { scale: 0.96; } }
 [data-lightbox] { cursor: zoom-in; }
 
+/* Project and event pages show every photo WHOLE (client: no image may be cut): the photo fits inside its frame and
+   the frame's spare space takes a faint tint of the text colour (works in light and dark). Listing cards keep their
+   cropped thumbnails; any card photo opens whole in the lightbox. */
+body:is([data-page='project'], [data-page='event']) [data-lightbox] img {
+  object-fit: contain !important;
+  object-position: center !important;
+  background-color: color-mix(in srgb, currentColor 7%, transparent);
+}
+
 /* ---------- share menu ---------- */
 .share-menu { position: fixed; z-index: 2147482000; display: grid; gap: 2px; min-width: 200px; padding: 6px; border-radius: 14px; background: var(--share-bg, #fff); color: var(--share-ink, #14182b); box-shadow: 0 16px 40px rgba(10, 16, 40, 0.22), 0 0 0 1px var(--share-ring, rgba(10, 16, 40, 0.08)); font-size: 15px; font-weight: 500; line-height: 1.2; }
 .share-menu[hidden] { display: none; }

@@ -705,9 +705,44 @@ function retarget(num: string) {
   R.site.district = num;
 }
 
+/* ---------- snapshot: the district's real data saved on this computer (scripts/snapshot.mjs) ----------
+   Where there is no live data API (the public demo, any other server), a page reads data/page/<page>.json, the
+   changes its live data makes to window.ROTARY, and a detail page also data/<kind>/<id>.json. data/index.json lists
+   the saved items, so a missing one shows the page's not-found state without a failed request. No snapshot: sample. */
+const isRow = (v: unknown): v is Row => !!v && typeof v === 'object' && !Array.isArray(v);
+const merge = (t: Row, s: Row) => { for (const k of Object.keys(s)) { if (isRow(s[k]) && isRow(t[k])) merge(t[k], s[k]); else t[k] = s[k]; } };
+const ITEM_PAGES = ['club', 'project', 'event', 'member'] as const;
+async function snapshot(page: PageKey | 'home', why: string): Promise<void> {
+  const base = new URL('../data/', location.href), ctrl = new AbortController();
+  const stop = setTimeout(() => ctrl.abort(), CAP);
+  const get = async (p: string) => { const r = await fetch(new URL(p, base), { signal: ctrl.signal }); if (!r.ok) throw new Error(`${p}: ${r.status}`); return r.json(); };
+  try {
+    const index = await get('index.json');
+    const patch = index.pages?.includes(page) ? await get(`page/${page}.json`) : null;
+    if (!patch) throw new Error(`no snapshot for ${page}`);
+    let item: unknown;
+    if (page === 'dignitary') item = index.dignitary ? await get('dignitary.json') : null;
+    else if ((ITEM_PAGES as readonly string[]).includes(page)) {
+      const pd = (P as unknown as Record<string, Row>)[page];
+      const id = new URLSearchParams(location.search).get('id') ?? String(pd.example ?? '');
+      item = (index[page] as string[] | undefined)?.includes(id) ? await get(`${page}/${encodeURIComponent(id)}.json`) : null;
+    }
+    merge(R as unknown as Row, patch);
+    if (item !== undefined) (P as unknown as Record<string, Row>)[page].item = item;
+    /* a dead file on the media host shows the theme's initials plate, not a broken image */
+    addEventListener('error', e => {
+      const img = e.target;
+      if (img instanceof HTMLImageElement && img.src.startsWith(MEDIA)) img.src = monogram(img.alt.replace(/^Portrait of /, ''));
+    }, true);
+    info(`${why}: the district's real data as saved on ${index.date}`);
+  } catch (e) {
+    info(`${why}; no saved data (${(e as Error).message}): sample data`);
+  } finally { clearTimeout(stop); }
+}
+
 export async function loadLive(page: PageKey | 'home'): Promise<void> {
-  /* only on this computer, where scripts/live.mjs runs: the public demo never asks */
-  if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return info('not on this computer: sample data');
+  /* live only on this computer, where scripts/live.mjs runs; the public demo reads the saved snapshot */
+  if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return snapshot(page, 'not on this computer');
   const t0 = performance.now(), ctrl = new AbortController(), TIMEOUT = Symbol('timeout');
   signal = ctrl.signal;
   until = t0 + CAP;
@@ -720,7 +755,7 @@ export async function loadLive(page: PageKey | 'home'): Promise<void> {
     if (c === TIMEOUT) throw new Error(`no answer in ${CAP / 1000} s`);
   } catch (e) {
     ctrl.abort();
-    return info(`no live data (${(e as Error).message}): sample data`);
+    return snapshot(page, `no live data (${(e as Error).message})`);
   }
   const ctx = c;
   const names = ['contact', 'social', ...PAGE_JOBS[page]];

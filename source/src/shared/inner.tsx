@@ -3,15 +3,15 @@
    behaviour in shared/inner.js (tabs, filters, reveal), which the plain-HTML pages use too. */
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { R, initials, parseISO, toISO, type CalEntry } from './rotary';
+import { R, initials, parseISO, toISO, type CalEntry, type Photo } from './rotary';
 import './rte.css';
 
 export type PageKey = 'about' | 'committee' | 'finder' | 'projects' | 'service' | 'calendar' | 'newsletters' | 'contact';
 export interface PageInfo { key: PageKey; file: string; title: string; lead: string }
-export interface Member { name: string; role: string; club: string }
+export interface Member { name: string; role: string; club: string; photo?: Photo | null }
 export interface Project { id: number; title: string; club: string; avenue: string; date: string; photo: { src: string; w: number; h: number; alt: string }; beneficiaries: number; amount: number; hours: number; summary: string }
 
-interface Pages {
+export interface Pages {
   list: PageInfo[]; home: string; back: string; breadcrumb: string;
   about: { placeholder: boolean; content: string };
   committee: { searchLabel: string; empty: string; groups: { title: string; members: Member[] }[] };
@@ -69,14 +69,15 @@ export const num = (n: number) => R.fmt.num(n);
 export const crore = (n: number) => `₹${R.fmt.num(n, 2)} L`;
 export const clubName = (c: string) => (c ? `RC ${c}` : '');
 
-/* photo: the backend sends a photo per member. The sample data has one (the District Governor,
-   from the dignitaries data); everyone else is null, so the design must show initials instead. */
+/* photo: the backend sends a photo per member (live data, shared/live.ts), used when there is one.
+   The sample has none: there the District Governor's comes from the dignitaries data and everyone
+   else is null, so the design must show initials instead. */
 export const committee = () => {
   const dg = R.dignitaries.byYear[R.years.current]?.dg;
   return P.committee.groups.map((g, gi) => ({
     ...g,
     key: `g${gi}`,
-    members: g.members.map(m => ({ ...m, initials: initials(m.name), photo: dg && dg.name === m.name ? dg.photo : null, q: `${m.name} ${m.role} ${m.club}`.toLowerCase() }))
+    members: g.members.map(m => ({ ...m, initials: initials(m.name), photo: m.photo ?? (dg && dg.name === m.name ? dg.photo : null), q: `${m.name} ${m.role} ${m.club}`.toLowerCase() }))
   }));
 };
 

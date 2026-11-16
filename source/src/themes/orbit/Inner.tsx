@@ -376,6 +376,14 @@ function DayCard({ d, today }: { d: DayEntries; today: boolean }) {
             })}
           </ul>
         )}
+        {/* a real day holds dozens of birthdays and anniversaries: six show, the rest on request (CSS, inner.css) */}
+        {pp.length > 6 && (
+          <label className="oi-all pbtn">
+            <input type="checkbox" />
+            <span className="oi-all__more">Show all</span>
+            <span className="oi-all__less">Show fewer</span>
+          </label>
+        )}
       </div>
     </li>
   );

@@ -454,8 +454,9 @@
 .tlane__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); align-content: start; gap: 8px; max-height: 560px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; border-radius: 14px; }
 .tlane__list:focus-visible { outline-offset: 2px; }
 .tlane__list::after { content: ''; position: sticky; bottom: 0; display: block; grid-column: 1 / -1; height: 28px; pointer-events: none; background: linear-gradient(transparent, var(--lane-end)); }
-.mpanel[data-f-type] .tlane__list, .mpanel[data-f-day] .tlane__list { max-height: none; overflow: visible; }
-.mpanel[data-f-type] .tlane__list::after, .mpanel[data-f-day] .tlane__list::after { content: none; }
+/* a real month holds hundreds of birthdays, so a lane stays boxed (even for one type); a chosen day opens in full */
+.mpanel[data-f-day] .tlane__list { max-height: none; overflow: visible; }
+.mpanel[data-f-day] .tlane__list::after { content: none; }
 .tentry { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; border-radius: 14px; background: var(--pane-2); border: 1px solid var(--line); transition: border-color 0.3s var(--ease); }
 .tentry:hover { border-color: var(--line-2); }
 .tentry__date { display: grid; justify-items: center; align-content: center; gap: 3px; width: 48px; height: 52px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); }
@@ -768,8 +769,7 @@
   .tlanes { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 10px; }
   .tlane { padding: 14px 12px 12px; }
   .tlane__head { margin-bottom: 10px; }
-  .tlane__list { max-height: none; overflow: visible; grid-template-columns: minmax(0, 1fr); }
-  .tlane__list::after { content: none; }
+  .tlane__list { max-height: 480px; grid-template-columns: minmax(0, 1fr); }
 
   /* Newsletters */
   .ndock { flex-direction: column; align-items: stretch; gap: 10px; margin-bottom: 14px; }

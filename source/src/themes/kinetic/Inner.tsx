@@ -240,6 +240,14 @@ function Projects() {
                   <b className="kx-avn__n" data-f-group-count>{items.length}</b>
                 </div>
                 <ul className="kx-projs">{items.map(p => <ProjectCard key={p.id} p={p} />)}</ul>
+                {/* a real year holds hundreds: each avenue shows its latest three, the rest on request (CSS, inner.css) */}
+                {items.length > 3 && (
+                  <label className="kx-all btn-go">
+                    <input type="checkbox" />
+                    <span className="kx-all__more">Show all {num(items.length)}</span>
+                    <span className="kx-all__less">Show fewer</span>
+                  </label>
+                )}
               </section>
             ) : null;
           })}

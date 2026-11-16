@@ -12,11 +12,9 @@ const LINES: { key: string; label: string; has: (t: CalEntry['type']) => boolean
   { key: 'birthday', label: 'Birthdays', has: t => t === 'birthday' },
   { key: 'anniversary', label: 'Anniversaries', has: t => t === 'anniversary' }
 ];
-const byDate = (() => {
-  const m = new Map<string, CalEntry[]>();
-  C.entries.forEach(e => m.set(e.date, [...(m.get(e.date) ?? []), e]));
-  return m;
-})();
+/* indexed on first use, not at import: shared/live.ts may put the live entries in before the first render */
+let dateIndex: Map<string, CalEntry[]> | undefined;
+const byDate = { get: (iso: string) => (dateIndex ??= C.entries.reduce((m, e) => m.set(e.date, [...(m.get(e.date) ?? []), e]), new Map<string, CalEntry[]>())).get(iso) };
 const describe = (d: Date, list: CalEntry[]) => {
   const parts = C.types.map(t => ({ t, n: list.filter(e => e.type === t.key).length })).filter(x => x.n)
     .map(x => `${x.n} ${x.n === 1 ? x.t.label.toLowerCase() : x.t.group.toLowerCase()}`);

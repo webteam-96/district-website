@@ -5,11 +5,9 @@ import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type C
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
 const num = (n: number) => n.toLocaleString('en-IN');
-const byDate = (() => {
-  const m = new Map<string, CalEntry[]>();
-  C.entries.forEach(e => m.set(e.date, [...(m.get(e.date) ?? []), e]));
-  return m;
-})();
+/* indexed on first use, not at import: shared/live.ts may put the live entries in before the first render */
+let dateIndex: Map<string, CalEntry[]> | undefined;
+const byDate = { get: (iso: string) => (dateIndex ??= C.entries.reduce((m, e) => m.set(e.date, [...(m.get(e.date) ?? []), e]), new Map<string, CalEntry[]>())).get(iso) };
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const arrow = (dir: 'l' | 'r') => <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d={dir === 'l' ? 'M12 4 6 10l6 6' : 'm8 4 6 6-6 6'} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 const gift = <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7C10 3 6.500 3.500 7 5.500S10 7 12 7zm0 0c2-4 5.500-3.500 5-1.500S14 7 12 7z" /></svg>;

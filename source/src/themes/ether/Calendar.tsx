@@ -12,11 +12,9 @@ type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
 const num = (n: number) => n.toLocaleString('en-IN');
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const byDate = (() => {
-  const m = new Map<string, CalEntry[]>();
-  C.entries.forEach(e => m.set(e.date, [...(m.get(e.date) ?? []), e]));
-  return m;
-})();
+/* indexed on first use, not at import: shared/live.ts may put the live entries in before the first render */
+let dateIndex: Map<string, CalEntry[]> | undefined;
+const byDate = { get: (iso: string) => (dateIndex ??= C.entries.reduce((m, e) => m.set(e.date, [...(m.get(e.date) ?? []), e]), new Map<string, CalEntry[]>())).get(iso) };
 
 const describe = (d: Date, list: CalEntry[]) => {
   const parts = C.types

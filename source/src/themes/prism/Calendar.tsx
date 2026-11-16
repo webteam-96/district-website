@@ -10,11 +10,9 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
 const ORDER = C.types.map(t => t.key);
 const EVENT = new Set<CalEntry['type']>(['club', 'district']);
 const MAX = 3; // entries shown inside a day column before "+N more"
-const byDate = (() => {
-  const m = new Map<string, CalEntry[]>();
-  C.entries.forEach(e => m.set(e.date, [...(m.get(e.date) ?? []), e]));
-  return m;
-})();
+/* indexed on first use, not at import: shared/live.ts may put the live entries in before the first render */
+let dateIndex: Map<string, CalEntry[]> | undefined;
+const byDate = { get: (iso: string) => (dateIndex ??= C.entries.reduce((m, e) => m.set(e.date, [...(m.get(e.date) ?? []), e]), new Map<string, CalEntry[]>())).get(iso) };
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const weekStart = (d: Date) => addDays(d, -((d.getDay() - C.weekStartsOn + 7) % 7));
 const shortMonth = (d: Date) => monthLabel(d).slice(0, 3);

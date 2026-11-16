@@ -235,6 +235,15 @@
 .kx-avn__title { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.6rem, 2.6vw, 2.3rem); line-height: 1.05; letter-spacing: -0.03em; transform-origin: 0 50%; }
 .kx-avn__n { display: grid; place-items: center; flex: none; width: 50px; aspect-ratio: 1 / 1.1547; background: var(--b-ink); color: var(--b); clip-path: var(--kx-hex); font: 800 18px/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .kx-projs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; }
+/* three projects an avenue, the rest on request; a search shows every match */
+[data-filter]:has([data-f-search]:placeholder-shown) .kx-avn:has(.kx-all input:not(:checked)) .kx-proj:nth-child(n + 4 of [data-item]:not([hidden])) { display: none; }
+.kx-avn:not(:has(.kx-proj:nth-child(4 of [data-item]:not([hidden])))) .kx-all,
+[data-filter]:has([data-f-search]:not(:placeholder-shown)) .kx-all { display: none; }
+.kx-all { position: relative; margin: 22px auto 0; display: flex; width: max-content; background: var(--b-ink); color: var(--b); cursor: pointer; }
+.kx-all input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.kx-all:has(input:focus-visible) { outline: 3px solid var(--b-ink); outline-offset: 3px; }
+.kx-all__less, .kx-all:has(input:checked) .kx-all__more { display: none; }
+.kx-all:has(input:checked) .kx-all__less { display: inline; }
 .kx-proj { grid-column: span 2; display: flex; flex-direction: column; min-width: 0; overflow: hidden; border-radius: 26px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); }
 .kx-proj:hover { scale: 1.02; }
 .kx-proj__img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }

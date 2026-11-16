@@ -1,0 +1,1 @@
+{"live": false, "note": "Static stand-in. On this computer scripts/live.mjs answers /live-api itself with live district data; any other server returns this file, so the React themes see there is no data API here and keep their sample data (shared/live.ts), without a failed request."}

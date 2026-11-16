@@ -7,11 +7,9 @@ const C = R.calendar;
 const num = (n: number) => n.toLocaleString('en-IN');
 const EVENT = new Set<CalEntry['type']>(['club', 'district']);
 const OFFSETS = [-2, -1, 0, 1, 2];
-const byDate = (() => {
-  const m = new Map<string, CalEntry[]>();
-  C.entries.forEach(e => m.set(e.date, [...(m.get(e.date) ?? []), e]));
-  return m;
-})();
+/* indexed on first use, not at import: shared/live.ts may put the live entries in before the first render */
+let dateIndex: Map<string, CalEntry[]> | undefined;
+const byDate = { get: (iso: string) => (dateIndex ??= C.entries.reduce((m, e) => m.set(e.date, [...(m.get(e.date) ?? []), e]), new Map<string, CalEntry[]>())).get(iso) };
 const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const LIST_CLASS: Record<CalEntry['type'], string> = { club: 'tickets', district: 'tickets', birthday: 'wishes', anniversary: 'vows' };
 

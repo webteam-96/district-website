@@ -294,20 +294,6 @@
     .cgroup:not([data-f-group] .cgroup):has(.ccard:nth-child(5 of :not([hidden]))) .cmore { display: inline-flex; }
   }
 }
-/* a card with a page behind it: the name is the link and covers the card */
-.ccard__link { color: inherit; }
-.ccard__link::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
-.ccard__link:focus-visible { outline: none; }
-.ccard--link { transition: translate 0.3s var(--ease), border-color 0.3s var(--ease); }
-.ccard--link:hover { translate: 0 -3px; border-color: rgba(247, 168, 27, 0.45); }
-.ccard--link:has(.ccard__link:focus-visible) { outline: 2px solid var(--gold); outline-offset: 3px; }
-.cstage__gov { position: relative; }
-.cstage__link { display: inline-block; min-height: 32px; color: inherit; transition: color 0.3s var(--ease); }
-.cstage__link::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: 20px; }
-.cstage__link:focus-visible { outline: none; }
-.cstage__gov:hover .cstage__link { color: var(--gold-t); }
-.cstage__gov:has(.cstage__link:focus-visible) { outline: 2px solid var(--gold); outline-offset: 6px; border-radius: 20px; }
-:root[data-theme='light'] .ccard--link:hover { border-color: rgba(138, 90, 0, 0.45); }
 
 /* ================= Club Finder: console + results ================= */
 .froot__grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 24px; align-items: start; }
@@ -372,9 +358,12 @@
 .pcard { flex: 1 1 280px; min-width: 0; padding: 8px; container-type: inline-size; transition: border-color 0.3s var(--ease); }
 .pcard:hover { border-color: var(--line-2); }
 .pcard__in { display: flex; flex-direction: column; height: 100%; }
-.pcard__photo { position: relative; flex: none; margin: 0; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; background: var(--pane-2); }
-.pcard__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: scale 0.8s var(--ease); }
-.pcard:hover .pcard__photo img { scale: 1.04; }
+.pcard__photo { --badges: 48px; position: relative; flex: none; margin: 0; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; background: var(--pane-2); }
+.pcard__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* A real photo (not the initials plate of a project that has none) shows whole (shared/media.css) with nothing over
+   it: its box starts below the tag and the number (--badges: the height of their strip), and the strip takes the
+   tint shared/media.css gives the rest of the frame around the photo. */
+.pcard__photo img:not([src^='data:']) { top: var(--badges); height: calc(100% - var(--badges)); box-shadow: 0 calc(-1 * var(--badges)) color-mix(in srgb, currentColor 7%, transparent); }
 .pcard__tag { position: absolute; left: 10px; top: 10px; display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 11px; border-radius: 999px; color: #fff; font-size: 13px; font-weight: 700; background: rgba(5, 11, 28, 0.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .pcard__tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--av, #b4bfd6); }
 .pcard__body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 14px 10px 8px; }
@@ -402,7 +391,7 @@
 @container (min-width: 360px) { .pcard__sum { display: block; } }
 @container (min-width: 664px) {
   .pcard__in { display: grid; grid-template-columns: minmax(0, 55%) minmax(0, 1fr); gap: 24px; }
-  .pcard__photo { aspect-ratio: auto; min-height: 300px; }
+  .pcard__photo { --badges: 56px; aspect-ratio: auto; min-height: 300px; }
   .pcard__body { justify-content: center; gap: 12px; padding: 20px 16px 12px 0; }
   .pcard h3 { font-size: 28px; line-height: 1.15; }
   .pcard__sum { font-size: 17px; }
@@ -415,7 +404,7 @@
     .pwall:has(> .pcard:nth-child(9 of :not([hidden]))) { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-flow: row dense; }
     .pwall:has(> .pcard:nth-child(9 of :not([hidden]))) > .pcard:nth-child(18n+1 of :not([hidden])) { grid-column: 1 / span 2; grid-row: span 2; }
     .pwall:has(> .pcard:nth-child(9 of :not([hidden]))) > .pcard:nth-child(18n+10 of :not([hidden])) { grid-column: 3 / span 2; grid-row: span 2; }
-    .pwall:has(> .pcard:nth-child(9 of :not([hidden]))) > :is(.pcard:nth-child(18n+1 of :not([hidden])), .pcard:nth-child(18n+10 of :not([hidden]))) .pcard__photo { flex: 1 1 auto; aspect-ratio: auto; min-height: 240px; }
+    .pwall:has(> .pcard:nth-child(9 of :not([hidden]))) > :is(.pcard:nth-child(18n+1 of :not([hidden])), .pcard:nth-child(18n+10 of :not([hidden]))) .pcard__photo { --badges: 56px; flex: 1 1 auto; aspect-ratio: auto; min-height: 240px; }
     .pwall:has(> .pcard:nth-child(9 of :not([hidden]))) > :is(.pcard:nth-child(18n+1 of :not([hidden])), .pcard:nth-child(18n+10 of :not([hidden]))) h3 { font-size: 28px; line-height: 1.15; }
     .pwall:has(> .pcard:nth-child(9 of :not([hidden]))) > :is(.pcard:nth-child(18n+1 of :not([hidden])), .pcard:nth-child(18n+10 of :not([hidden]))) .pcard__body { flex: none; gap: 10px; padding: 18px 12px 10px; }
     .pwall:has(> .pcard:nth-child(9 of :not([hidden]))) > :is(.pcard:nth-child(18n+1 of :not([hidden])), .pcard:nth-child(18n+10 of :not([hidden]))) .pcard__sum { font-size: 17px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -591,7 +580,7 @@
   }
 }
 
-/* ================= Detail pages: club, project, event, dignitary, member ================= */
+/* ================= Detail pages: club, project, event, dignitary ================= */
 .dstack { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(40px, 4vw, 56px); }
 .dtitle { margin-bottom: 18px; font-family: var(--f-display); font-weight: 600; font-size: clamp(22px, 2.1vw, 28px); line-height: 1.1; letter-spacing: -0.02em; }
 .dterm { flex: none; display: inline-flex; align-items: center; max-width: 100%; min-height: 28px; padding: 4px 12px; line-height: 1.3; border-radius: 999px; font-family: var(--f-body); font-size: 13px; font-weight: 700; letter-spacing: 0; color: #bfe3ff; background: rgba(46, 168, 255, 0.12); border: 1px solid rgba(46, 168, 255, 0.35); font-variant-numeric: tabular-nums; }
@@ -601,8 +590,6 @@
 .dback .pill-btn { min-height: 44px; padding: 0 20px 0 16px; }
 .dback svg { transition: translate 0.35s var(--ease); }
 .dback .pill-btn:hover svg { translate: -3px 0; }
-.dlink { color: var(--gold-t); text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: rgba(247, 168, 27, 0.45); text-underline-offset: 3px; transition: text-decoration-color 0.25s var(--ease); }
-.dlink:hover { text-decoration-color: currentColor; }
 
 /* facts: a plain label over each value */
 .dfacts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
@@ -664,8 +651,7 @@
 .pgal__ph { position: relative; margin: 0; overflow: hidden; border-radius: 20px; background: var(--pane-2); box-shadow: 0 0 0 1px var(--line), var(--pane-shadow); }
 .pgal__ph > a { display: block; width: 100%; height: 100%; border-radius: inherit; }
 .pgal__ph > a:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; }
-.pgal__ph img { width: 100%; height: 100%; object-fit: cover; transition: scale 0.8s var(--ease); }
-.pgal__ph:hover img { scale: 1.03; }
+.pgal__ph img { width: 100%; height: 100%; object-fit: cover; }
 .pgal__grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
 .pgal__grid .pgal__ph { aspect-ratio: 4 / 3; border-radius: 14px; }
 
@@ -776,14 +762,6 @@
 .dother__who { display: grid; gap: 3px; min-width: 0; }
 .dother__who b { font-family: var(--f-display); font-weight: 600; font-size: 18px; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); }
 .dother__who span { font-size: 14px; line-height: 1.3; color: var(--gold-t); }
-
-/* ---------- committee member ---------- */
-.mcard { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 40px; align-items: center; padding: 28px; }
-.mcard__portrait { width: 220px; }
-.mcard__text { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; min-width: 0; }
-.mcard__role { font-family: var(--f-display); font-weight: 600; font-size: clamp(22px, 2.2vw, 30px); line-height: 1.15; letter-spacing: -0.02em; color: var(--gold-t); text-wrap: balance; }
-.mcard .dfacts { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 28px; }
-.mcard .dfacts dd { font-size: 17px; }
 
 :root[data-theme='light'] .dterm { color: #0058b0; background: rgba(0, 103, 200, 0.08); border-color: rgba(0, 103, 200, 0.25); }
 :root[data-theme='light'] .dorg__go, :root[data-theme='light'] .etile__go, :root[data-theme='light'] .dother__go { background: #f5f8fd; }
@@ -936,7 +914,7 @@
   .cstage__gov { flex: none; grid-template-columns: 88px minmax(0, 1fr); gap: 16px; padding: 0 0 16px; }
   .cstage__gov .portrait { width: 88px; border-radius: 14px; }
   .cstage__gov .portrait__plate { font-size: 40px; -webkit-text-stroke-width: 1.5px; }
-  .cstage__who h2 { font-size: 24px; }
+  .cstage__who h2 { min-height: 32px; font-size: 24px; }
   .cstage__role { margin-top: 6px; font-size: 15px; }
   .cstage__index { padding: 16px 0 0; }
   .cstage__index::before { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(247, 168, 27, 0.55), transparent); }
@@ -1074,14 +1052,12 @@
   .elanes { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .elane { padding: 16px 16px 18px; border-radius: 20px; }
   .elane__value { font-size: 19px; }
-  .dstage, .mcard { grid-template-columns: 112px minmax(0, 1fr); gap: 16px 18px; align-items: center; padding: 16px; border-radius: 26px; }
-  .dstage__portrait, .mcard__portrait { position: relative; top: auto; width: 112px; border-radius: 16px; }
-  .dstage__portrait .portrait__plate, .mcard__portrait .portrait__plate { font-size: 44px; -webkit-text-stroke-width: 1.5px; }
-  .dstage__text, .mcard__text { display: contents; }
+  .dstage { grid-template-columns: 112px minmax(0, 1fr); gap: 16px 18px; align-items: center; padding: 16px; border-radius: 26px; }
+  .dstage__portrait { position: relative; top: auto; width: 112px; border-radius: 16px; }
+  .dstage__portrait .portrait__plate { font-size: 44px; -webkit-text-stroke-width: 1.5px; }
+  .dstage__text { display: contents; }
   .dstage__role { font-size: 19px; }
-  .dstage .dprose, .mcard .dfacts { grid-column: 1 / -1; }
-  .mcard__role { font-size: 21px; }
-  .mcard .dfacts { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .dstage .dprose { grid-column: 1 / -1; }
   .dpanel { padding: 18px 16px 18px; }
 }
 @media (prefers-reduced-motion: reduce) {

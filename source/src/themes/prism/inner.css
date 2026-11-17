@@ -228,8 +228,6 @@
 .px-spot__name { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.9rem, 2.4vw, 2.4rem); line-height: 1.02; letter-spacing: -0.035em; text-wrap: balance; }
 .px-spot__role { font-size: 13px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-2); }
 .px-spot__club { font-size: 15px; color: rgba(255, 255, 255, 0.86); }
-/* a 32px+ target on phones without moving the text (padding taken back by the margin) */
-.px-spot__name a { display: inline-block; padding-block: 3px; margin-block: -3px; }
 /* governor filtered out: the executive's cards take the width; only the governor left: a full-width banner */
 .px-spot[hidden] + .px-mcards--exec { grid-column: 1 / -1; grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .px-lead__grid:not(:has(> .px-mcards:not([hidden]))) { grid-template-columns: minmax(0, 1fr); }
@@ -237,7 +235,7 @@
 .px-lead__grid:not(:has(> .px-mcards:not([hidden]))) .px-spot__photo { flex: 0 0 220px; height: 275px; min-height: 0; }
 .px-lead__grid:not(:has(> .px-mcards:not([hidden]))) .px-spot__name { font-size: clamp(2.2rem, 4vw, 3.6rem); }
 
-/* member rows (club leadership, a member's committee): tile, name, role, the club as a tag */
+/* member rows (club leadership): tile, name, role, the club as a tag */
 .px-member { grid-template-columns: 50px minmax(0, 1fr) auto; grid-template-areas: 'tile name club' 'tile role club'; row-gap: 2px; }
 .px-member .px-tile { grid-area: tile; }
 .px-member__name { grid-area: name; align-self: end; font-family: var(--f-display); font-weight: 700; font-size: 19px; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); }
@@ -249,24 +247,19 @@
 .px-cmte > .px-ghead::before { content: ''; width: 6px; height: 30px; border-radius: 3px; background: var(--accent, var(--azure)); }
 .px-mcards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
 .px-mcards--exec { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.px-mcard { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 8px 8px 14px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 10px 28px rgba(10, 24, 51, 0.06); transition: translate 0.4s var(--ease), box-shadow 0.4s var(--ease); }
-.px-mcard:hover { translate: 0 -3px; box-shadow: var(--shadow); }
-.px-mcard:has(a:focus-visible) { outline: 2px solid var(--azure); outline-offset: 3px; }
+.px-mcard { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 8px 8px 14px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 10px 28px rgba(10, 24, 51, 0.06); }
 .px-mcard__photo { position: relative; display: block; overflow: hidden; aspect-ratio: 4 / 5; margin-bottom: 12px; border-radius: 16px; background: color-mix(in srgb, var(--accent, var(--azure)) 12%, var(--surface)); }
-.px-mcard__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; transition: scale 0.9s var(--ease); }
-.px-mcard:hover .px-mcard__photo img { scale: 1.04; }
+.px-mcard__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
 .px-mcard__mono { display: grid; place-items: center; height: 100%; font-family: var(--f-display); font-weight: 800; font-size: clamp(2.2rem, 3vw, 3rem); letter-spacing: -0.03em; color: color-mix(in srgb, var(--accent, var(--azure)) 78%, #1b1300); }
 :root[data-theme='dark'] .px-mcard__mono { color: color-mix(in srgb, var(--accent, var(--azure)) 70%, #ffffff); }
 :root[data-theme='dark'] .px-mcard { box-shadow: none; }
 .px-mcard__name { padding: 0 6px; font-family: var(--f-display); font-weight: 700; font-size: 17px; line-height: 1.22; letter-spacing: -0.01em; color: var(--ink); overflow-wrap: anywhere; }
-.px-mcard__name a::after { content: ''; position: absolute; inset: 0; z-index: 2; }
-.px-mcard__name a:focus-visible { outline: none; }
 .px-mcard__role { margin-top: 4px; padding: 0 6px; font-size: 14px; font-weight: 700; line-height: 1.35; color: var(--azure-ink); }
 .px-mcard__club { margin-top: 2px; padding: 0 6px; font-size: 13.5px; line-height: 1.35; color: var(--ink-3); }
 .px-cmte > .px-all { margin-top: 16px; }
 /* the cap: one row of cards a committee (two rows beside the Governor). A search or a committee chip lifts it,
    so a match is never hidden, and its "show all" goes */
-:is([data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))), .px-inner--member) .px-cmte:has(> .px-all input:not(:checked)) .px-mcards:not(.px-mcards--exec) > li:nth-child(n + 7),
+[data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .px-cmte:has(> .px-all input:not(:checked)) .px-mcards:not(.px-mcards--exec) > li:nth-child(n + 7),
 [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .px-cmte:has(> .px-all input:not(:checked)) .px-mcards--exec > li:nth-child(n + 9) { display: none; }
 [data-filter]:is([data-f-group], :has([data-f-search]:not(:placeholder-shown))) .px-cmte > .px-all { display: none; }
 .px-inner--committee .px-empty { margin-top: 8px; }
@@ -277,7 +270,7 @@
 @media (max-width: 1100px) {
   .px-mcards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .px-mcards--exec, .px-spot[hidden] + .px-mcards--exec { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  :is([data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))), .px-inner--member) .px-cmte:has(> .px-all input:not(:checked)) .px-mcards:not(.px-mcards--exec) > li:nth-child(n + 5),
+  [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .px-cmte:has(> .px-all input:not(:checked)) .px-mcards:not(.px-mcards--exec) > li:nth-child(n + 5),
   [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .px-cmte:has(> .px-all input:not(:checked)) .px-mcards--exec > li:nth-child(n + 7) { display: none; }
 }
 @media (min-width: 901px) and (max-width: 1100px) {
@@ -292,7 +285,7 @@
 }
 @media (max-width: 700px) {
   .px-mcards, .px-mcards--exec, .px-spot[hidden] + .px-mcards--exec { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  :is([data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))), .px-inner--member) .px-cmte:has(> .px-all input:not(:checked)) .px-mcards:not(.px-mcards--exec) > li:nth-child(n + 3) { display: none; }
+  [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .px-cmte:has(> .px-all input:not(:checked)) .px-mcards:not(.px-mcards--exec) > li:nth-child(n + 3) { display: none; }
   .px-mcard { padding: 6px 6px 12px; border-radius: 18px; }
   .px-mcard__photo { margin-bottom: 10px; border-radius: 13px; }
   .px-mcard__name { padding: 0 4px; font-size: 15.5px; }
@@ -357,7 +350,7 @@
 .px-projs:not(:has(> :not([hidden]))) { display: none; }
 .px-proj { margin: 0; }
 .px-proj__photo { position: relative; margin: 0; overflow: hidden; background: var(--surface-2); }
-.px-proj__photo img { width: 100%; height: 100%; object-fit: cover; transition: scale 0.9s var(--ease); }
+.px-proj__photo img { width: 100%; height: 100%; object-fit: cover; }
 .px-proj__title { font-family: var(--f-display); font-weight: 750; font-size: 20px; line-height: 1.2; letter-spacing: -0.015em; color: var(--ink); }
 .px-proj__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; color: var(--ink-3); }
 .px-proj__sum { font-size: 15px; line-height: 1.55; color: var(--ink-2); }
@@ -387,19 +380,28 @@
 /* rows: thumbnail with its number, text, the button at the right */
 .px-projs > .px-proj { position: relative; display: grid; grid-template-columns: 144px minmax(0, 1fr); gap: 0 22px; align-items: center; padding: 16px 22px; border-top: 1px solid var(--line); transition: background 0.3s var(--ease); }
 .px-projs > .px-proj:hover { background: var(--surface-2); }
-.px-projs > .px-proj > .px-proj__photo { width: 144px; height: 96px; border-radius: 16px; }
-.px-projs > .px-proj:hover .px-proj__photo img { scale: 1.05; }
+.px-projs > .px-proj > .px-proj__photo { width: 144px; height: 96px; border-radius: 16px; overflow: visible; }
+/* the frame's rounded clip is on the photo link, so the row's number can hang on the frame's corner */
+.px-projs > .px-proj > .px-proj__photo .px-proj__img { overflow: hidden; border-radius: inherit; }
 .px-projs .px-proj__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'title more' 'meta more' 'sum more'; column-gap: 28px; row-gap: 6px; align-items: center; min-width: 0; }
 .px-projs .px-proj__title { grid-area: title; }
 .px-projs .px-proj__meta { grid-area: meta; }
 .px-projs .px-proj__sum { grid-area: sum; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.px-projs > .px-proj > .px-proj__photo .px-proj__no { top: 7px; left: 7px; min-width: 38px; height: 26px; padding: 0 8px; font-size: 14px; }
+/* a row's photo is small and shown whole: the number sits on the frame's corner, mostly off the photo */
+.px-projs > .px-proj > .px-proj__photo .px-proj__no { top: -9px; left: -9px; min-width: 38px; height: 26px; padding: 0 8px; font-size: 14px; }
 /* the lead: whatever the filter leaves first is drawn as the hero, photo + overlapping blue panel */
 .px-projs > .px-proj:nth-child(1 of :not([hidden])) { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: stretch; min-height: 400px; padding: 0; border-top: 0; }
 .px-projs > .px-proj:nth-child(1 of :not([hidden])):hover { background: none; }
 .px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__photo { width: auto; height: auto; border-radius: 0; }
 .px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__photo img { position: absolute; inset: 0; }
-.px-projs > .px-proj:nth-child(1 of :not([hidden])):hover .px-proj__photo img { scale: 1.04; }
+/* the blue panel lies over the frame's edge (36px less the 22px gap; 28px when stacked): a photo keeps to the part
+   of the frame that shows, so all of it is seen (an initials plate fills the frame as before). Its letterbox tint
+   is on the frame instead of the photo's own box, so the tint runs on under the panel's rounded corners */
+.px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__photo { background: color-mix(in srgb, currentColor 7%, var(--surface-2)); }
+.px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__photo img:not([src^='data:']) { width: calc(100% - 14px); background-color: transparent; }
+/* the panel paints over the photo link here ("Read more" covers only the panel, so the link needs no lift): a plate
+   runs on under the panel's rounded corners instead of lying over its edge and the top of the title */
+.px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__photo .px-proj__img { z-index: 0; }
 .px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__body { position: relative; isolation: isolate; z-index: 1; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'title' 'meta' 'sum' 'more'; align-content: center; row-gap: 12px; margin-left: -36px; padding: 30px 36px 30px 48px; border-radius: 36px 0 0 36px; color: #fff; background: var(--px-dots), radial-gradient(90% 70% at 100% 0%, rgba(247, 168, 27, 0.32), transparent 55%), var(--px-blue); box-shadow: -24px 0 60px rgba(0, 40, 110, 0.25); }
 .px-projs .px-proj__body::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; }
 .px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__body:hover::after { opacity: 1; }
@@ -423,7 +425,6 @@
 .px-posters > .px-proj { position: relative; display: flex; flex-direction: column; flex: 0 1 calc((100% - 44px) / 3); min-width: 0; overflow: hidden; border-radius: 26px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow); transition: translate 0.4s var(--ease), box-shadow 0.4s var(--ease); }
 .px-posters > .px-proj:hover { translate: 0 -3px; box-shadow: var(--shadow-lg); }
 .px-posters .px-proj__photo { aspect-ratio: 4 / 3; }
-.px-posters .px-proj:hover .px-proj__photo img { scale: 1.04; }
 .px-posters .px-proj__body { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 22px 24px 0; }
 .px-posters .px-proj__title { font-weight: 800; font-size: clamp(1.35rem, 1.8vw, 1.6rem); line-height: 1.12; letter-spacing: -0.025em; }
 .px-posters .px-proj__sum { font-size: 16px; line-height: 1.6; }
@@ -625,7 +626,7 @@ span.px-rtile > b { color: var(--ink-3); font-weight: 700; }
 .px-door .btn { margin-top: auto; }
 
 /* ================= links into the detail pages: the title is the one link and covers its card ================= */
-.px-spot__name a::after, .px-event__text a::after, .dv-event__text a::after,
+.px-event__text a::after, .dv-event__text a::after,
 .px-orgrow a::after, .px-other__name a::after { content: ''; position: absolute; inset: 0; z-index: 2; }
 .px-event, .dv-event { position: relative; }
 /* the card photo opens the lightbox: it lies over the photo, above the card's "Read more" layer */
@@ -633,12 +634,12 @@ span.px-rtile > b { color: var(--ink-3); font-weight: 700; }
 .px-proj__img:focus-visible, .px-photos__a:focus-visible, .px-cover__a:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
 .px-photos__a, .px-cover__a { display: block; border-radius: 22px; }
 .px-cover__a { border-radius: 30px; }
-:is(.px-member__name, .px-spot__name, .px-event__text, .dv-event__text, .px-erow__title, .px-orgrow__name, .px-other__name) a { text-decoration: underline 2px; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color 0.25s var(--ease); }
-:is(.px-member__name, .px-spot__name, .px-event__text, .dv-event__text, .px-erow__title, .px-orgrow__name, .px-other__name) a:hover { text-decoration-color: var(--gold); }
-:is(.px-proj, .px-spot, .px-event, .dv-event, .px-other):has(a:focus-visible) { outline: 2px solid var(--azure); outline-offset: 3px; }
-:is(.px-proj, .px-spot, .px-event, .dv-event, .px-other) a:focus-visible { outline: none; }
+:is(.px-member__name, .px-event__text, .dv-event__text, .px-erow__title, .px-orgrow__name, .px-other__name) a { text-decoration: underline 2px; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color 0.25s var(--ease); }
+:is(.px-member__name, .px-event__text, .dv-event__text, .px-erow__title, .px-orgrow__name, .px-other__name) a:hover { text-decoration-color: var(--gold); }
+:is(.px-proj, .px-event, .dv-event, .px-other):has(a:focus-visible) { outline: 2px solid var(--azure); outline-offset: 3px; }
+:is(.px-proj, .px-event, .dv-event, .px-other) a:focus-visible { outline: none; }
 
-/* ================= detail pages: club, project, event, dignitary, member ================= */
+/* ================= detail pages: club, project, event, dignitary ================= */
 .px-detail > * + * { margin-top: clamp(40px, 4.4vw, 64px); }
 .px-head__title--item { font-size: clamp(2rem, 3.4vw, 3.1rem); line-height: 1.04; }
 /* the line under the item's name */
@@ -720,10 +721,6 @@ span.px-rtile > b { color: var(--ink-3); font-weight: 700; }
 /* the club's board: three rows of three until "show all" */
 .px-leaders:has(> .px-all input:not(:checked)) .px-grid > li:nth-child(n + 10) { display: none; }
 .px-leaders > .px-all { margin-top: 16px; }
-/* the member's own card on their profile: marked, not a link */
-.px-mcard.is-current { border-color: color-mix(in srgb, var(--accent, var(--azure)) 55%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, var(--azure)) 22%, transparent), var(--shadow); }
-.px-mcard.is-current:hover { translate: none; }
-.px-mcard.is-current .px-mcard__name { color: var(--azure-ink); }
 .px-ghead--split { justify-content: space-between; }
 .px-ghead--split .px-search { flex: 0 1 380px; }
 .px-mates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -795,6 +792,7 @@ body[data-page] .visits__tile::after { content: ''; position: absolute; left: 0;
   .px-projs > .px-proj:nth-child(1 of :not([hidden])) { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__photo { aspect-ratio: 16 / 10; }
   .px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__body { margin: -28px 0 0; padding: 26px 24px 24px; border-radius: 28px 28px 0 0; box-shadow: none; }
+  .px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__photo img:not([src^='data:']) { width: 100%; height: calc(100% - 28px); }
   .px-projs .px-proj__body { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'title' 'meta' 'sum' 'more'; }
   .px-projs .px-proj__acts { margin-top: 6px; }
   .px-contact { grid-template-columns: minmax(0, 1fr); }

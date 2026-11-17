@@ -6,8 +6,8 @@ import {
   calMonths, todayMonthKey, monthEntries, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
-  D, paras, clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, clubIdOf, useDocTitle,
-  clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile
+  D, paras, clubHref, projectHref, eventHref, dignitaryHref, useDocTitle,
+  clubProfile, projectDetail, eventDetail, dignitaryProfile
 } from '../../shared/detail';
 import { Header, TopStrip } from './Chrome';
 import Footer from './Footer';
@@ -118,7 +118,7 @@ const Card = ({ m, g }: { m: Member; g: string }) => (
     <span className={`tx-card__photo${m.photo ? '' : ' is-ini'}`} aria-hidden="true">
       {m.photo ? <img src={m.photo.src} alt="" width={m.photo.w} height={m.photo.h} loading="lazy" /> : <b>{m.initials || m.name.charAt(0)}</b>}
     </span>
-    <h3><a href={memberHref(m)}>{m.name}</a></h3>
+    <h3>{m.name}</h3>
     {m.role && <p className="tx-card__role">{m.role}</p>}
     {m.club && <p className="tx-card__club">{clubName(m.club)}</p>}
   </li>
@@ -163,7 +163,7 @@ function Committee() {
                     </div>
                     <div className="tx-feature__info">
                       <p className="tx-feature__role">{lead.role}</p>
-                      <h3 className="tx-feature__name"><a href={memberHref(lead)}>{lead.name}</a></h3>
+                      <h3 className="tx-feature__name">{lead.name}</h3>
                       {lead.club && <p className="tx-feature__club">{clubName(lead.club)}</p>}
                     </div>
                   </article>
@@ -265,10 +265,10 @@ function ProjectCard({ p, i, line, no }: { p: Project; i: number; line: boolean;
         <article className="tx-proj__card">
           <figure className="tx-proj__photo">
             <span className="tx-proj__frame"><a href={p.photo.src} data-lightbox={`p-${p.id}`} data-caption={p.photo.alt}><img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} loading="lazy" /></a></span>
-            <span className="tx-proj__tag">{avenueLabel(p.avenue)}</span>
-            {!line && <time className="tx-proj__when" dateTime={p.date}>{date}</time>}
           </figure>
           <div className="tx-proj__body">
+            {/* the avenue and the date are the body's first line: nothing sits on the photo (Club Service shows neither: its date is the stop) */}
+            {!line && <p className="tx-proj__meta"><span className="tx-proj__tag">{avenueLabel(p.avenue)}</span><time className="tx-proj__when" dateTime={p.date}>{date}</time></p>}
             <div className="tx-proj__top">
               <span className="tx-proj__no" aria-hidden="true" data-no={no} />
               <div><p className="tx-proj__club">{clubName(p.club)}</p><h3>{p.title}</h3></div>
@@ -600,12 +600,11 @@ const webOf = (s: string) => (/^https?:\/\//i.test(s) ? s : `https://${s}`);
 /* a fact's icon: a calendar for dates, people for clubs, a flag for the rest */
 const factIcon = (label: string) => (/charter|found|since|year|date|born|joined/i.test(label) ? I.cal : /club/i.test(label) ? I.group : I.flag);
 
-/* a person in a platform: photo or initials, name, role; a link when they have a page */
-const Person = ({ name, sub, photo, href, club, q }: { name: string; sub?: string; photo?: Photo | null; href?: string; club?: string; q?: string }) => (
+/* a person in a platform: photo or initials, name, role */
+const Person = ({ name, sub, photo, q }: { name: string; sub?: string; photo?: Photo | null; q?: string }) => (
   <li className="tx-row" {...(q !== undefined ? { 'data-item': '', 'data-q': q } : {})}>
     <span className="tx-av" aria-hidden="true">{photo ? <img src={photo.src} alt="" width={photo.w} height={photo.h} loading="lazy" /> : ini(name)}</span>
-    <div className="tx-row__text"><h3>{href ? <a href={href}>{name}</a> : name}</h3>{sub && <p>{sub}</p>}</div>
-    {club && <p className="tx-row__club">{clubName(club)}</p>}
+    <div className="tx-row__text"><h3>{name}</h3>{sub && <p>{sub}</p>}</div>
   </li>
 );
 
@@ -700,7 +699,7 @@ function ClubPage() {
   const ct = c.contact ?? {};
   const facts: Fact[] = [
     ...c.details.map(f => ({ label: f.label, value: f.value, icon: factIcon(f.label) })),
-    ...(ct.email ? [{ label: D.member.email, value: ct.email, href: `mailto:${ct.email}`, icon: I.mail }] : []),
+    ...(ct.email ? [{ label: P.email, value: ct.email, href: `mailto:${ct.email}`, icon: I.mail }] : []),
     ...(ct.phone ? [{ label: 'Phone', value: ct.phone, href: `tel:${telOf(ct.phone)}`, icon: I.phone }] : []),
     ...(ct.web ? [{ label: 'Website', value: ct.web.replace(/^https?:\/\//i, '').replace(/\/$/, ''), href: webOf(ct.web), icon: I.web, ext: true }] : [])
   ];
@@ -865,7 +864,7 @@ function EventPage() {
     ...(e.venue ? [{ label: D.event.where, value: e.venue, icon: I.pin }] : []),
     ...(org ? [{ label: D.event.organiser, value: org, href: e.clubId ? clubHref(e.clubId) : undefined, icon: I.group }] : []),
     ...(ct.name ? [{ label: D.event.contact, value: ct.name, icon: I.user }] : []),
-    ...(ct.email ? [{ label: D.member.email, value: ct.email, href: `mailto:${ct.email}`, icon: I.mail }] : []),
+    ...(ct.email ? [{ label: P.email, value: ct.email, href: `mailto:${ct.email}`, icon: I.mail }] : []),
     ...(ct.phone ? [{ label: 'Phone', value: ct.phone, href: `tel:${telOf(ct.phone)}`, icon: I.phone }] : [])
   ];
   return (
@@ -919,7 +918,7 @@ function DignitaryPage() {
   const text = paras(d.bio);
   const ct = d.contact ?? {};
   const lines: Fact[] = [
-    ...(ct.email ? [{ label: D.member.email, value: ct.email, href: `mailto:${ct.email}`, icon: I.mail }] : []),
+    ...(ct.email ? [{ label: P.email, value: ct.email, href: `mailto:${ct.email}`, icon: I.mail }] : []),
     ...(ct.phone ? [{ label: 'Phone', value: ct.phone, href: `tel:${telOf(ct.phone)}`, icon: I.phone }] : [])
   ];
   return (
@@ -952,47 +951,6 @@ function DignitaryPage() {
   );
 }
 
-/* ================= Committee member: the portrait in the head, a strip of facts, the rest of the committee ================= */
-function MemberPage() {
-  const m = memberProfile();
-  useDocTitle(m?.name ?? null);
-  const com = crumb('committee');
-  if (!m) return <Missing k="member" text={D.member.missing} to={com.href} label={D.member.back} />;
-  const groups = committee();
-  const gi = groups.findIndex(g => g.title === m.group);
-  const g = gi >= 0 ? groups[gi] : null;
-  const others = g ? g.members.filter(x => memberId(x) !== m.id) : [];
-  const cid = clubIdOf(m.club);
-  const facts: Fact[] = [
-    ...(m.group ? [{ label: D.member.committee, value: m.group, icon: I.group }] : []),
-    ...(m.club ? [{ label: D.member.club, value: fullClub(m.club), href: cid ? clubHref(cid) : undefined, icon: I.pin }] : []),
-    ...(m.email ? [{ label: D.member.email, value: m.email, href: `mailto:${m.email}`, icon: I.mail }] : [])
-  ];
-  const gc = col(Math.max(gi, 0));
-  return (
-    /* the block behind the portrait is cranberry, azure when the committee's own colour is cranberry */
-    <div className="tx-mem" style={css({ '--gc': gc, '--pc': gc === 'var(--cranberry)' ? 'var(--azure)' : 'var(--cranberry)' })}>
-      <Head k="member" title={m.name} sub={m.role && <p className="tx-head__lead tx-role"><b>{m.role}</b></p>}
-        slot={<div className="tx-mface tx-board"><PhotoBox name={m.name} photo={m.photo} /></div>} />
-      {(facts.length > 0 || others.length > 0) && (
-        <section className="tx-sec tx-sec--first">
-          <div className="wrap tx-person">
-            {facts.length > 0 && <div className="tx-mfacts tx-board" data-rv><FactList list={facts} /></div>}
-            {g && others.length > 0 && (
-              <section className="tx-plat tx-others" data-rv style={css({ '--d': 1 })}>
-                <h2 className="tx-plat__head"><span>{g.title}</span><b>{num(g.members.length)}</b></h2>
-                <ul className="tx-rows">{others.map((x, i) => <Person key={i} name={x.name} sub={x.role} photo={x.photo} club={x.club} href={memberHref(x)} />)}</ul>
-                <ShowAll n={others.length} />
-              </section>
-            )}
-          </div>
-        </section>
-      )}
-      <Back to={com.href} label={D.member.back} />
-    </div>
-  );
-}
-
 const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   about: () => <About />,
   committee: () => <Committee />,
@@ -1005,8 +963,7 @@ const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   club: () => <ClubPage />,
   project: () => <ProjectPage />,
   event: () => <EventPage />,
-  dignitary: () => <DignitaryPage />,
-  member: () => <MemberPage />
+  dignitary: () => <DignitaryPage />
 };
 
 function Body({ page, year }: { page: PageKey; year: string }) {

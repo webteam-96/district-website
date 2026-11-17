@@ -11,7 +11,7 @@
    404 are avoided: the browser reports every failed request as a console error. */
 import { R, monogram, monthLabel, parseISO, shortDate, toISO, type Bulletin, type CalEntry, type Letter, type Person, type Photo, type Rotary } from './rotary';
 import { totals, type Member, type PageKey, type Pages, type Project } from './inner';
-import { memberId, type DetailPages, type EventDetail, type Fact, type Leader } from './detail';
+import { type DetailPages, type EventDetail, type Fact, type Leader } from './detail';
 
 type Row = Record<string, any>;
 type Apply = () => void;
@@ -227,10 +227,10 @@ const pickPresident = (board: Row[]) => board.find(b => b.designationId === 1)
 /* District Committee: the executive, then every committee group (and its sub-groups), in API order */
 const committeeOf = async (c: Ctx) => {
   const y = c.years[0].id, base = `/api/districts/${c.id}/committee`;
-  /* id: the API's member id (member.html?id= opens the profile) */
+  /* only what a committee card shows: there is no member page, so no member id or e-mail is kept */
   const member = (m: Row): Member => {
     const name = clean(m.name) || 'Member';
-    return { name, role: clean(m.districtDesignation), club: clean(m.clubName), photo: portrait(media(m.profilePhoto), name), id: m.memberId > 0 ? String(m.memberId) : undefined, email: clean(m.email) || undefined };
+    return { name, role: clean(m.districtDesignation), club: clean(m.clubName), photo: portrait(media(m.profilePhoto), name) };
   };
   /* sub-group rows name only the photo's file (production's fixSubPhoto) */
   const subPhoto = (m: Row) => {
@@ -644,31 +644,6 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
         }
       } : null;
     };
-  },
-
-  /* Committee member (member.html?id=<member id>&name=&role=&club=): production's DirectorProfile, which prefers
-     the name, role and club the card forwarded. The committee says which group the member is in (and finds a
-     member the API has no record for); /api/members/{id} gives the photo and the e-mail. */
-  async member(c) {
-    const id = param('id');
-    const [groups, md] = await Promise.all([
-      committeeOf(c).catch(() => null),
-      /^\d+$/.test(id) && +id > 0 ? api(`/api/members/${id}`).catch(absent) as Promise<Row | null> : null
-    ]);
-    const g = groups?.find(x => x.members.some(m => memberId(m) === id)), row = g?.members.find(m => memberId(m) === id);
-    return () => {
-      if (groups) P.committee.groups = groups;
-      if (!row && !clean(md?.memberName)) { D.member.item = null; return; }
-      const name = param('name') || row?.name || clean(md!.memberName);
-      D.member.item = {
-        id, name,
-        role: param('role') || row?.role || clean(md?.designation) || 'Rotary Member',
-        club: param('club') || row?.club || '',
-        group: g?.title ?? '',
-        email: clean(md?.emailId) || row?.email || '',
-        photo: portrait(media(md?.profilePhotoPath), name) ?? row?.photo ?? null
-      };
-    };
   }
 };
 
@@ -687,8 +662,7 @@ const PAGE_JOBS: Record<PageKey | 'home', string[]> = {
   club: ['clubs', 'club'],
   project: ['project'],
   event: ['event'],
-  dignitary: ['dignitaries', 'dignitary'],    /* both people, so the page can offer the other one with name and photo */
-  member: ['member']
+  dignitary: ['dignitaries', 'dignitary']     /* both people, so the page can offer the other one with name and photo */
 };
 const ORDER = Object.keys(JOBS);               /* write order: the dignitaries before the press */
 
@@ -711,7 +685,7 @@ function retarget(num: string) {
    the saved items, so a missing one shows the page's not-found state without a failed request. No snapshot: sample. */
 const isRow = (v: unknown): v is Row => !!v && typeof v === 'object' && !Array.isArray(v);
 const merge = (t: Row, s: Row) => { for (const k of Object.keys(s)) { if (isRow(s[k]) && isRow(t[k])) merge(t[k], s[k]); else t[k] = s[k]; } };
-const ITEM_PAGES = ['club', 'project', 'event', 'member'] as const;
+const ITEM_PAGES = ['club', 'project', 'event'] as const;
 async function snapshot(page: PageKey | 'home', why: string): Promise<void> {
   const base = new URL('../data/', location.href), ctrl = new AbortController();
   const stop = setTimeout(() => ctrl.abort(), CAP);

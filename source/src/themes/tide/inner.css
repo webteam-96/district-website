@@ -131,11 +131,11 @@
 .tp-tk__main { display: grid; align-content: center; gap: 4px; min-width: 0; padding: 14px 18px; }
 .tp-tk__end { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 18px; border-left: 2px dashed var(--line-2); }
 
-/* ---------- a card's one action: its link (a name, or "Read more") covers the whole card ---------- */
+/* ---------- a card's one action: its link (an event's title, or "Read more") covers the whole card ---------- */
 .tp-stretch::after { content: ''; position: absolute; inset: 0; z-index: 2; }
 .tp-stretch:focus-visible { outline: none; }
 .tp-stretch.tp-btn:active { transform: none; }   /* a transform would shrink the covering area mid-click */
-.tp :is(.tp-pc, .tp-pj, .tp-sp, .tp-ev, .tp-mem):has(.tp-stretch:focus-visible) { outline: 2px solid var(--azure); outline-offset: 4px; border-radius: 14px; }
+.tp :is(.tp-pj, .tp-sp, .tp-ev, .tp-mem):has(.tp-stretch:focus-visible) { outline: 2px solid var(--azure); outline-offset: 4px; border-radius: 14px; }
 a.tp-stretch:not(.tp-btn) { text-decoration: underline 2px transparent; text-underline-offset: 4px; transition: text-decoration-color 0.25s var(--ease); }
 @media (hover: hover) { a.tp-stretch:not(.tp-btn):hover { text-decoration-color: var(--turq); } }
 /* event tickets are links now: they lift like the club tickets */
@@ -211,16 +211,6 @@ a.tp-stretch:not(.tp-btn) { text-decoration: underline 2px transparent; text-und
 /* ======================= District Committee ======================= */
 .tp-cm .tp-chips { gap: 8px; }
 .tp-cm__list { display: grid; gap: 36px; margin-top: 28px; }
-/* the District Governor spread beside the Executive Committee */
-.tp-top { flex: 0 0 460px; display: grid; grid-template-columns: 236px minmax(0, 1fr); align-items: end; }
-.tp-top__photo { grid-area: 1 / 1; display: grid; place-items: center; height: 312px; margin: 0; overflow: hidden; border-radius: 18px; background: linear-gradient(170deg, #d41367, #5a0a2f); box-shadow: 0 24px 54px rgba(6, 43, 51, 0.2); }
-.tp-top__photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; transition: scale 0.8s var(--ease); }
-.tp-top__photo span { font-family: var(--f-display); font-weight: 800; font-size: 96px; line-height: 1; color: #fff; }
-@media (hover: hover) { .tp-top:hover .tp-top__photo img { scale: 1.05; } }
-.tp-top__card { grid-area: 1 / 2; z-index: 1; margin: 0 0 26px -48px; padding: 18px 20px 20px; border-radius: 16px; border-top: 5px solid var(--cranberry); background: var(--surface); box-shadow: 0 22px 50px rgba(6, 43, 51, 0.16); }
-.tp-top__role { font-size: 16px; font-weight: 800; line-height: 1.3; color: var(--cran-ink); }
-.tp-top__name { margin-top: 6px; font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 1; text-transform: uppercase; text-wrap: balance; color: var(--ink); overflow-wrap: anywhere; }
-.tp-top__club { margin-top: 8px; font-size: 15px; font-weight: 700; color: var(--ink-3); }
 /* the band that heads each committee: deep teal, poster name, wave rule, live number */
 .tp-band { display: flex; align-items: center; gap: 16px; min-height: 56px; padding: 8px 12px 10px 20px; border-radius: 12px; background: var(--deep); color: #fff; box-shadow: inset 0 -4px 0 var(--turq); }
 .tp-band h2 { font-family: var(--f-display); font-weight: 800; font-size: 28px; line-height: 1; text-transform: uppercase; }
@@ -347,11 +337,10 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 .tp-pj { container-type: inline-size; position: relative; min-width: 0; overflow: hidden; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow); transition: translate 0.35s var(--ease), box-shadow 0.35s var(--ease); }
 @media (hover: hover) {
   .tp-pj:hover { translate: 0 -3px; box-shadow: var(--shadow-lg); }
-  .tp-pj:hover .tp-pj__photo img { scale: 1.04; }
 }
 .tp-pj__in { display: flex; flex-direction: column; height: 100%; }
 .tp-pj__photo { position: relative; margin: 0; aspect-ratio: 16 / 10; overflow: hidden; background: var(--tint); }
-.tp-pj__photo img { width: 100%; height: 100%; object-fit: cover; transition: scale 0.8s var(--ease); }
+.tp-pj__photo img { width: 100%; height: 100%; object-fit: cover; }
 .tp-pj__tag { position: absolute; left: 12px; top: 12px; padding: 5px 12px; border-radius: 8px; background: rgba(6, 43, 51, 0.88); color: #fff; font-size: 13px; font-weight: 700; line-height: 1.3; }
 .tp-pj__body { flex: 1; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto 1fr auto; column-gap: 14px; padding: 0 20px; }
 .tp-pj__meta { display: contents; }
@@ -372,6 +361,12 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 .tp-pj { counter-increment: tp-no; }
 .tp-pj__no { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; min-width: 50px; height: 42px; padding: 0 11px 3px; border-radius: 10px; background: var(--deep); box-shadow: inset 0 -4px 0 var(--turq-b), 0 10px 24px rgba(6, 43, 51, 0.32); color: #fff; font-family: var(--f-display); font-weight: 800; font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
 .tp-pj__no::before { content: attr(data-no); }
+/* a narrow card with a real photo: the photo shows whole in the part of the frame below the avenue tag (the number
+   and the date touch only a corner of it); the strip under the tags takes the same faint tint as the photo's own
+   spare space (shared/media.css). An initials plate still fills the whole frame. */
+@container not (min-width: 480px) {
+  .tp-pj__photo:has(img:not([src^='data:'])) { padding-top: 44px; background: linear-gradient(color-mix(in srgb, currentColor 7%, transparent) 0 0) top / 100% 44px no-repeat var(--tint); }
+}
 @container (min-width: 480px) {
   .tp-pj__in { display: grid; grid-template-columns: 45% minmax(0, 1fr); min-height: 236px; }
   .tp-pj__photo { aspect-ratio: auto; height: 100%; min-height: 100%; }
@@ -398,8 +393,11 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 .tp-spreads { --ov: 72px; display: grid; gap: 40px; margin-top: 20px; }
 .tp-sp { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; }
 .tp-sp__photo { grid-area: 1 / 1; height: 340px; margin: 0; overflow: hidden; border-radius: 18px; background: var(--tint); box-shadow: 0 24px 54px rgba(6, 43, 51, 0.2); }
-.tp-sp__photo img { width: 100%; height: 100%; object-fit: cover; transition: scale 0.8s var(--ease); }
-@media (hover: hover) { .tp-sp:hover .tp-sp__photo img { scale: 1.04; } }
+.tp-sp__photo img { width: 100%; height: 100%; object-fit: cover; }
+/* a real photo shows whole beside the card, never under it: it keeps to the part of the frame the card leaves free,
+   and the strip under the card's edge takes the same faint tint as the photo's own spare space (shared/media.css).
+   An initials plate still fills the whole frame. */
+.tp-sp__photo:has(img:not([src^='data:'])) { padding-right: var(--ov); background: linear-gradient(color-mix(in srgb, currentColor 7%, transparent) 0 0) right / var(--ov) 100% no-repeat var(--tint); }
 .tp-sp__card { grid-area: 1 / 2; z-index: 1; min-width: 0; margin-left: calc(-1 * var(--ov)); padding: 26px 28px 24px; border-radius: 16px; border-top: 5px solid var(--turq); background: var(--surface); box-shadow: 0 22px 50px rgba(6, 43, 51, 0.16); }
 .tp-sp__date { display: block; font-family: var(--f-display); font-weight: 800; font-size: 20px; line-height: 1.1; color: var(--cran-ink); font-variant-numeric: tabular-nums; }
 .tp-sp__title { margin-top: 6px; font-family: var(--f-display); font-weight: 800; font-size: 36px; line-height: 1; text-transform: uppercase; text-wrap: balance; color: var(--ink); }
@@ -419,11 +417,13 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 @media (min-width: 761px) {
   .tp-sp:nth-child(even of :not([hidden])) { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
   .tp-sp:nth-child(even of :not([hidden])) .tp-sp__photo { grid-area: 1 / 2; }
+  .tp-sp:nth-child(even of :not([hidden])) .tp-sp__photo:has(img:not([src^='data:'])) { padding: 0 0 0 var(--ov); background-position: left; }
   .tp-sp:nth-child(even of :not([hidden])) .tp-sp__card { grid-area: 1 / 1; margin: 0 calc(-1 * var(--ov)) 0 0; border-top-color: var(--cranberry); }
   .tp-sp:nth-child(even of :not([hidden])) .tp-sp__nums::before { right: auto; left: -8px; }
   @supports not selector(:nth-child(1 of a)) {
     .tp-sp:nth-child(even) { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
     .tp-sp:nth-child(even) .tp-sp__photo { grid-area: 1 / 2; }
+    .tp-sp:nth-child(even) .tp-sp__photo:has(img:not([src^='data:'])) { padding: 0 0 0 var(--ov); background-position: left; }
     .tp-sp:nth-child(even) .tp-sp__card { grid-area: 1 / 1; margin: 0 calc(-1 * var(--ov)) 0 0; border-top-color: var(--cranberry); }
     .tp-sp:nth-child(even) .tp-sp__nums::before { right: auto; left: -8px; }
   }
@@ -636,10 +636,6 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   .tp-dock { justify-items: start; width: 100%; margin-top: 16px; }
   .tp--projects .tp-dock, .tp--service .tp-dock { width: 100%; max-width: none; }
   .tp-pcs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  /* the Governor spread becomes one horizontal card */
-  .tp-top { flex: 1 1 100%; grid-template-columns: 160px minmax(0, 1fr); align-items: center; padding: 16px; border-radius: 16px; border-top: 5px solid var(--cranberry); background: var(--surface); box-shadow: 0 22px 50px rgba(6, 43, 51, 0.16); }
-  .tp-top__photo { height: 200px; border-radius: 12px; box-shadow: none; }
-  .tp-top__card { margin: 0; padding: 0 0 0 20px; border: 0; background: none; box-shadow: none; }
   .tp-clubs, .tp-evts { grid-template-columns: minmax(0, 1fr); }
   .tp-log { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .tp-log__m { position: static; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
@@ -713,10 +709,6 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   .tp-pc--dg .tp-pc__name { font-size: 30px; }
   .tp-pc--dg .tp-pc__photo span { font-size: 96px; }
   .tp-cm .tp-chip { height: 42px; }
-  .tp-top { grid-template-columns: 112px minmax(0, 1fr); padding: 14px; }
-  .tp-top__photo { height: 140px; }
-  .tp-top__photo span { font-size: 52px; }
-  .tp-top__name { font-size: 30px; }
   .tp-band { min-height: 52px; padding-left: 16px; }
   .tp-band h2 { font-size: 24px; }
   .tp-mems { grid-template-columns: minmax(0, 1fr); }
@@ -751,6 +743,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   .tp-spreads { gap: 28px; margin-top: 12px; }
   .tp-sp { grid-template-columns: minmax(0, 1fr); }
   .tp-sp__photo { height: auto; aspect-ratio: 16 / 10; border-radius: 14px; }
+  .tp-sp__photo:has(img:not([src^='data:'])) { padding: 0 0 40px; background-position: bottom; background-size: 100% 40px; }
   .tp-sp__card { grid-area: 2 / 1; margin: -40px 12px 0; padding: 18px; }
   .tp-sp__title { font-size: 28px; }
   .tp-sp__sum { font-size: 15px; }
@@ -812,8 +805,8 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 
 /* ======================= Detail pages: one item each =======================
    Each opens with a block riding up over the head's wave edge (as the Contact office ticket did): the club's
-   pass, the project's spread, the event's ticket, the dignitary's portrait, the member's card. */
-.tp--club, .tp--project, .tp--event, .tp--dignitary, .tp--member { --tp-dock: 40px; }
+   pass, the project's spread, the event's ticket, the dignitary's portrait. */
+.tp--club, .tp--project, .tp--event, .tp--dignitary { --tp-dock: 40px; }
 .tp--event { --tp-page: var(--tint); }
 .tp-dt { padding-bottom: var(--tp-sec); }
 .tp-ride { position: relative; z-index: 1; margin-top: calc(-1 * (var(--tp-wave) + var(--tp-dock))); }
@@ -919,8 +912,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 .tp-gal--few .tp-gal__grid > li { max-width: min(760px, calc(var(--r) * 520px)); }
 .tp-gal__grid::after { content: ''; flex: 1000 1 0; }
 .tp-gal__grid > li { flex: var(--r) 1 calc(var(--r) * var(--gh)); min-width: 0; overflow: hidden; border-radius: 14px; background: var(--tint); box-shadow: 0 14px 30px -12px rgba(6, 43, 51, 0.3); }
-.tp-gal__grid img { width: 100%; height: auto; aspect-ratio: var(--r); object-fit: cover; transition: scale 0.8s var(--ease); }
-@media (hover: hover) { .tp-gal__grid > li:hover img { scale: 1.04; } }
+.tp-gal__grid img { width: 100%; height: auto; aspect-ratio: var(--r); object-fit: cover; }
 .tp-gal__grid > li:nth-child(n + 7) { display: none; }
 .tp-gal__box > .tp-all[open] + .tp-gal__grid > li { display: block; }
 
@@ -984,21 +976,6 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 @media (hover: hover) { .tp-other:hover { translate: 0 -3px; box-shadow: var(--shadow-lg); } .tp-other:hover .tp-tk__end svg { translate: 3px 0; } }
 .tp-other:focus-visible { outline-offset: 4px; border-radius: 12px; }
 
-/* ---- Member: the committee page's portrait spread, and the member's committee beside it ---- */
-.tp-mp__in { display: flex; align-items: flex-start; gap: 48px; }
-.tp-mp__me { flex: 0 0 540px; }
-.tp-mp__me .tp-top__card { padding-bottom: 18px; }
-.tp-mp__me .tp-lines { margin-top: 14px; padding-top: 14px; border-top: 2px dashed var(--line-2); }
-.tp-mp__me--teal .tp-top__photo { background: linear-gradient(170deg, #0a6d79, #062b33); }
-.tp-mp__me--teal .tp-top__card { border-top-color: var(--turq); }
-.tp-mp__me--teal .tp-top__role { color: var(--teal-ink); }
-.tp-mp__team { flex: 1; min-width: 0; }
-.tp-mp__team .tp-back { margin-top: 22px; }
-@media (min-width: 1001px) { .tp-pcs--three { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-/* the member whose page this is: marked in the committee, not a link */
-.tp-pc.is-me { outline: 2px solid var(--cranberry); outline-offset: 5px; border-radius: 18px; }
-.tp-pc.is-me .tp-pc__name { color: var(--cran-ink); }
-
 @media (max-width: 1000px) {
   .tp--club .tp-dock { width: 100%; max-width: none; }
   .tp-pd__spread { --ov: 0px; column-gap: 20px; }
@@ -1006,10 +983,6 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   .tp-adm { grid-column: 1; grid-row: 1; }
   .tp-evp__main { grid-column: 1; grid-row: 2; }
   .tp-evp__main > .tp-dsec:first-child { margin-top: var(--tp-sec); }
-  .tp-mp__in { flex-direction: column; gap: 32px; }
-  .tp-mp__me { flex: none; width: 100%; }
-  .tp-mp__me--teal { border-top-color: var(--turq); }
-  .tp-mp__team { width: 100%; }
 }
 @media (min-width: 761px) and (max-width: 1000px) { .tp-adm__lines { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 900px) {
@@ -1021,7 +994,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   .tp-other { grid-column: 1; grid-row: auto; margin: 32px 0 0; }
 }
 @media (max-width: 760px) {
-  .tp--club, .tp--project, .tp--event, .tp--dignitary, .tp--member { --tp-dock: 20px; }
+  .tp--club, .tp--project, .tp--event, .tp--dignitary { --tp-dock: 20px; }
   .tp-text { font-size: 16px; }
   .tp-text > p:first-child { font-size: 18px; }
   .tp-lines li { font-size: 15px; }
@@ -1065,8 +1038,6 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   .tp-other__name { font-size: 22px; }
   .tp-other .tp-tk__main { padding: 12px 14px; }
   .tp-other .tp-tk__end { padding: 0 14px; }
-  /* member */
-  .tp-mp__me .tp-lines { margin-top: 10px; padding-top: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

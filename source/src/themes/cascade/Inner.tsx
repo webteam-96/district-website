@@ -6,8 +6,8 @@ import {
   calMonths, todayMonthKey, monthEntries, typesOf, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
-  D, paras, clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, clubIdOf, useDocTitle,
-  clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, type Fact
+  D, paras, clubHref, projectHref, eventHref, dignitaryHref, useDocTitle,
+  clubProfile, projectDetail, eventDetail, dignitaryProfile, type Fact
 } from '../../shared/detail';
 import { Header, TopStrip } from './Chrome';
 import Footer from './Footer';
@@ -98,11 +98,11 @@ function About() {
 }
 
 /* ================= District Committee: the Governor on wine, then a folder per committee ================= */
-/* a person as a portrait card: the photo (or initials) on an offset block, then name, role, club. href makes the
-   name the card's one link; item carries what the page's filter reads; the lead card (the Governor, a club's
-   president, the member on their own page) is twice the size; children replace the name there. */
+/* a person as a portrait card: the photo (or initials) on an offset block, then name, role, club as plain text
+   (the card opens nothing); item carries what the page's filter reads; the lead card (the Governor, a club's
+   president) is twice the size. */
 type Face = { name: string; role?: string; club?: string; photo?: Photo | null };
-const PCard = ({ m, href, lead, item, children }: { m: Face; href?: string; lead?: boolean; item?: { q: string; group?: string }; children?: ReactNode }) => (
+const PCard = ({ m, lead, item }: { m: Face; lead?: boolean; item?: { q: string; group?: string } }) => (
   <li className={`ci-pcard${lead ? ' ci-pcard--lead' : ''}${m.photo ? '' : ' is-bare'}`} {...(item ? { 'data-item': '', 'data-q': item.q, 'data-group': item.group } : {})}>
     <div className="ci-pcard__photo">
       {m.photo
@@ -111,7 +111,7 @@ const PCard = ({ m, href, lead, item, children }: { m: Face; href?: string; lead
     </div>
     <div className="ci-pcard__text">
       {lead && m.role && <p className="ci-pcard__role">{m.role}</p>}
-      {children ?? <h3 className="ci-pcard__name">{href ? <a className="ci-cardlink" href={href}>{m.name}</a> : m.name}</h3>}
+      <h3 className="ci-pcard__name">{m.name}</h3>
       {!lead && m.role && <p className="ci-pcard__role">{m.role}</p>}
       {m.club && <p className="ci-pcard__club">{clubName(m.club)}</p>}
     </div>
@@ -156,7 +156,7 @@ function Committee() {
               <div className="ci-exec__in ci-cap" data-rv>
                 <header className="ci-exec__head"><h2 id="ci-exec-t">{exec.title}</h2><b data-f-group-count>{exec.members.length}</b></header>
                 <ul className="ci-pgrid ci-pgrid--exec">
-                  {exec.members.map((m, i) => <PCard key={m.name + m.role + i} m={m} href={memberHref(m)} lead={i === 0} item={{ q: m.q, group: exec.key }} />)}
+                  {exec.members.map((m, i) => <PCard key={m.name + m.role + i} m={m} lead={i === 0} item={{ q: m.q, group: exec.key }} />)}
                 </ul>
                 {exec.members.length > 3 && <ShowAll id={exec.key} n={exec.members.length} />}
               </div>
@@ -171,7 +171,7 @@ function Committee() {
                   <summary className="ci-fold__tab"><h2 id={`ci-f-${g.key}`}>{g.title}</h2><b data-f-group-count>{g.members.length}</b>{I.chev}</summary>
                 </details>
                 <div className="ci-fold__body ci-cap">
-                  <ul className="ci-pgrid">{g.members.map((m, j) => <PCard key={m.name + m.role + j} m={m} href={memberHref(m)} item={{ q: m.q, group: g.key }} />)}</ul>
+                  <ul className="ci-pgrid">{g.members.map((m, j) => <PCard key={m.name + m.role + j} m={m} item={{ q: m.q, group: g.key }} />)}</ul>
                   {g.members.length > 4 && <ShowAll id={g.key} n={g.members.length} />}
                 </div>
               </section>
@@ -968,45 +968,6 @@ function DignitaryPage() {
   );
 }
 
-/* ---------- Member: their portrait leads their committee's wine block, the rest of the committee beside it ---------- */
-function MemberPage() {
-  const m = memberProfile();
-  useDocTitle(m?.name);
-  if (!m) return <Missing k="member" parent="committee" text={D.member.missing} back={D.member.back} />;
-  const X = D.member;
-  const g = committee().find(x => x.title === m.group);
-  const others = g ? g.members.filter(x => memberId(x) !== m.id) : [];
-  const cid = clubIdOf(m.club);
-  return (
-    <>
-      <Head k="member" title={m.name} mod="ci-head--item" />
-      <section className="ci-sheet ci-mem-d">
-        <div className="wrap">
-          <section className={`ci-exec ci-exec--board ci-exec--me${others.length ? '' : ' ci-exec--solo'}`} data-glow aria-label={m.group || m.name}>
-            <div className="ci-exec__in ci-cap" data-rv>
-              {m.group && <header className="ci-exec__head"><h2>{m.group}</h2>{g && <b>{num(g.members.length)}</b>}</header>}
-              <ul className="ci-pgrid ci-pgrid--me">
-                <PCard m={{ name: m.name, role: m.role, photo: m.photo }} lead>
-                  <p className="ci-pcard__name">{m.name}</p>
-                  {(m.club || m.email) && (
-                    <dl className="ci-facts">
-                      {m.club && <div><dt>{X.club}</dt><dd>{cid ? <a className="ci-link" href={clubHref(cid)}>{fullClub(m.club)}{I.right}</a> : fullClub(m.club)}</dd></div>}
-                      {m.email && <div><dt>{X.email}</dt><dd><a className="ci-link" href={`mailto:${m.email}`}>{m.email}</a></dd></div>}
-                    </dl>
-                  )}
-                </PCard>
-                {others.map((p, i) => <PCard key={p.name + p.role + i} m={p} href={memberHref(p)} />)}
-              </ul>
-              {g && others.length > 2 && <ShowAll id="peers" n={g.members.length} />}
-            </div>
-          </section>
-        </div>
-        <Back href={pageInfo('committee').file} label={X.back} />
-      </section>
-    </>
-  );
-}
-
 const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   about: () => <About />,
   committee: () => <Committee />,
@@ -1019,8 +980,7 @@ const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   club: () => <ClubPage />,
   project: () => <ProjectPage />,
   event: () => <EventPage />,
-  dignitary: () => <DignitaryPage />,
-  member: () => <MemberPage />
+  dignitary: () => <DignitaryPage />
 };
 
 function Body({ page, year }: { page: PageKey; year: string }) {

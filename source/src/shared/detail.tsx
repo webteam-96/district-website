@@ -4,10 +4,10 @@
      project.html?id=<project id>       Club project             ← project cards (Club Projects, Club Service, homepage)
      event.html?id=<event id>           Club or district event   ← calendar events (District Calendar, homepage calendar)
      dignitary.html?type=president|dg   RI President / Governor  ← homepage "Read More"
-     member.html?id=<member id>         Committee member         ← District Committee cards
 
-   They mirror the production site's ClubProfile, Detail, DignitaryProfile and DirectorProfile pages
-   (district_website_react/src/pages). The selectors below hand a theme one typed item, or null when the id
+   They mirror the production site's ClubProfile, Detail and DignitaryProfile pages
+   (district_website_react/src/pages). There is no committee member page (client: District Committee cards do not
+   open one). The selectors below hand a theme one typed item, or null when the id
    matches nothing (the page then shows its not-found state, P.<key>.missing):
    - sample: built from shared/content.js; the static HTML pages (scripts/pages.mjs) show the example item
      (P.<key>.example), with the markup a backend binds its data into;
@@ -15,14 +15,14 @@
      the API has no such item (then the page shows its not-found state, never the sample's item of that id). */
 import { useEffect } from 'react';
 import { R, type Bulletin, type CalEntry, type Person, type Photo } from './rotary';
-import { P, STATIC, clubs, committee, totals, type Member, type Project } from './inner';
+import { P, STATIC, clubs, totals, type Member, type Project } from './inner';
 
 /* The browser tab names the item: "Bombay · Rotary District 3141 — Prism" (the shell says "Club Profile · …") */
 export const useDocTitle = (name?: string | null) => useEffect(() => {
   if (name) document.title = document.title.replace(/^[^·]*·/, `${name} ·`);
 }, [name]);
 
-export type DetailKey = 'club' | 'project' | 'event' | 'dignitary' | 'member';
+export type DetailKey = 'club' | 'project' | 'event' | 'dignitary';
 export interface Fact { label: string; value: string }
 export interface Leader { role: string; name: string; photo?: Photo | null }
 
@@ -66,7 +66,6 @@ export interface DignitaryProfile extends Person {
   facts: Fact[];                        /* Rotary details: home club, classification, member since, … */
   contact: { email?: string; phone?: string } | null;
 }
-export interface MemberProfile { id: string; name: string; role: string; club: string; group: string; email: string; photo: Photo | null }
 
 /* The words on these pages, and what live.ts fills (content.js → R.pages.club, .project, …) */
 export interface DetailPages {
@@ -79,7 +78,6 @@ export interface DetailPages {
            sample: Record<string, { description?: string; gallery?: Photo[]; registration?: string; contact?: EventDetail['contact'] }>; item?: EventDetail | null };
   dignitary: { missing: string; back: string; bio: string; details: string; contact: string; sample: Partial<Record<'president' | 'dg', { facts?: Fact[]; bio?: string }>>;
                item?: Partial<Record<'president' | 'dg', DignitaryProfile>> | null };
-  member: { missing: string; back: string; club: string; email: string; committee: string; example: string; sample?: Record<string, { email?: string }>; item?: MemberProfile | null };
 }
 export const D = P as unknown as DetailPages;
 
@@ -118,13 +116,10 @@ export const paras = (t: string) => String(t || '').replace(/\r\n?/g, '\n').spli
 const file = (k: DetailKey) => P.list.find(p => p.key === k)?.file ?? `${k}.html`;
 const enc = encodeURIComponent;
 export const eventId = (e: CalEntry) => String(e.id ?? `${e.date}-${slug(e.title ?? '')}`);
-export const memberId = (m: Member) => String(m.id ?? slug(m.name));
 export const clubHref = (id: string | number) => `${file('club')}?id=${enc(String(id))}`;
 export const projectHref = (p: { id: string | number }) => `${file('project')}?id=${enc(String(p.id))}`;
 export const eventHref = (e: CalEntry) => `${file('event')}?id=${enc(eventId(e))}`;
 export const dignitaryHref = (type: 'president' | 'dg') => `${file('dignitary')}?type=${type}`;
-/* like production, the card forwards what it shows, so the profile header matches it while the rest loads */
-export const memberHref = (m: Member) => `${file('member')}?id=${enc(memberId(m))}&name=${enc(m.name)}&role=${enc(m.role)}&club=${enc(m.club)}`;
 export const clubIdOf = (name?: string) => (name ? String(clubs().find(c => c.name === name)?.id ?? '') : '');
 
 const calEvents = () => R.calendar.entries.filter(e => e.type === 'club' || e.type === 'district');
@@ -187,15 +182,4 @@ export const dignitaryProfile = (): DignitaryProfile | null => {
   if (!p) return null;
   const s = D.dignitary.sample[type] ?? {};
   return { ...p, bio: s.bio ?? p.bio, type, facts: s.facts ?? [], contact: type === 'dg' ? { email: R.contact.email, phone: R.contact.phoneDisplay } : null };
-};
-
-export const memberProfile = (): MemberProfile | null => {
-  const id = q('id') ?? D.member.example;
-  const live = D.member.item;
-  if (live && live.id === id) return live;
-  if (live === null) return null;
-  for (const g of committee()) for (const m of g.members)
-    if (memberId(m) === id) return { id, name: q('name') ?? m.name, role: q('role') ?? m.role, club: q('club') ?? m.club, group: g.title, email: m.email ?? D.member.sample?.[id]?.email ?? '', photo: m.photo ?? null };
-  const name = q('name');
-  return name ? { id: id ?? '', name, role: q('role') ?? '', club: q('club') ?? '', group: '', email: '', photo: null } : null;
 };

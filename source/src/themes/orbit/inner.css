@@ -307,7 +307,12 @@ body[data-page] :is(.strip, .bar, .mmenu, .foot__bar) :focus-visible { outline-c
 .oi-proj { --pw: 240px; display: grid; grid-template-columns: var(--pw) minmax(0, 1fr); min-height: 208px; }
 .oi-proj:nth-child(odd of [data-item]:not([hidden])):nth-last-child(1 of [data-item]:not([hidden])) { --pw: 420px; grid-column: 1 / -1; }
 .oi-proj__photo { position: relative; margin: 0; overflow: hidden; background: var(--surface-2); }
-.oi-proj__photo img, .oi-story__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; transition: transform 0.8s var(--ease); }
+.oi-proj__photo img, .oi-story__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+/* a real photo keeps clear of the label hanging over the frame's top edge (32px) and of the date disc on its right edge
+   (38px: half the disc and its ring), so both sit on the frame's spare space and nothing covers the photo (client: no image
+   may be cut). The letterbox tint runs on under them; ponytail: it repeats the 7% of shared/media.css, which has no variable
+   to read, so change the two together. The initials plate of a project without a photo still fills the frame. */
+.oi-proj__photo img:not([src^='data:']) { top: 32px; width: calc(100% - 38px); height: calc(100% - 32px); box-shadow: 0 0 0 40px color-mix(in srgb, currentColor 7%, transparent); }
 .oi-proj > .oi-hub { --s: 64px; position: absolute; left: calc(var(--pw) - 32px); top: calc(50% - 32px); z-index: 2; }
 .oi-proj > .oi-hub b { font-size: 20px; }
 .oi-proj__body { display: flex; flex-direction: column; gap: 14px; min-width: 0; padding: 18px 20px 18px 50px; }
@@ -339,7 +344,6 @@ body[data-page] { --share-bg: var(--surface); --share-ink: var(--ink); --share-h
 .oi-cover__zoom:focus-visible { outline: 3px solid var(--azure); outline-offset: 3px; }
 .oi-pacts { margin-top: 28px; }
 @media (hover: hover) {
-  .oi-proj:hover img, .oi-story:hover img { transform: scale(1.04); }
   :is(.oi-proj, .oi-story, .oi-doc):hover .oi-hub { background: var(--gold); color: #17103f; }
   :is(.oi-proj, .oi-story, .oi-doc):hover .oi-hub > span { color: #17103f; }
 }
@@ -560,24 +564,23 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
 /* ================= links on cards: one action per card, the title's link covers it ================= */
 .oi-stretch::after { content: ''; position: absolute; inset: 0; z-index: 3; }
 .oi-stretch:focus-visible { outline: 0; }
-.oi-mem, .oi-lead, .oi-ev, .devent { position: relative; }
+.oi-ev, .devent { position: relative; }
 .oi-ev, .devent { transition: background-color 0.25s var(--ease); }
-:is(.oi-card, .oi-mem, .oi-lead, .oi-ev, .oi-evrow, .devent):has(.oi-stretch:focus-visible) { outline: 2px solid var(--azure); outline-offset: 3px; }
+:is(.oi-card, .oi-ev, .oi-evrow, .devent):has(.oi-stretch:focus-visible) { outline: 2px solid var(--azure); outline-offset: 3px; }
 @media (hover: hover) {
   :is(.oi-ev, .devent):has(.oi-stretch):hover { background: color-mix(in srgb, var(--c) 14%, var(--surface-2)); }
-  .oi-mem:has(.oi-stretch):hover .oi-who, .oi-lead:hover .oi-lead__name { text-decoration: underline 2px var(--gold); text-underline-offset: 5px; }
 }
 
-/* ================= detail pages (club, project, event, dignitary, member) ================= */
+/* ================= detail pages (club, project, event, dignitary) ================= */
 /* head: Home / the item, its name, its totals counting up (club, project); its instrument at the right */
 .oi--detail .oi-head__text { flex-basis: 640px; max-width: 880px; }
 .oi--detail .oi-head__aside { flex: none; }
 .oi--detail .oi-head .oi-ledger { margin-top: 22px; padding-top: 16px; }
 .oi--detail .oi-head .oi-ledger b { font-size: 26px; }
-/* a head of title only sits level with its instrument; the dial and portrait reach into the band's padding, so the band stays compact */
+/* a head of title only sits level with its instrument; the dial reaches into the band's padding, so the band stays compact */
 @media (min-width: 1101px) {
-  .oi--event .oi-head__row, .oi--member .oi-head__row { align-items: center; }
-  .oi--event .oi-head__aside, .oi--member .oi-head__aside { margin-block: -18px; }
+  .oi--event .oi-head__row { align-items: center; }
+  .oi--event .oi-head__aside { margin-block: -18px; }
 }
 .oi-pre { font: 600 0.46em/1.2 var(--f-body); letter-spacing: 0; color: rgba(255, 255, 255, 0.78); }
 .oi-pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; background: var(--gold); color: #17103f; font-size: 13.5px; font-weight: 800; white-space: nowrap; }
@@ -598,7 +601,6 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
 .oi-copy { max-width: 64ch; font-size: 17px; line-height: 1.7; color: var(--ink-2); text-wrap: pretty; }
 .oi-copy p + p { margin-top: 0.8em; }
 .oi-copy p:first-child { font-size: 19px; line-height: 1.6; color: var(--ink); }
-.oi-back { margin-top: 28px; }
 /* label / value rows with an icon disc */
 .oi-facts { display: grid; gap: 18px; }
 .oi-facts li { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: start; column-gap: 14px; row-gap: 1px; }
@@ -616,8 +618,7 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
 .oi-gal li { overflow: hidden; aspect-ratio: 4 / 3; border-radius: 14px; background: var(--surface-2); }
 .oi-gal a { display: block; height: 100%; }
 .oi-gal a:focus-visible { outline-offset: -4px; }
-.oi-gal img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s var(--ease); }
-@media (hover: hover) { .oi-gal a:hover img { transform: scale(1.04); } }
+.oi-gal img { width: 100%; height: 100%; object-fit: cover; }
 /* a long list caps itself: twelve show until "Show all" is ticked */
 .oi-cap:has(> .oi-all input:not(:checked)) > ul > li:nth-child(n + 13) { display: none; }
 .oi-cap > .oi-all { display: flex; width: fit-content; margin: 18px auto 0; }
@@ -729,21 +730,6 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
 .oi-other__name { margin-top: 2px; font: 600 18px/1.2 var(--f-display); letter-spacing: -0.03em; overflow-wrap: anywhere; }
 .oi-other .btn-read { grid-column: 1 / -1; margin-top: 0; }
 
-/* ---------- Committee member ---------- */
-.oi-orbit { position: relative; display: grid; place-items: center; width: 144px; aspect-ratio: 1; }
-.oi-orbit .oi-hub { --s: 108px; font-size: 34px; }
-.oi-orbit .oi-hub--photo { box-shadow: 0 0 0 3px var(--band-deep), 0 0 0 6px var(--gold); }
-.oi-mbody { padding: 40px 0 80px; }
-.oi-mfacts { margin-bottom: 48px; padding: 22px 24px; }
-.oi-mfacts__role { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line); font: 700 clamp(1.15rem, 1.6vw, 1.4rem) / 1.25 var(--f-display); letter-spacing: -0.03em; color: var(--cran-ink); }
-.oi-mfacts__role:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
-.oi-mfacts .oi-facts { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-.oi-mbody .oi-lane__head .oi-back { margin-top: 8px; }
-.oi-mem.is-me .oi-hub { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--gold); }
-/* the person this page is about, among the rest of the committee: a lilac ground behind their card */
-.oi-lane .oi-mem.is-me { margin: -14px -10px; padding: 14px 10px; border-radius: 22px; background: var(--band-tint); }
-.oi-mem.is-me .oi-hub--photo { box-shadow: 0 0 0 3px var(--band-tint), 0 0 0 6px var(--gold); }
-
 /* ================= dark mode ================= */
 :root[data-theme='dark'] .oi-mo[aria-selected='true'] { background: var(--gold); color: #17103f; box-shadow: none; }
 :root[data-theme='dark'] .oi-ntabs { background: var(--surface-2); }
@@ -777,6 +763,10 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
   .oi-week::before { display: none; }
   .oi-week button, .oi-week .oi-week__any { position: static; flex: none; width: 40px; height: 40px; margin: 0; }
   .oi-club, .oi-reg__cols { grid-template-columns: 52px minmax(0, 1.2fr) minmax(0, 1fr) 160px 120px 124px; gap: 16px; }
+  /* project cards: two a row leave the text beside the 240px photo too narrow to read ("Read more" was cut off), so one a
+     row; with no empty half row to fill, an odd last card keeps the same photo width as the rest */
+  .oi-pgrid { grid-template-columns: minmax(0, 1fr); }
+  .oi-proj:nth-child(odd of [data-item]:not([hidden])):nth-last-child(1 of [data-item]:not([hidden])) { --pw: 240px; }
   .oi-svc__grid { grid-template-columns: minmax(0, 1fr); }
   .oi-panel { grid-template-columns: auto minmax(0, 1fr); align-items: center; justify-items: stretch; gap: 8px 32px; padding: 24px 28px; }
   .oi-panel__stats li:first-child { border-top: 0; }
@@ -877,7 +867,7 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
   .oi-ledger span { font-size: 13.5px; }
   .oi-pgrid { grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 12px; }
   .oi-proj, .oi-proj:nth-child(odd of [data-item]:not([hidden])):nth-last-child(1 of [data-item]:not([hidden])) { --pw: 124px; grid-template-columns: var(--pw) minmax(0, 1fr); grid-template-rows: auto auto; min-height: 132px; }
-  .oi-proj > .oi-hub { --s: 50px; left: calc(var(--pw) - 25px); top: 41px; }
+  .oi-proj > .oi-hub { --s: 50px; left: calc(var(--pw) - 25px); top: 6px; }
   .oi-proj > .oi-hub b { font-size: 17px; }
   .oi-proj__body { display: contents; }
   .oi-proj__text { align-content: start; padding: 36px 14px 10px 36px; }
@@ -886,13 +876,16 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
   .oi-proj__text > :first-child { padding-right: 0; }
   /* photo down the left across both rows; title, then "Read more", at the right */
   .oi-proj__photo { grid-row: 1 / span 2; }
+  /* the disc sits up at the frame's top edge beside the number tab, so a real photo keeps the column's whole width: only
+     the tab's strip stays clear, and the disc rests on a small corner of a photo that reaches that high */
+  .oi-proj__photo img:not([src^='data:']) { top: 28px; width: 100%; height: calc(100% - 28px); }
   .oi-proj__text { grid-area: 1 / 2; }
   .oi-proj .oi-acts { grid-area: 2 / 2; justify-self: start; margin: 0 14px 14px 36px; }
   .oi-proj__go { min-height: 44px; }
   .oi-share { width: 44px; height: 44px; }
   .oi-share--word { min-height: 44px; }
   .oi-tab { left: 12px; padding: 6px 10px 7px; font-size: 13px; }
-  /* the avenue hangs from the card's top edge over the text, where its whole name fits; the number over the photo */
+  /* the avenue hangs from the card's top edge over the text, where its whole name fits; the number over the photo frame */
   .oi-proj .oi-tab { left: calc(var(--pw) + 36px); background: var(--band-tint); box-shadow: none; }
   .oi-proj .oi-tab.oi-tab--n { left: 8px; right: auto; min-width: 38px; background: var(--band-deep); box-shadow: 0 10px 22px rgba(12, 8, 36, 0.22); }
 
@@ -974,10 +967,8 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
   .oi-pbody__media.is-sticky, .oi-ebody:not(.is-solo) .oi-efacts, .oi-cdetails { position: sticky; top: var(--oi-stick); }
 }
 @media (max-width: 1100px) {
-  /* the week and day dials only echo the body's facts: dropped once the head stacks (the member keeps the portrait) */
+  /* the week and day dials only echo the body's facts: dropped once the head stacks */
   .oi--detail .oi-head__aside { display: none; }
-  .oi--member .oi-head__row { flex-wrap: nowrap; align-items: center; }
-  .oi--member .oi-head__aside { display: block; flex: none; margin-block: -10px; }
   .oi-cbody { grid-template-columns: minmax(0, 1fr); gap: 32px; }
   .oi-ldr-grid { --cols: 4; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .oi-pbody__grid, .oi-ebody__grid { grid-template-columns: minmax(0, 1fr); gap: 36px; }
@@ -1000,16 +991,10 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
   .oi-ledger.oi-ledger--odd { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .oi-ledger.oi-ledger--odd li { padding: 0 10px; border-left: 1px solid rgba(255, 255, 255, 0.16); }
   .oi-ledger.oi-ledger--odd li:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
-  .oi--member .oi-head__row { flex-direction: row; gap: 14px; }
-  .oi--member .oi-head__text { flex: 1 1 auto; min-width: 0; }
-  .oi--member .oi-head__aside { margin-block: -6px; }
-  .oi-orbit { width: 88px; }
-  .oi-orbit .oi-hub { --s: 66px; font-size: 20px; }
   .oi-shead { margin-bottom: 16px; }
   .oi-shead .oi-search { flex: 1 1 100%; }
   .oi-copy { font-size: 16px; }
   .oi-copy p:first-child { font-size: 17px; }
-  .oi-back { margin-top: 22px; min-height: 44px; }
   .oi-facts { gap: 14px; }
   .oi-gal { gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); --cols: 2; }
   .oi-gal li { border-radius: 12px; }
@@ -1057,9 +1042,6 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
   .oi-dcard { padding: 18px; }
   .oi-other { padding: 18px; }
   .oi-other .btn-read { min-height: 44px; }
-  /* member */
-  .oi-mbody { padding: 16px 0 48px; }
-  .oi-mfacts { margin-bottom: 28px; padding: 18px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

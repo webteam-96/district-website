@@ -31,7 +31,7 @@ window.ROTARY = (function () {
                projects: 'club-projects.html', service: 'club-service.html', calendar: 'calendar.html',
                newsletters: 'newsletters.html', contact: 'contact.html',
                /* detail pages: one item each, picked by ?id= (source/src/shared/detail.tsx) */
-               club: 'club.html', project: 'project.html', event: 'event.html', dignitary: 'dignitary.html', member: 'member.html' };
+               club: 'club.html', project: 'project.html', event: 'event.html', dignitary: 'dignitary.html' };
   var PDF = '../shared/newsletter-placeholder.pdf';
 
   /* ---------- formatting: Indian digit grouping (6,42,815 · ₹54.59 Cr) ---------- */
@@ -483,8 +483,7 @@ window.ROTARY = (function () {
         { key: 'club',        file: PAGE.club,        title: 'Club Profile',       lead: '' },
         { key: 'project',     file: PAGE.project,     title: 'Project',            lead: '' },
         { key: 'event',       file: PAGE.event,       title: 'Event',              lead: '' },
-        { key: 'dignitary',   file: PAGE.dignitary,   title: 'Dignitary',          lead: '' },
-        { key: 'member',      file: PAGE.member,      title: 'Member Profile',     lead: '' }
+        { key: 'dignitary',   file: PAGE.dignitary,   title: 'Dignitary',          lead: '' }
       ],
       home: 'Home',
       /* About: the backend stores ONE field for this page, "content" (HTML from the admin's
@@ -747,15 +746,9 @@ window.ROTARY = (function () {
           dg: { facts: [{ label: 'Club', value: 'Rotary Club of Mumbai Island City' }, { label: 'District', value: 'Rotary District 3141' }] }
         }
       },
-      member: {
-        missing: 'We could not find this member.',
-        back: 'District Committee', club: 'Home club', email: 'Email', committee: 'Committee',
-        example: 'harish-chandra',
-        /* the example member's e-mail (invented; the sample committee lists none) */
-        sample: { 'harish-chandra': { email: 'harish.chandra@example.org' } }
-      },
       back: 'Back to Home',
-      breadcrumb: 'Breadcrumb'
+      breadcrumb: 'Breadcrumb',
+      email: 'Email'                     /* the word beside an e-mail address (club, event and dignitary contacts) */
     },
 
     /* search data (Atelier's ⌘K palette): the district's 125 clubs, live; president, phone and tel are invented (withPresidents) */

@@ -8,13 +8,14 @@ import './rte.css';
 import './media.css';                  /* the photo lightbox and share menu built by shared/inner.js */
 
 export type PageKey = 'about' | 'committee' | 'finder' | 'projects' | 'service' | 'calendar' | 'newsletters' | 'contact'
-  | 'club' | 'project' | 'event' | 'dignitary' | 'member';                  /* detail pages: shared/detail.tsx */
+  | 'club' | 'project' | 'event' | 'dignitary';                             /* detail pages: shared/detail.tsx */
 export interface PageInfo { key: PageKey; file: string; title: string; lead: string }
-export interface Member { name: string; role: string; club: string; photo?: Photo | null; id?: string; email?: string }
+export interface Member { name: string; role: string; club: string; photo?: Photo | null }
 export interface Project { id: number; title: string; club: string; avenue: string; date: string; photo: { src: string; w: number; h: number; alt: string }; beneficiaries: number; amount: number; hours: number; summary: string }
 
 export interface Pages {
   list: PageInfo[]; home: string; back: string; breadcrumb: string;
+  email: string;                         /* the word beside an e-mail address (club, event and dignitary contacts) */
   about: { placeholder: boolean; content: string };
   committee: { searchLabel: string; empty: string; groups: { title: string; members: Member[] }[] };
   finder: { searchLabel: string; dayLabel: string; anyDay: string; days: string[]; empty: string; more: string; pageSize: number; visit: string };
@@ -29,7 +30,7 @@ export const isPage = (k: string | undefined): k is PageKey => !!k && P.list.som
 
 /* Marks the menu item for the page being shown (the homepage marks Home); a detail page marks the list it
    belongs to, and pages that are not in the menu mark nothing. */
-const PARENT: Partial<Record<PageKey, string>> = { calendar: '', newsletters: '', contact: '', club: 'finder', project: 'projects', event: '', dignitary: '', member: 'committee' };
+const PARENT: Partial<Record<PageKey, string>> = { calendar: '', newsletters: '', contact: '', club: 'finder', project: 'projects', event: '', dignitary: '' };
 export const setPage = (k: PageKey | 'home') => {
   const navKey = k !== 'home' && k in PARENT ? PARENT[k]! : k;
   R.nav.forEach(n => { n.current = k === 'home' ? n.key === 'home' : n.key === navKey; });

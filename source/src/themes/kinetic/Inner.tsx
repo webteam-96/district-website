@@ -6,8 +6,8 @@ import {
   calMonths, todayMonthKey, monthEntries, typesOf, entryText, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
-  D, paras, clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, clubIdOf, useDocTitle,
-  clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, type ClubProfile, type DetailKey, type Fact
+  D, paras, clubHref, projectHref, eventHref, dignitaryHref, useDocTitle,
+  clubProfile, projectDetail, eventDetail, dignitaryProfile, type ClubProfile, type DetailKey, type Fact
 } from '../../shared/detail';
 import { Header, TopStrip } from './Chrome';
 import Footer from './Footer';
@@ -131,13 +131,13 @@ function About() {
 
 /* ================= District Committee: the Governor's duo, then every committee as rows of portraits ================= */
 type CommitteeMember = ReturnType<typeof committee>[number]['members'][number];
-const MemberCard = ({ m, group, lead, me }: { m: CommitteeMember; group: string; lead?: boolean; me?: boolean }) => (
-  <li className={`kx-mem${lead ? ' kx-mem--lead' : ''}${me ? ' is-me' : ''}`} data-item data-q={m.q} data-group={group} aria-current={me ? 'page' : undefined}>
+const MemberCard = ({ m, group, lead }: { m: CommitteeMember; group: string; lead?: boolean }) => (
+  <li className={`kx-mem${lead ? ' kx-mem--lead' : ''}`} data-item data-q={m.q} data-group={group}>
     <span className="kx-av">
       {m.photo ? <img src={m.photo.src} alt={m.photo.alt} width={m.photo.w} height={m.photo.h} loading={lead ? undefined : 'lazy'} /> : <span aria-hidden="true">{m.initials || iniOf(m.name)}</span>}
     </span>
     <span className="kx-mem__t">
-      <h3 className="kx-mem__name">{me ? m.name : <a className="kx-mem__a" href={memberHref(m)}>{m.name}</a>}</h3>
+      <h3 className="kx-mem__name">{m.name}</h3>
       <span className="kx-mem__role">{m.role}</span>
       {m.club && <span className="kx-mem__club">{clubName(m.club)}</span>}
     </span>
@@ -660,15 +660,14 @@ function ClubCard({ name, id, live }: { name: string; id: string; live?: boolean
   );
 }
 
-/* a person as a portrait card (the committee's cards): photo or initials, name, role, a line under */
-function Face({ name, role, sub, photo, href, extra }: { name: string; role?: string; sub?: string; photo?: Photo | null; href?: string; extra?: boolean }) {
+/* a person as a portrait card (the committee's cards): photo or initials, name, role */
+function Face({ name, role, photo, extra }: { name: string; role?: string; photo?: Photo | null; extra?: boolean }) {
   return (
     <li className={`kx-mem${extra ? ' is-x' : ''}`}>
       <span className="kx-av">{photo ? <img src={photo.src} alt="" width={photo.w} height={photo.h} loading="lazy" /> : <span aria-hidden="true">{iniOf(name)}</span>}</span>
       <span className="kx-mem__t">
-        <h3 className="kx-mem__name">{href ? <a className="kx-mem__a" href={href}>{name}</a> : name}</h3>
+        <h3 className="kx-mem__name">{name}</h3>
         {role && <span className="kx-mem__role">{role}</span>}
-        {sub && <span className="kx-mem__club">{sub}</span>}
       </span>
     </li>
   );
@@ -984,56 +983,6 @@ function DignitaryPage() {
   );
 }
 
-/* ---------- Committee member: mint head with the name; their portrait meets their details in the middle;
-   the rest of their committee as portrait cards ---------- */
-function MemberPage() {
-  const m = memberProfile();
-  const T = D.member;
-  useDocTitle(m?.name);
-  if (!m) return <Missing k="member" list="committee" text={T.missing} back={T.back} />;
-  const groups = committee();
-  const gi = groups.findIndex(g => g.title === m.group);
-  const g = groups[gi];
-  const tone = `kx-t${Math.max(gi, 0) % 6}`;
-  const others = g ? g.members.filter(x => memberId(x) !== m.id) : [];
-  const clubId = clubIdOf(m.club);
-  return (
-    <>
-      <ItemHead name={m.name} />
-      <section className="kx-body kx-prof">
-        <div className={`wrap kx-meet kx-meet--member ${tone}`}>
-          <span className="kx-av kx-meet__photo">{m.photo ? <img src={m.photo.src} alt={m.photo.alt} width={m.photo.w} height={m.photo.h} /> : <span aria-hidden="true">{iniOf(m.name)}</span>}</span>
-          <div className="kx-meet__text">
-            <Pills items={[
-              m.role && { v: m.role, tone: `kx-hx ${tone}` },
-              m.group && { v: m.group },
-              m.email && { v: m.email, href: `mailto:${m.email}`, icon: I.mail }
-            ]} />
-            {m.club && (
-              <section className="kx-org" aria-labelledby="kx-org-t">
-                <h2 className="kx-sub" id="kx-org-t">{T.club}</h2>
-                <ClubCard name={m.club} id={clubId} live={!!D.member.item} />
-              </section>
-            )}
-          </div>
-        </div>
-        {others.length > 0 && g && (
-          <div className="wrap">
-            <section className={`kx-cg kx-cap ${tone}`} aria-labelledby="kx-cg-t" data-rv>
-              <h2 className="kx-cg__name" id="kx-cg-t"><span>{g.title}</span><b>{num(g.members.length)}</b></h2>
-              <ul className="kx-faces">
-                {others.map((x, i) => <Face key={i} name={x.name} role={x.role} sub={x.club && clubName(x.club)} photo={x.photo} href={memberHref(x)} extra={i >= CAP} />)}
-              </ul>
-              {others.length > CAP && <ShowAll n={others.length} />}
-            </section>
-          </div>
-        )}
-        <div className="wrap kx-backrow"><Back href={pageInfo('committee').file} label={T.back} /></div>
-      </section>
-    </>
-  );
-}
-
 const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   about: () => <About />,
   committee: () => <Committee />,
@@ -1046,8 +995,7 @@ const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   club: () => <ClubPage />,
   project: () => <ProjectPage />,
   event: () => <EventPage />,
-  dignitary: () => <DignitaryPage />,
-  member: () => <MemberPage />
+  dignitary: () => <DignitaryPage />
 };
 
 function Body({ page, year }: { page: PageKey; year: string }) {

@@ -7,8 +7,8 @@
    It runs the themes' own live loaders (src/shared/live.ts) in Node, against the local server, and writes what
    they map — never the key — to themes-sample/data/:
      data/page/<page>.json      the changes a page's live data makes to window.ROTARY (a patch over shared/content.js)
-     data/<kind>/<id>.json      one item per detail page: every club, the listed projects, the events, every
-                                committee member; data/dignitary.json holds the RI President and the Governor
+     data/<kind>/<id>.json      one item per detail page: every club, the listed projects and the events;
+                                data/dignitary.json holds the RI President and the Governor
      data/index.json            the date, the pages and the saved ids
    Where there is no live API (the demo), live.ts reads these instead (its "snapshot" mode).
    Projects: those on Club Projects / Club Service plus each club's latest few; a club page lists only saved ones.
@@ -123,12 +123,12 @@ mkdirSync(DATA, { recursive: true });
 
 /* 1 · the pages: what each one's live data changes */
 const files = Object.fromEntries(sample().pages.list.map(p => [p.key, p.file]));
-const examples = { club: '18', project: '76179', event: 'c-15-38634', member: '1160069' };
+const examples = { club: '18', project: '76179', event: 'c-15-38634' };
 const PAGES = {
   home: 'index.html', about: files.about, committee: files.committee, finder: files.finder, projects: files.projects, service: files.service,
   calendar: files.calendar, newsletters: files.newsletters,
   club: `${files.club}?id=${examples.club}`, project: `${files.project}?id=${examples.project}`, event: `${files.event}?id=${examples.event}`,
-  dignitary: `${files.dignitary}?type=president`, member: `${files.member}?id=${examples.member}`
+  dignitary: `${files.dignitary}?type=president`
 };
 const saved = {};
 for (const [key, path] of Object.entries(PAGES)) {
@@ -144,7 +144,7 @@ for (const [key, path] of Object.entries(PAGES)) {
 
 /* 2 · the items, one loader at a time (they share window.ROTARY) */
 let loadLive = await fresh();
-const index = { date: new Date().toISOString().slice(0, 10), pages: Object.keys(PAGES), club: [], project: [], event: [], member: [], dignitary: false };
+const index = { date: new Date().toISOString().slice(0, 10), pages: Object.keys(PAGES), club: [], project: [], event: [], dignitary: false };
 const item = async (key, path, want) => { const R = await go(loadLive, key, path); const it = R.pages[key].item; return it && (!want || String(it.id) === String(want)) ? it : null; };
 
 const clubIds = saved.finder.clubs.list.map(c => String(c.id));
@@ -155,14 +155,6 @@ quiet(`clubs: ${Object.keys(clubs).length} of ${clubIds.length}`);
 const events = [...new Map([...saved.home.calendar.entries, ...saved.calendar.calendar.entries].filter(e => e.id && (e.type === 'club' || e.type === 'district')).map(e => [e.id, e])).keys()];
 for (const id of events) { const it = await item('event', `${files.event}?id=${encodeURIComponent(id)}`, id); if (it) { write(`event/${id}.json`, it); index.event.push(id); } }
 quiet(`events: ${index.event.length} of ${events.length}`);
-
-const members = [...new Map(saved.committee.pages.committee.groups.flatMap(g => g.members).filter(m => m.id).map(m => [String(m.id), m])).values()];
-for (const m of members) {
-  const q = new URLSearchParams({ id: m.id, name: m.name, role: m.role, club: m.club }).toString();
-  const it = await item('member', `${files.member}?${q}`, m.id);
-  if (it) { write(`member/${m.id}.json`, it); index.member.push(String(m.id)); }
-}
-quiet(`members: ${index.member.length} of ${members.length}`);
 
 const dig = {};
 for (const type of ['president', 'dg']) { const R = await go(loadLive, 'dignitary', `${files.dignitary}?type=${type}`); const it = R.pages.dignitary.item?.[type]; if (it) dig[type] = it; }
@@ -190,5 +182,5 @@ for (const [id, c] of Object.entries(clubs)) {
 }
 write('index.json', index);
 const kb = f => { let s = 0; const walk = d => { for (const e of readdirSync(d, { withFileTypes: true })) { const p = resolve(d, e.name); if (e.isDirectory()) walk(p); else s += readFileSync(p).length; } }; walk(f); return (s / 1048576).toFixed(1) + ' MB'; };
-quiet(`saved ${index.date}: ${index.pages.length} pages, ${index.club.length} clubs, ${index.project.length} projects, ${index.event.length} events, ${index.member.length} members, dignitaries ${index.dignitary} — ${kb(DATA)} in ${Math.round((Date.now() - t0) / 1000)} s`);
+quiet(`saved ${index.date}: ${index.pages.length} pages, ${index.club.length} clubs, ${index.project.length} projects, ${index.event.length} events, dignitaries ${index.dignitary} — ${kb(DATA)} in ${Math.round((Date.now() - t0) / 1000)} s`);
 process.exit(0);

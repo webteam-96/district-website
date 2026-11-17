@@ -6,8 +6,8 @@ import {
   calMonths, todayMonthKey, monthEntries, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
-  D, clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, paras,
-  clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, clubIdOf, useDocTitle
+  D, clubProfile, projectDetail, eventDetail, dignitaryProfile, paras,
+  clubHref, projectHref, eventHref, dignitaryHref, useDocTitle
 } from '../../shared/detail';
 import { Header, TopStrip } from './Chrome';
 import Footer from './Footer';
@@ -155,21 +155,19 @@ function About() {
    "Show all N" opens the rest (CSS only); searching or choosing a committee shows every match. ================= */
 type Mem = ReturnType<typeof committee>[number]['members'][number];
 const Avatar = ({ m }: { m: Mem }) => <Face name={m.name} photo={m.photo} />;
-/* every member links to their own page: the name is the link and covers the card (one action) */
-const ToMember = ({ m }: { m: Mem }) => <a className="tp-stretch" href={memberHref(m)}>{m.name}</a>;
 const Band = ({ title, n, lead = false }: { title: string; n: number; lead?: boolean }) => (
   <header className={`tp-band${lead ? ' tp-band--lead' : ''}`}>
     <h2>{title}</h2><Rule /><span className="tp-band__n" data-f-group-count>{num(n)}</span>
   </header>
 );
-/* group: the card is a filter item of that committee; me: the member whose page this is (marked, not a link) */
-const Card = ({ m, group, dg = false, me = false }: { m: Mem; group?: string; dg?: boolean; me?: boolean }) => (
-  <li className={`tp-pc${dg ? ' tp-pc--dg' : ''}${me ? ' is-me' : ''}`} {...(group ? { 'data-item': '', 'data-q': m.q, 'data-group': group } : {})} {...(me ? { 'aria-current': 'true' as const } : {})}>
+/* group: the card is a filter item of that committee */
+const Card = ({ m, group, dg = false }: { m: Mem; group?: string; dg?: boolean }) => (
+  <li className={`tp-pc${dg ? ' tp-pc--dg' : ''}`} {...(group ? { 'data-item': '', 'data-q': m.q, 'data-group': group } : {})}>
     <figure className="tp-pc__photo">
       {m.photo ? <img src={m.photo.src} alt="" width={m.photo.w} height={m.photo.h} {...(dg ? {} : { loading: 'lazy' as const })} /> : <span aria-hidden="true">{m.initials}</span>}
     </figure>
     <div className="tp-pc__card">
-      <h3 className="tp-pc__name">{me ? m.name : <ToMember m={m} />}</h3>
+      <h3 className="tp-pc__name">{m.name}</h3>
       <p className="tp-pc__role">{m.role}</p>
       {m.club && <p className="tp-pc__club">{clubName(m.club)}</p>}
     </div>
@@ -714,7 +712,7 @@ function Contact() {
 
 /* ================= Detail pages: one item each (shared/detail.tsx) =================
    Every one opens with a block that rides up over the head's wave edge, as the Contact office ticket does:
-   the club's pass, the project's spread, the event's ticket, the dignitary's portrait, the member's card. */
+   the club's pass, the project's spread, the event's ticket, the dignitary's portrait. */
 const ROT = (name: string) => (name ? `Rotary Club of ${name}` : '');
 const tel = (s: string) => s.replace(/[^\d+]/g, '');
 const ratio = (ph: Photo, lo: number, hi: number) => String(+Math.min(hi, Math.max(lo, ph.w > 0 && ph.h > 0 ? ph.w / ph.h : 1.5)).toFixed(3));
@@ -1033,57 +1031,6 @@ function DignitaryPage() {
   );
 }
 
-/* ---- Member: the committee page's portrait card, and the member's committee beside it (everyone links) ---- */
-function MemberPage() {
-  const m = memberProfile();
-  useDocTitle(m?.name);
-  const list = pageInfo('committee');
-  if (!m) return <NotFound k="member" text={D.member.missing} back={{ label: D.member.back, href: list.file }} />;
-  const groups = committee();
-  const g = m.group ? groups.find(x => x.title === m.group) : undefined;
-  const exec = !!g && g.key === groups[0]?.key;
-  const clubId = clubIdOf(m.club);
-  /* the committee, this member first (marked), so they are never behind "Show all" */
-  const team = g ? [...g.members.filter(x => memberId(x) === m.id), ...g.members.filter(x => memberId(x) !== m.id)] : [];
-  const n = team.length;
-  return (
-    <>
-      <PageHead k="member" title={m.name} />
-      <section className="tp-dt tp-mp">
-        <div className="wrap tp-mp__in">
-          <article className={`tp-ride tp-top tp-mp__me${exec ? '' : ' tp-mp__me--teal'}`} data-rv>
-            <figure className="tp-top__photo">
-              {m.photo ? <img src={m.photo.src} alt={m.photo.alt} width={m.photo.w} height={m.photo.h} /> : <span aria-hidden="true">{initials(m.name)}</span>}
-            </figure>
-            <div className="tp-top__card">
-              {m.role && <p className="tp-top__role">{m.role}</p>}
-              <ul className="tp-lines">
-                {m.group && <li>{I.people}<span>{D.member.committee}: <b>{m.group}</b></span></li>}
-                {m.club && <li>{I.pin}<span>{D.member.club}: {clubId ? <a href={clubHref(clubId)}>{ROT(m.club)}</a> : <b>{ROT(m.club)}</b>}</span></li>}
-                {m.email && <li>{I.mail}<span><span className="sr-only">{D.member.email}: </span><a href={`mailto:${m.email}`}>{m.email}</a></span></li>}
-              </ul>
-            </div>
-          </article>
-          <div className="tp-mp__team" data-rv style={v({ '--i': 1 })}>
-            {g && (
-              <section className={`tp-cmg tp-cmg--rest${n > 6 ? ' is-over-d' : ''}${n > 4 ? ' is-over-m' : ''}`}>
-                <Band title={g.title} n={n} lead={exec} />
-                <div className="tp-cmg__box">
-                  {n > 4 && <ShowAll n={n} />}
-                  <ul className={`tp-pcs tp-pcs--three${exec ? ' tp-pcs--red' : ''}`}>
-                    {team.map((x, i) => <Card key={i} m={x} me={memberId(x) === m.id} />)}
-                  </ul>
-                </div>
-              </section>
-            )}
-            <a className="tp-btn tp-btn--line tp-back" href={list.file}>{I.back}{D.member.back}</a>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-}
-
 const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   about: () => <About />,
   committee: () => <Committee />,
@@ -1096,8 +1043,7 @@ const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   club: () => <ClubPage />,
   project: () => <ProjectPage />,
   event: () => <EventPage />,
-  dignitary: () => <DignitaryPage />,
-  member: () => <MemberPage />
+  dignitary: () => <DignitaryPage />
 };
 
 function Body({ page, year }: { page: PageKey; year: string }) {

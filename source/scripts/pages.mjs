@@ -48,7 +48,7 @@ const SNAP = existsSync(resolve(DATA, 'index.json')) ? json('index.json') : null
 const applySnapshot = R => {
   if (!SNAP) return;
   for (const p of SNAP.pages) merge(R, json(`page/${p}.json`));
-  for (const kind of ['club', 'project', 'event', 'member']) {
+  for (const kind of ['club', 'project', 'event']) {
     const id = String(R.pages[kind].example ?? '');
     if (SNAP[kind]?.includes(id)) R.pages[kind].item = json(`${kind}/${id}.json`);
   }

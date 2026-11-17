@@ -268,7 +268,6 @@
 .kx-all__less, .kx-all:has(input:checked) .kx-all__more { display: none; }
 .kx-all:has(input:checked) .kx-all__less { display: inline; }
 .kx-proj { grid-column: span 2; display: flex; flex-direction: column; min-width: 0; overflow: hidden; border-radius: 26px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); }
-.kx-proj:hover { scale: 1.02; }
 .kx-proj__img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
 .kx-proj__body { display: flex; flex-direction: column; flex: 1; gap: 8px; padding: 18px 22px 22px; }
 .kx-proj__sum { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-bottom: 8px; }
@@ -424,14 +423,10 @@
 .kx-form__done { margin-top: 18px; padding: 16px 20px; border-radius: 18px; background: var(--c3); color: var(--c-ink); font-weight: 700; }
 
 /* ---------- links on the list pages: the title's link covers its card (one action per card) ---------- */
-.kx-mem, .kx-proj { position: relative; }
-.kx-mem { transition: scale 0.35s var(--back); }
-.kx-mem__a::after, .kx-chap__title a::after, .kx-issue--ev h3 a::after { content: ''; position: absolute; inset: 0; }
-.kx-mem:has(.kx-mem__a:hover) { scale: 1.03; }
-.kx-chap__img { transition: scale 0.5s var(--ease); }
-.kx-chap__in:has(.kx-chap__title a:hover) .kx-chap__img { scale: 1.02; }
-.kx-mem:has(.kx-mem__a:focus-visible), .kx-chap__in:has(.kx-chap__title a:focus-visible), .kx-issue:has(h3 a:focus-visible) { outline: 3px solid #d9400e; outline-offset: 4px; }
-.kx-mem__a:focus-visible, .kx-chap__title a:focus-visible, .kx-issue h3 a:focus-visible { outline: none; }
+.kx-proj { position: relative; }
+.kx-chap__title a::after, .kx-issue--ev h3 a::after { content: ''; position: absolute; inset: 0; }
+.kx-chap__in:has(.kx-chap__title a:focus-visible), .kx-issue:has(h3 a:focus-visible) { outline: 3px solid #d9400e; outline-offset: 4px; }
+.kx-chap__title a:focus-visible, .kx-issue h3 a:focus-visible { outline: none; }
 /* photos that open full size (the shared lightbox), and Share (the shared menu): Kinetic's colours for both */
 body:has(main.kx) { --lb-bg: rgba(5, 7, 46, 0.95); }
 :root[data-theme='dark'] body:has(main.kx) { --share-bg: #141845; --share-ink: #eef0ff; --share-hover: #1e2358; --share-ring: rgba(255, 255, 255, 0.16); }
@@ -463,7 +458,7 @@ body:has(main.kx) { --lb-bg: rgba(5, 7, 46, 0.95); }
 .kx-evt { transition: box-shadow 0.25s; }
 .kx-evt:hover { box-shadow: inset 0 0 0 2px var(--c); }
 
-/* ================= detail pages: club, project, event, dignitary, member ================= */
+/* ================= detail pages: club, project, event, dignitary ================= */
 /* the homepage's scene colours */
 .kx {
   --t-sky: #8fdfff; --t-sky-i: #04283d; --t-sky-i2: #0e4560;
@@ -480,7 +475,7 @@ body:has(main.kx) { --lb-bg: rgba(5, 7, 46, 0.95); }
 /* each detail page's head takes its list page's colour (the event keeps the calendar's lavender) */
 .kx--club, :root[data-theme='dark'] .kx--club { --kx-hd: var(--t-sky); --kx-hd-ink: var(--t-sky-i); --kx-hd-ink2: var(--t-sky-i2); }
 .kx--project, :root[data-theme='dark'] .kx--project { --kx-hd: var(--t-ultra); --kx-hd-ink: #ffffff; --kx-hd-ink2: #d7dbff; }
-.kx--dignitary, .kx--member, :root[data-theme='dark'] .kx--dignitary, :root[data-theme='dark'] .kx--member { --kx-hd: var(--t-mint); --kx-hd-ink: var(--t-mint-i); --kx-hd-ink2: var(--t-mint-i2); }
+.kx--dignitary, :root[data-theme='dark'] .kx--dignitary { --kx-hd: var(--t-mint); --kx-hd-ink: var(--t-mint-i); --kx-hd-ink2: var(--t-mint-i2); }
 .kx--project .kx-head { --kx-chip: rgba(255, 255, 255, 0.14); --kx-chip-ink: #ffffff; }
 
 /* the item's head: the breadcrumb, then [mark] title [figures] on one line, then its facts as pills */
@@ -592,8 +587,8 @@ a.kx-pill:hover { background: #d9400e; color: #ffffff; scale: 1.04; }
 .kx-shots--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .kx-shots--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .kx-shot { min-width: 0; }
-.kx-shot a { display: block; overflow: hidden; border-radius: 22px; background: var(--surface-2); box-shadow: var(--kx-sh); transition: scale 0.35s var(--back), box-shadow 0.35s; }
-.kx-shot a:hover { scale: 1.03; box-shadow: 0 22px 44px rgba(11, 14, 85, 0.2); }
+.kx-shot a { display: block; overflow: hidden; border-radius: 22px; background: var(--surface-2); box-shadow: var(--kx-sh); transition: box-shadow 0.35s; }
+.kx-shot a:hover { box-shadow: 0 22px 44px rgba(11, 14, 85, 0.2); }
 .kx-shot img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
 /* a single photo keeps its own shape (a poster stays a poster) */
 .kx-shots--1 .kx-shot a { width: fit-content; max-width: 100%; }
@@ -607,23 +602,16 @@ a.kx-pill:hover { background: #d9400e; color: #ffffff; scale: 1.04; }
 .kx-issue__go { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--surface-2); color: var(--on); transition: background-color 0.25s, color 0.25s; }
 .kx-issue--ev:hover .kx-issue__go { background: #d9400e; color: #ffffff; }
 
-/* ---------- Dignitary and member: the portrait meets the words in the middle ---------- */
+/* ---------- Dignitary: the portrait meets the words in the middle ---------- */
 .kx-meet { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); align-items: start; gap: 32px clamp(32px, 4.4vw, 72px); }
 .kx-meet__photo { justify-self: end; width: min(100%, 440px); margin: 0; animation: kx-meet 0.9s var(--ease) both 0.1s; }
 @keyframes kx-meet { from { opacity: 0; transform: translateX(-56px); } }
 .kx-meet__photo img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 18%; border-radius: 26px; background: var(--surface-2); box-shadow: var(--shadow); }
 .kx-meet__text { display: grid; align-content: start; gap: 34px; min-width: 0; max-width: 660px; padding-top: 4px; }
 /* beside a long biography the portrait stays in view, inside its own section, where it fits the screen */
-@media (min-width: 1101px) and (min-height: 720px) { .kx-meet:not(.kx-meet--member) .kx-meet__photo { position: sticky; top: calc(var(--head) + 24px); } }
+@media (min-width: 1101px) and (min-height: 720px) { .kx-meet .kx-meet__photo { position: sticky; top: calc(var(--head) + 24px); } }
 .kx-card--facts { max-width: 640px; }
 .kx-story__side .kx-card--facts { max-width: none; }
-/* the member: their photo, or their initials on the committee's colour, beside a short column */
-.kx-meet--member { align-items: center; }
-.kx-meet--member .kx-meet__photo { width: min(100%, 340px); aspect-ratio: 4 / 5; clip-path: none; border-radius: 26px; background: linear-gradient(150deg, var(--c), color-mix(in srgb, var(--c) 45%, #ffffff)); box-shadow: var(--shadow); font-size: clamp(4rem, 7vw, 6.4rem); letter-spacing: -0.04em; }
-.kx-meet--member .kx-meet__photo img { border-radius: 0; box-shadow: none; }
-.kx-meet--member .kx-meet__text { gap: 28px; }
-.kx-meet--member + .wrap, .kx-prof .kx-backrow { margin-top: 64px; }
-.kx-prof .kx-cg { gap: 20px; }
 /* the other dignitary, one card, one link */
 .kx-other { display: grid; grid-template-columns: 116px minmax(0, 1fr) auto; align-items: center; gap: 16px 28px; max-width: 980px; margin: 72px auto 0; padding: 14px 28px 14px 14px; border-radius: 30px; background: var(--surface); color: var(--on); box-shadow: var(--kx-sh); transition: opacity 0.55s var(--ease), translate 0.6s var(--ease), scale 0.35s var(--back), box-shadow 0.35s; }
 .kx-other:hover { scale: 1.02; box-shadow: 0 22px 44px rgba(11, 14, 85, 0.18); }
@@ -854,7 +842,8 @@ a.kx-pill:hover { background: #d9400e; color: #ffffff; scale: 1.04; }
   .kx-pills { gap: 6px; }
   .kx-pill { padding: 7px 14px; font-size: 14.5px; }
   .kx-sc { padding-block: 48px 56px; }
-  .kx-projs--club .kx-proj::before { top: 8px; left: 8px; width: 34px; font-size: 14px; }
+  /* the number on a compact row: small, so it hides no more than a corner of the 108px photo (which shows whole) */
+  .kx-projs--club .kx-proj::before { top: 8px; left: 8px; width: 28px; font-size: 13px; }
   .kx-sec__head { gap: 10px 12px; margin-bottom: 16px; }
   .kx-sec__head .kx-search { margin-left: 0; }
   .kx-card { padding: 20px 18px; border-radius: 24px; }
@@ -903,14 +892,12 @@ a.kx-pill:hover { background: #d9400e; color: #ffffff; scale: 1.04; }
   .kx-meet { grid-template-columns: minmax(0, 1fr); gap: 22px; }
   .kx-meet__photo { justify-self: start; width: min(100%, 300px); }
   .kx-meet__photo img { border-radius: 22px; }
-  .kx-meet--member .kx-meet__photo { width: 200px; border-radius: 22px; font-size: 3.6rem; }
   .kx-meet__text { gap: 26px; }
-  .kx-meet--member + .wrap, .kx-prof .kx-backrow { margin-top: 44px; }
   .kx-other { grid-template-columns: 84px minmax(0, 1fr); gap: 12px 16px; margin-top: 48px; padding: 12px 14px 14px 12px; border-radius: 24px; }
   .kx-other img { width: 84px; height: 105px; border-radius: 16px; }
   .kx-other .btn-go { grid-column: 1 / -1; justify-self: stretch; justify-content: center; }
   .kx-other--role { grid-template-columns: minmax(0, 1fr); padding: 16px; }
-  /* member, not found */
+  /* not found */
   .kx-miss .kx-head__in { padding-bottom: 96px; }
   .kx-miss__in { gap: 18px; margin-top: 36px; }
   .kx-miss__comb i { width: 46px; }

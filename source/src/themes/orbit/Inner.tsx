@@ -6,8 +6,8 @@ import {
   calMonths, todayMonthKey, monthEntries, entryText, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
-  D, clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, paras, clubHref, projectHref, eventHref,
-  dignitaryHref, memberHref, memberId, eventId, clubIdOf, useDocTitle
+  D, clubProfile, projectDetail, eventDetail, dignitaryProfile, paras, clubHref, projectHref, eventHref,
+  dignitaryHref, eventId, useDocTitle
 } from '../../shared/detail';
 import { Header, TopStrip } from './Chrome';
 import Footer from './Footer';
@@ -150,7 +150,7 @@ function Committee() {
                     <Ring text={`${m.role} • ${R.years.current}`} />
                     <Face name={m.name} photo={m.photo} />
                   </div>
-                  <h3 className="oi-lead__name"><a className="oi-stretch" href={memberHref(m)}>{m.name}</a></h3>
+                  <h3 className="oi-lead__name">{m.name}</h3>
                   <p className="oi-lead__role">{m.role}</p>
                   {m.club && <p className="oi-lead__club">{clubName(m.club)}</p>}
                 </li>
@@ -158,7 +158,7 @@ function Committee() {
                 <li key={m.name + i} className="oi-card oi-xcard" {...item(m, exec.key)} data-glow data-rv>
                   <Face name={m.name} photo={m.photo} />
                   <div>
-                    <h3 className="oi-who"><a className="oi-stretch" href={memberHref(m)}>{m.name}</a></h3>
+                    <h3 className="oi-who">{m.name}</h3>
                     <p className="oi-role">{m.role}</p>
                     {m.club && <p className="oi-club-of">{clubName(m.club)}</p>}
                   </div>
@@ -180,7 +180,7 @@ function Committee() {
                   <li key={m.name + i} className="oi-mem" {...item(m, g.key)}>
                     <Face name={m.name} photo={m.photo} />
                     <div>
-                      <h3 className="oi-who"><a className="oi-stretch" href={memberHref(m)}>{m.name}</a></h3>
+                      <h3 className="oi-who">{m.name}</h3>
                       <p className="oi-role">{m.role}</p>
                       {m.club && <p className="oi-club-of">{clubName(m.club)}</p>}
                     </div>
@@ -708,7 +708,7 @@ function Contact() {
   );
 }
 
-/* ================= Detail pages: one club, project, event, dignitary or committee member =================
+/* ================= Detail pages: one club, project, event or dignitary =================
    Each opens with the indigo head (Home / the item, its name as the title, totals where it has them, its own
    instrument at the right); everything else about the item sits in the body, built from the list pages' parts. */
 const listLink = (k: PageKey): Crumb => { const p = pageInfo(k); return { href: p.file, label: p.title }; };
@@ -795,7 +795,7 @@ function ClubPage() {
     (m.day || m.time) && { icon: I.cal, label: P.finder.dayLabel, value: <>{m.day && <span>{m.day}</span>}{m.time && <span className="oi-facts__sub">{m.time}</span>}</> },
     m.place && { icon: I.pin, label: 'Meets at', value: m.place },
     ...c.details.map(f => ({ icon: I.ring, label: f.label, value: f.value })),
-    ct?.email && { icon: I.mail, label: D.member.email, value: <a href={`mailto:${ct.email}`}>{ct.email}</a> },
+    ct?.email && { icon: I.mail, label: P.email, value: <a href={`mailto:${ct.email}`}>{ct.email}</a> },
     ct?.phone && { icon: I.phone, label: 'Phone', value: <a href={tel(ct.phone)}>{ct.phone}</a> },
     ct?.web && { icon: I.globe, label: 'Website', value: <a href={ct.web} target="_blank" rel="noopener">{ct.web.replace(/^https?:\/\/(www\.)?|\/$/g, '')}</a> }
   ]);
@@ -1080,67 +1080,6 @@ function DignitaryPage() {
   );
 }
 
-/* ---------- Committee member: name and portrait in the head, the facts, then the rest of the committee ---------- */
-function MemberPage() {
-  const m = memberProfile();
-  useDocTitle(m?.name);
-  const com = listLink('committee');
-  const X = D.member;
-  if (!m) return <Missing k="member" text={X.missing} back={{ href: com.href, label: X.back }} />;
-  const groups = committee();
-  const g = groups.find(x => x.members.some(y => memberId(y) === m.id)) ?? groups.find(x => x.title === m.group);
-  const clubId = clubIdOf(m.club);
-  const facts = factsOf([
-    m.group && { icon: I.users, label: X.committee, value: m.group },
-    m.club && { icon: I.home, label: X.club, value: clubId ? <a href={clubHref(clubId)}>{clubName(m.club)}{I.arrow}</a> : clubName(m.club) },
-    m.email && { icon: I.mail, label: X.email, value: <a href={`mailto:${m.email}`}>{m.email}</a> }
-  ]);
-  const back = <a className="pbtn oi-back" href={com.href}>{I.back}{X.back}</a>;
-  return (
-    <>
-      <Head k="member" crumb={m.name} title={m.name}
-        aside={<div className="oi-orbit oi-turn" data-rv><span className="oi-panel__ring" aria-hidden="true"><i /></span><Face name={m.name} photo={m.photo} /></div>} />
-      <section className="oi-sec oi-mbody">
-        <div className="wrap">
-          {(m.role || facts.length > 0) && (
-            <div className="oi-card oi-mfacts" data-rv>
-              {m.role && <h2 className="oi-mfacts__role">{m.role}</h2>}
-              {facts.length > 0 && <Facts rows={facts} />}
-            </div>
-          )}
-          {g ? (
-            <section className="oi-lane" data-rv>
-              <div className="oi-lane__head">
-                <h2>{g.title}</h2>
-                <b className="oi-ring-n">{num(g.members.length)}</b>
-                {back}
-              </div>
-              <div className="oi-cap">
-                <ul className="oi-lane__list">
-                  {g.members.map((y, i) => {
-                    const me = memberId(y) === m.id;
-                    return (
-                      <li key={y.name + i} className={`oi-mem ${me ? 'is-me' : ''}`}>
-                        <Face name={y.name} photo={y.photo} />
-                        <div>
-                          <h3 className="oi-who">{me ? <span aria-current="page">{y.name}</span> : <a className="oi-stretch" href={memberHref(y)}>{y.name}</a>}</h3>
-                          <p className="oi-role">{y.role}</p>
-                          {y.club && <p className="oi-club-of">{clubName(y.club)}</p>}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-                {g.members.length > 12 && <ShowAll />}
-              </div>
-            </section>
-          ) : back}
-        </div>
-      </section>
-    </>
-  );
-}
-
 const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   about: () => <About />,
   committee: () => <Committee />,
@@ -1153,10 +1092,9 @@ const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   club: () => <ClubPage />,
   project: () => <ProjectPage />,
   event: () => <EventPage />,
-  dignitary: () => <DignitaryPage />,
-  member: () => <MemberPage />
+  dignitary: () => <DignitaryPage />
 };
-const DETAIL: PageKey[] = ['club', 'project', 'event', 'dignitary', 'member'];
+const DETAIL: PageKey[] = ['club', 'project', 'event', 'dignitary'];
 
 function Body({ page, year }: { page: PageKey; year: string }) {
   const ref = useBehaviours<HTMLElement>();

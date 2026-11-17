@@ -6,8 +6,8 @@ import {
   calMonths, todayMonthKey, monthEntries, entriesByDate, pressYears, AdminContent, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
-  D, paras, memberId, clubHref, clubIdOf, projectHref, eventHref, dignitaryHref, memberHref, useDocTitle,
-  clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile
+  D, paras, clubHref, projectHref, eventHref, dignitaryHref, useDocTitle,
+  clubProfile, projectDetail, eventDetail, dignitaryProfile
 } from '../../shared/detail';
 import { Header, TopStrip } from './Chrome';
 import Footer from './Footer';
@@ -154,23 +154,22 @@ const Spotlight = ({ m, g }: { m: Member; g: string }) => (
       </span>
     </figure>
     <div className="px-spot__text">
-      <h3 className="px-spot__name"><a href={memberHref(m)}>{m.name}</a></h3>
+      <h3 className="px-spot__name">{m.name}</h3>
       <p className="px-spot__role">{m.role}</p>
       {m.club && <p className="px-spot__club">{clubName(m.club)}</p>}
     </div>
   </article>
 );
 
-/* a member as a portrait card (initials on the committee's tint when there is no photo); the name links to the
-   profile, except on that profile's own page, where the card is marked as the current one instead */
-const MemberCard = ({ m, g, current = false }: { m: Member; g: string; current?: boolean }) => (
-  <li className={current ? 'px-mcard is-current' : 'px-mcard'} data-item data-q={m.q} data-group={g} {...(current ? { 'aria-current': 'page' as const } : {})}>
+/* a member as a portrait card (initials on the committee's tint when there is no photo) */
+const MemberCard = ({ m, g }: { m: Member; g: string }) => (
+  <li className="px-mcard" data-item data-q={m.q} data-group={g}>
     <span className="px-mcard__photo">
       {m.photo
         ? <img src={m.photo.src} alt="" width={m.photo.w} height={m.photo.h} loading="lazy" />
         : <span className="px-mcard__mono" aria-hidden="true">{m.initials}</span>}
     </span>
-    <h3 className="px-mcard__name">{current ? m.name : <a href={memberHref(m)}>{m.name}</a>}</h3>
+    <h3 className="px-mcard__name">{m.name}</h3>
     {m.role && <p className="px-mcard__role">{m.role}</p>}
     {m.club && <p className="px-mcard__club">{clubName(m.club)}</p>}
   </li>
@@ -795,7 +794,7 @@ function ClubPage() {
     ...(m.time ? [{ icon: I.clock, label: 'Meeting time', value: m.time }] : []),
     ...(m.place ? [{ icon: I.pin, label: 'Meeting place', value: m.place }] : []),
     ...c.details.map(f => ({ icon: I.tag, label: f.label, value: f.value })),
-    ...(ct?.email ? [{ icon: I.mail, label: D.member.email, value: <a href={`mailto:${ct.email}`}>{ct.email}</a> }] : []),
+    ...(ct?.email ? [{ icon: I.mail, label: P.email, value: <a href={`mailto:${ct.email}`}>{ct.email}</a> }] : []),
     ...(ct?.phone ? [{ icon: I.phone, label: 'Phone', value: <a href={`tel:${ct.phone.replace(/[^\d+]/g, '')}`}>{ct.phone}</a> }] : []),
     ...(ct?.web ? [{ icon: I.globe, label: 'Website', value: <a href={ct.web} target="_blank" rel="noopener">{ct.web.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a> }] : [])
   ];
@@ -1098,52 +1097,6 @@ function DignitaryPage() {
   );
 }
 
-/* ---------- Committee member: the profile in the head panel; their committee as portrait cards (one row until
-   "show all", as on the District Committee page), this member's card marked ---------- */
-function MemberPage() {
-  const m = memberProfile();
-  useDocTitle(m?.name);
-  if (!m) return <Missing k="member" via="committee" text={D.member.missing} back={D.member.back} />;
-  const groups = committee();
-  const gi = groups.findIndex(g => g.title === m.group);
-  const g = groups[gi];
-  const cid = clubIdOf(m.club);
-  return (
-    <>
-      <PageHead k="member" title={m.name}>
-        <div className="px-koffice">
-          <span className="px-koffice__ring"><Mono photo={m.photo} name={m.name} /></span>
-          <div>
-            {m.role && <p className="px-koffice__h">{m.role}</p>}
-            {m.group && <p className="px-koffice__who"><span className="sr-only">{D.member.committee}: </span>{m.group}</p>}
-          </div>
-        </div>
-        {(m.club || m.email) && (
-          <div className="px-klinks">
-            {m.club && (cid
-              ? <a className="px-klink" href={clubHref(cid)}>{I.club}<span><span className="sr-only">{D.member.club}: </span>Rotary Club of {m.club}</span></a>
-              : <p className="px-klink">{I.club}<span><span className="sr-only">{D.member.club}: </span>Rotary Club of {m.club}</span></p>)}
-            {m.email && <a className="px-klink" href={`mailto:${m.email}`}>{I.mail}<span><span className="sr-only">{D.member.email}: </span>{m.email}</span></a>}
-          </div>
-        )}
-      </PageHead>
-      <div className="wrap px-body px-detail">
-        {g && g.members.length > 1 && (
-          <section className="px-cmte" aria-label={g.title} style={css({ '--accent': ACC[gi % ACC.length] })} data-rv>
-            <header className="px-ghead">
-              <h2 className="px-h2">{g.title}</h2>
-              <Pill n={g.members.length} noun="members" />
-            </header>
-            <ul className="px-mcards">{g.members.map((x, i) => <MemberCard key={i} m={x} g={g.key} current={memberId(x) === m.id} />)}</ul>
-            {g.members.length > 2 && <ShowAll n={g.members.length} noun="members" />}
-          </section>
-        )}
-        <Back href={pageInfo('committee').file} label={D.member.back} />
-      </div>
-    </>
-  );
-}
-
 const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   about: () => <About />,
   committee: () => <Committee />,
@@ -1156,8 +1109,7 @@ const BODY: Record<PageKey, (p: { year: string }) => ReactNode> = {
   club: () => <ClubPage />,
   project: () => <ProjectPage />,
   event: () => <EventPage />,
-  dignitary: () => <DignitaryPage />,
-  member: () => <MemberPage />
+  dignitary: () => <DignitaryPage />
 };
 
 function Body({ page, year }: { page: PageKey; year: string }) {

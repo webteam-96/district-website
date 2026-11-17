@@ -216,23 +216,16 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-lead:not(:has(> .tx-feature:not([hidden]))) { grid-template-columns: minmax(0, 1fr); }
 /* members as portrait cards: the photo leads, two rows per committee until "Show all" opens it */
 .tx-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; padding: 14px 14px 6px; }
-.tx-card { position: relative; display: flex; flex-direction: column; gap: 3px; min-width: 0; border-radius: 18px; transition: transform 0.4s var(--back); }
+.tx-card { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .tx-card__photo { display: grid; place-items: center; aspect-ratio: 1; margin: 0 0 9px 5px; overflow: hidden; border-radius: 16px; background: var(--bg-2); box-shadow: -5px 5px 0 0 var(--gc); }
-.tx-card__photo img { width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 18%; transition: transform 0.7s var(--ease); }
+.tx-card__photo img { width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 18%; }
 .tx-card__photo.is-ini { background: color-mix(in srgb, var(--gc) 14%, var(--surface)); color: var(--gc); }
 .tx-card__photo b { font: 800 2.3rem/1 var(--f-display); letter-spacing: -0.02em; }
-.tx-card h3 { padding-left: 5px; font: 800 15.5px/1.25 var(--f-display); color: var(--ink); overflow-wrap: anywhere; transition: color 0.2s; }
-.tx-card h3 a::after { content: ''; position: absolute; inset: -6px; border-radius: 20px; }
+.tx-card h3 { padding-left: 5px; font: 800 15.5px/1.25 var(--f-display); color: var(--ink); overflow-wrap: anywhere; }
 .tx-card__role, .tx-card__club { padding-left: 5px; line-height: 1.35; overflow-wrap: anywhere; }
 .tx-card__role { font-size: 14px; color: var(--ink-2); }
 .tx-card__club { font-size: 13.5px; color: var(--ink-3); }
-.tx-card:hover { transform: translateY(-3px); }
-.tx-card:hover .tx-card__photo img { transform: scale(1.05); }
-.tx-card:hover h3 { color: var(--gc); }
-.tx-card:has(a:focus-visible) { outline: 3px solid var(--sky); outline-offset: 6px; }
-.tx-card a:focus-visible { outline: none; }
 :root[data-theme='dark'] .tx-card__photo.is-ini { background: color-mix(in srgb, var(--gc) 30%, var(--surface)); color: #fff; }
-:root[data-theme='dark'] .tx-card:hover h3 { color: inherit; }
 /* the cap: phones 2 x 2, then 3, 4 or 6 a row by the committee's width; no cap while searching */
 [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+5 of [data-item]:not([hidden])) { display: none; }
 .tx-group:not(:has(> .tx-cards > :nth-child(5 of [data-item]:not([hidden])))) > .tx-all { display: none; }
@@ -276,11 +269,10 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-feature__ini { display: grid; place-items: center; height: 100%; color: #fff; font: 800 5.5rem/1 var(--f-display); letter-spacing: -0.03em; }
 .tx-feature__info { display: grid; gap: 6px; padding: 18px 6px 6px; }
 .tx-feature__role { font: 700 1.15rem/1.2 var(--f-body); color: var(--cranberry); }
-.tx-feature__name { font: 800 clamp(1.7rem, 2.4vw, 2.2rem)/1.04 var(--f-display); letter-spacing: -0.025em; color: var(--ink); text-wrap: balance; }
-.tx-feature__name a { display: inline-flex; align-items: center; min-height: 34px; }
+.tx-feature__name { display: flex; align-items: center; min-height: 34px; font: 800 clamp(1.7rem, 2.4vw, 2.2rem)/1.04 var(--f-display); letter-spacing: -0.025em; color: var(--ink); text-wrap: balance; }
 .tx-feature__club { font-size: 15px; color: var(--ink-2); }
 :root[data-theme='dark'] .tx-feature__role { color: #ffc66b; }
-/* committee rows */
+/* rows of people (a club's board and members) */
 .tx-rows { display: grid; gap: 6px; padding: 10px; }
 .tx-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-areas: 'av text club'; gap: 2px 12px; align-items: center; min-height: 60px; padding: 8px 12px; border-radius: 14px; transition: background 0.2s; }
 .tx-row:hover { background: color-mix(in srgb, var(--gc) 10%, var(--surface)); }
@@ -289,10 +281,8 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-row__text { grid-area: text; min-width: 0; }
 .tx-row h3 { font: 800 16.5px/1.2 var(--f-display); color: var(--ink); }
 .tx-row__text p { font-size: 14.5px; line-height: 1.35; color: var(--ink-2); }
-.tx-row__club { grid-area: club; font-size: 14px; color: var(--ink-3); white-space: nowrap; }
 @container (max-width: 459px) {
   .tx-row { grid-template-columns: 44px minmax(0, 1fr); grid-template-areas: 'av text' 'av club'; }
-  .tx-row__club { white-space: normal; }
 }
 @container (min-width: 860px) { .tx-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10px; } }
 :root[data-theme='dark'] .tx-row:hover { background: color-mix(in srgb, var(--gc) 24%, var(--surface)); }
@@ -365,15 +355,15 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-proj:hover .tx-proj__card { transform: translateY(-4px); }
 .tx-proj__photo { position: relative; flex: none; aspect-ratio: 16 / 9; margin: 0; }
 .tx-proj__frame { position: absolute; inset: 0; overflow: hidden; border-radius: 18px; background: var(--bg-2); }
-.tx-proj__frame img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; transition: transform 0.7s var(--ease); }
-.tx-proj:hover .tx-proj__frame img { transform: scale(1.04); }
-.tx-proj__tag, .tx-proj__when { position: absolute; z-index: 2; top: 10px; padding: 6px 12px; border-radius: 999px; font: 700 13.5px/1.2 var(--f-body); pointer-events: none; }
+.tx-proj__frame img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
 /* the photo opens the lightbox: its link sits above the card's "Read more" overlay */
 .tx-proj__frame > a { position: absolute; inset: 0; z-index: 1; display: block; border-radius: inherit; }
 .tx-proj__frame > a:focus-visible { outline: 3px solid var(--sky); outline-offset: -3px; }
-.tx-proj__tag { left: 10px; max-width: calc(100% - 140px); background: var(--c); color: #fff; }
-.tx-proj__when { right: 10px; background: var(--surface); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tx-proj__body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 14px 10px 8px; }
+/* the avenue and the date: the body's first line, so nothing sits on the photo (it shows whole) */
+.tx-proj__meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; font: 700 13.5px/1.2 var(--f-body); }
+.tx-proj__tag { padding: 6px 12px; border-radius: 999px; background: var(--c); color: #fff; }
+.tx-proj__when { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tx-proj__club { font-size: 14px; font-weight: 600; color: var(--ink-3); }
 .tx-proj h3 { font: 800 1.3rem/1.15 var(--f-display); color: var(--ink); text-wrap: balance; }
 .tx-proj__sum { font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
@@ -424,7 +414,6 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-stotals b { font: 800 min(1.9rem, 7.4cqi)/1 var(--f-display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tx-stotals span { font-size: 14px; font-weight: 600; }
 .tx-line { display: grid; gap: 20px; }
-.tx-line .tx-proj__tag { display: none; }
 .tx-line > .tx-proj { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: start; }
 /* the route: a segment from each stop down to the next one */
 .tx-line > .tx-proj::before { content: ''; position: absolute; left: 58.5px; top: 40px; bottom: -60px; width: 3px; border-radius: 3px; background: var(--line-2); }
@@ -592,21 +581,21 @@ body[data-page] .head { position: sticky; top: 0; }
 
 /* ================= links to the detail pages (the look at rest does not change) ================= */
 /* one action per card: the name's link covers its row or card */
-.tx-row, .tx-feature, .tx-proj__card, .tx-ev, .dep:has(> .dep__main .dep__link) { position: relative; }
-:is(.tx-row h3, .tx-feature__name, .tx-ev__top) a::after, .dep__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
-:is(.tx-row, .tx-feature, .tx-ev):has(a:focus-visible), .dep:has(.dep__link:focus-visible) { outline: 3px solid var(--sky); outline-offset: 2px; }
-:is(.tx-row h3, .tx-feature__name, .tx-ev__top) a:focus-visible, .dep__link:focus-visible { outline: none; }
-.tx-row:has(a):hover h3, .tx-feature:has(a):hover .tx-feature__name, .tx-proj:hover h3 { color: var(--gc, var(--c)); }
+.tx-proj__card, .tx-ev, .dep:has(> .dep__main .dep__link) { position: relative; }
+.tx-ev__top a::after, .dep__link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.tx-ev:has(a:focus-visible), .dep:has(.dep__link:focus-visible) { outline: 3px solid var(--sky); outline-offset: 2px; }
+.tx-ev__top a:focus-visible, .dep__link:focus-visible { outline: none; }
+.tx-proj:hover h3 { color: var(--gc, var(--c)); }
 .tx-ev:has(a) { transition: background 0.2s; }
 .tx-ev:has(a):hover { background: color-mix(in srgb, var(--tc) 20%, var(--surface)); }
 .dep:has(.dep__link) { transition: background 0.2s; }
 .dep:has(.dep__link):hover { background: color-mix(in srgb, var(--c) 18%, var(--surface)); }
-:root[data-theme='dark'] .tx-row:has(a):hover h3, :root[data-theme='dark'] .tx-feature:has(a):hover .tx-feature__name, :root[data-theme='dark'] .tx-proj:hover h3 { color: inherit; }
+:root[data-theme='dark'] .tx-proj:hover h3 { color: inherit; }
 
 /* ================= detail pages: one colour per page, a smaller title (item names run long) ================= */
 .tx-main--club { --c: var(--orange); --pop: var(--orange); --tint: var(--p-press); }
 .tx-main--event { --c: var(--violet); --pop: var(--violet); --tint: var(--p-cal); }
-.tx-main--member, .tx-main--dignitary { --c: var(--cranberry); --tint: var(--p-dig); }
+.tx-main--dignitary { --c: var(--cranberry); --tint: var(--p-dig); }
 .tx-dig--president { --c: var(--azure); --pop: var(--azure); --tint: var(--p-about); }
 /* a project takes its avenue's colour, as its tag does on the list pages */
 .tx-pj { --pop: var(--c); --tint: color-mix(in srgb, var(--c) 9%, var(--bg)); }
@@ -614,7 +603,7 @@ body[data-page] .head { position: sticky; top: 0; }
 :root[data-theme='dark'] .tx-main--event { --pop: #d9a6f5; }
 :root[data-theme='dark'] .tx-dig--president { --pop: #7fbdff; }
 :root[data-theme='dark'] .tx-pj { --pop: color-mix(in srgb, var(--c) 45%, #fff); --tint: color-mix(in srgb, var(--c) 18%, var(--bg)); }
-:is(.tx-main--club, .tx-main--project, .tx-main--event, .tx-main--dignitary, .tx-main--member) .tx-head__title { font-size: clamp(2rem, 3.7vw, 3.4rem); line-height: 1.02; }
+:is(.tx-main--club, .tx-main--project, .tx-main--event, .tx-main--dignitary) .tx-head__title { font-size: clamp(2rem, 3.7vw, 3.4rem); line-height: 1.02; }
 .tx-role { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
 .tx-role b { font-weight: 700; color: var(--c); }
 :root[data-theme='dark'] .tx-role b { color: #ffc66b; }
@@ -628,7 +617,7 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-none { padding: 20px 22px 22px; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
 .tx-plat .tx-empty, .tx-galbox .tx-empty { min-height: 132px; padding-block: 24px; border-radius: 0; background: none; box-shadow: none; }
 .tx-plat .tx-more { margin: 4px 0 18px; }
-/* label + value rows with an icon disc (club details, a member's pass, the event ticket) */
+/* label + value rows with an icon disc (club details, the event ticket) */
 .tx-facts, .tx-ticket { --gc: var(--c); }
 .tx-dl { display: grid; gap: 2px; padding: 10px; }
 .tx-dl > div { position: relative; display: grid; align-content: center; gap: 1px; min-width: 0; min-height: 60px; padding: 8px 10px 8px 62px; border-radius: 14px; }
@@ -746,6 +735,8 @@ body[data-page] { --lb-bg: rgba(11, 20, 55, 0.95); }
 .tx-cover__frame { position: relative; display: block; }
 .tx-cover__frame::before { content: ''; position: absolute; left: -6px; bottom: -6px; width: 62%; height: 62%; border-radius: 20px; background: var(--c); }
 .tx-cover__frame img { position: relative; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; border-radius: 18px; background: var(--bg-2); }
+/* a cover that does not fill its frame: its mat is opaque, as on the list cards, so the colour block shows at the edge only (not through the spare space) */
+.tx-cover__frame > a { background: var(--bg-2); }
 .tx-cover figcaption { padding: 14px 6px 2px; font-size: 14.5px; line-height: 1.45; color: var(--ink-3); }
 @media (min-width: 900px) and (min-height: 720px) { .tx-cover { position: sticky; top: calc(var(--head-h) + 20px); } }
 
@@ -801,29 +792,6 @@ body[data-page] { --lb-bg: rgba(11, 20, 55, 0.95); }
 .tx-other p > span { font: 700 15px/1.2 var(--f-body); color: var(--oc); }
 .tx-other a { font-size: 1.3rem; letter-spacing: -0.01em; }
 :root[data-theme='dark'] .tx-other p > span { color: #ffc66b; }
-
-/* ================= Committee member: the portrait in the head, a strip of facts, the rest of the committee ================= */
-.tx-mem .tx-head__row { align-items: center; }
-.tx-mface { width: 196px; padding: 12px; }
-.tx-mface .tx-feature__photo::before { background: var(--pc); }
-.tx-mface .tx-feature__frame { background: var(--gc); }
-.tx-mface .tx-feature__ini { font-size: 3.4rem; }
-.tx-person { display: grid; gap: 16px; }
-.tx-mfacts { --gc: var(--c); }
-.tx-mfacts .tx-dl { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 2px 12px; }
-.tx-others .tx-rows { grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); column-gap: 10px; }
-/* a big committee (Club Presidents: 120+) shows four rows of three, then "Show all N"; two-column/one-column widths show 8 / 6 */
-.tx-others:not(:has(> .tx-all[open])) .tx-rows > :nth-child(n+13) { display: none; }
-.tx-others:not(:has(.tx-rows > :nth-child(13))) > .tx-all { display: none; }
-@container (max-width: 1159px) {
-  .tx-others:not(:has(> .tx-all[open])) .tx-rows > :nth-child(n+9) { display: none; }
-  .tx-others:not(:has(.tx-rows > :nth-child(9))) > .tx-all { display: none; }
-}
-@container (max-width: 759px) {
-  .tx-others:not(:has(> .tx-all[open])) .tx-rows > :nth-child(n+7) { display: none; }
-  .tx-others:not(:has(.tx-rows > :nth-child(7))) > .tx-all { display: none; }
-}
-.tx-head + .tx-backrow { margin-top: 0; padding-top: clamp(24px, 3vw, 40px); }
 
 /* ================= header and footer: fixes on inner pages only ================= */
 /* phone menu: the current page is marked; the pages that have no menu item follow the list */
@@ -1037,7 +1005,7 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-bio { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
 }
 @media (max-width: 760px) {
-  :is(.tx-main--club, .tx-main--project, .tx-main--event, .tx-main--dignitary, .tx-main--member) .tx-head__title { font-size: 2rem; }
+  :is(.tx-main--club, .tx-main--project, .tx-main--event, .tx-main--dignitary) .tx-head__title { font-size: 2rem; }
   .tx-meet { display: grid; width: 100%; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; margin-top: 12px; padding: 8px 14px 8px 8px; }
   .tx-meet__day { width: 52px; height: 52px; font-size: 15.5px; }
   .tx-bento--club .tx-bento__members { grid-column: 1 / -1; }
@@ -1064,13 +1032,6 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-portrait { padding: 10px; }
   .tx-portrait .tx-feature__photo { aspect-ratio: 5 / 4; height: auto; }
   .tx-portrait .tx-feature__ini { font-size: 4rem; }
-  /* a member: the portrait stays beside the name, small */
-  .tx-mem .tx-head__row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
-  .tx-mface { width: 104px; padding: 7px; border-radius: 20px; }
-  .tx-mface .tx-feature__photo { aspect-ratio: 4 / 4.4; height: auto; }
-  .tx-mface .tx-feature__photo::before { left: -4px; bottom: -4px; border-radius: 14px; }
-  .tx-mface .tx-feature__frame { border-radius: 14px; }
-  .tx-mface .tx-feature__ini { font-size: 2rem; }
   .tx-org { grid-template-columns: 52px minmax(0, 1fr) 40px; gap: 12px; }
   .tx-org:not(:has(a)) { grid-template-columns: 52px minmax(0, 1fr); }
   .tx-org__ic { width: 52px; height: 52px; font-size: 15.5px; }

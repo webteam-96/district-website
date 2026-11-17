@@ -6,8 +6,8 @@ import {
   calMonths, todayMonthKey, monthEntries, typesOf, entryText, pressYears, toISO, type PageKey, type Project, projNo
 } from '../../shared/inner';
 import {
-  D, clubProfile, projectDetail, eventDetail, dignitaryProfile, memberProfile, paras, useDocTitle,
-  clubHref, projectHref, eventHref, dignitaryHref, memberHref, memberId, eventId, clubIdOf
+  D, clubProfile, projectDetail, eventDetail, dignitaryProfile, paras, useDocTitle,
+  clubHref, projectHref, eventHref, dignitaryHref, eventId
 } from '../../shared/detail';
 import { Header, UtilityBar } from './Chrome';
 import Footer from './Footer';
@@ -104,14 +104,14 @@ const ShowAll = ({ n }: { n: number }) => (
 const Share = ({ href, title, className }: { href: string; title: string; className: string }) => (
   <button type="button" className={className} data-share data-share-url={href} data-share-title={title} aria-haspopup="menu" aria-expanded="false" aria-label={`Share: ${title}`}>{I.share}<span>Share</span></button>
 );
-/* a person as a card: a large photo (or initials), name, role, club; the name links when there is a page to open */
-function PersonCard({ m, href, q, group }: { m: { name: string; role?: string; club?: string; photo?: Photo | null }; href?: string; q?: string; group?: string }) {
+/* a person as a card: a large photo (or initials), name, role, club */
+function PersonCard({ m, q, group }: { m: { name: string; role?: string; club?: string; photo?: Photo | null }; q?: string; group?: string }) {
   return (
-    <li className={`ccard glass ${href ? 'ccard--link' : ''}`.trim()} data-item={q === undefined ? undefined : true} data-q={q} data-group={group}>
+    <li className="ccard glass" data-item={q === undefined ? undefined : true} data-q={q} data-group={group}>
       <span className="ccard__photo">
         {m.photo ? <img src={m.photo.src} alt="" width={m.photo.w} height={m.photo.h} loading="lazy" /> : <span className="ccard__plate" aria-hidden="true">{initials(m.name)}</span>}
       </span>
-      <h3 className="ccard__name">{href ? <a className="ccard__link" href={href}>{m.name}</a> : m.name}</h3>
+      <h3 className="ccard__name">{m.name}</h3>
       {m.role && <p className="ccard__role">{m.role}</p>}
       {m.club && <p className="ccard__club">{clubName(m.club)}</p>}
     </li>
@@ -161,7 +161,7 @@ function Committee() {
                   {gov.photo ? <img src={gov.photo.src} alt={gov.photo.alt} width={gov.photo.w} height={gov.photo.h} /> : <span className="portrait__plate" aria-hidden="true">{gov.initials}</span>}
                 </div>
                 <div className="cstage__who">
-                  <h2><a className="cstage__link" href={memberHref(gov)}>{gov.name}</a></h2>
+                  <h2>{gov.name}</h2>
                   <p className="cstage__role">{gov.role}</p>
                   {gov.club && <p className="cstage__club">{clubName(gov.club)}</p>}
                 </div>
@@ -194,7 +194,7 @@ function Committee() {
                     <b data-f-group-count>{num(list.length)}</b>
                     {list.length > CAP_MIN && <ShowAll n={list.length} />}
                   </header>
-                  <ul className="cgrid">{list.map((m, i) => <PersonCard key={i} m={m} href={memberHref(m)} q={m.q} group={g.key} />)}</ul>
+                  <ul className="cgrid">{list.map((m, i) => <PersonCard key={i} m={m} q={m.q} group={g.key} />)}</ul>
                 </section>
               );
             })}
@@ -527,7 +527,7 @@ function Newsletters({ year }: { year: string }) {
   );
 }
 
-/* ================= Detail pages: club, project, event, dignitary, member =================
+/* ================= Detail pages: club, project, event, dignitary =================
    One item each (shared/detail.tsx); the static HTML shows the example item. The head is the inner pages'
    band with the item's name and "Home / name". The body reuses the homepage's objects: the Snapshot's
    bento and stat cells, the mirrored stage and its portrait, the calendar's day tile and lanes, the
@@ -932,52 +932,6 @@ function DignitaryPage() {
   );
 }
 
-/* ---------- committee member: the person on the stage with the facts, then the rest of the committee ---------- */
-function MemberPage() {
-  const m = memberProfile();
-  useDocTitle(m?.name);
-  const list = pageInfo('committee');
-  if (!m) return <Missing k="member" text={D.member.missing} href={list.file} label={D.member.back} />;
-  const M = D.member;
-  const clubId = clubIdOf(m.club);
-  const groups = committee();
-  const gi = groups.findIndex(x => x.title === m.group);
-  const others = gi < 0 ? [] : groups[gi].members.filter(x => memberId(x) !== m.id && x.name !== m.name);
-  const facts = [
-    ...(m.group ? [{ label: M.committee, value: m.group }] : []),
-    ...(m.club ? [{ label: M.club, value: clubId ? <a className="dlink" href={clubHref(clubId)}>{clubName(m.club)}</a> : clubName(m.club) }] : []),
-    ...(m.email ? [{ label: M.email, value: <a className="dlink" href={`mailto:${m.email}`}>{m.email}</a> }] : [])
-  ];
-  return (
-    <>
-      <PageHead k="member" title={m.name} />
-      <section className="psec psec--top">
-        <div className="wrap dstack">
-          <article className="mcard glass glass--stage" data-rv>
-            <div className="portrait mcard__portrait">
-              {m.photo ? <img src={m.photo.src} alt={m.photo.alt || m.name} width={m.photo.w} height={m.photo.h} /> : <span className="portrait__plate" aria-hidden="true">{initials(m.name)}</span>}
-            </div>
-            <div className="mcard__text">
-              {m.role && <p className="mcard__role">{m.role}</p>}
-              {facts.length > 0 && <Facts list={facts} />}
-            </div>
-          </article>
-          {others.length > 0 && (
-            <section className="cgroup" data-rv aria-labelledby="mo-t" style={v({ '--c': HUE[gi % 4] })}>
-              <header className="cgroup__head">
-                <i aria-hidden="true" /><h2 id="mo-t">{groups[gi].title}</h2><b>{num(others.length)}</b>
-                {others.length > CAP_MIN && <ShowAll n={others.length} />}
-              </header>
-              <ul className="cgrid">{others.map((o, i) => <PersonCard key={i} m={o} href={memberHref(o)} />)}</ul>
-            </section>
-          )}
-          <Back href={list.file} label={M.back} />
-        </div>
-      </section>
-    </>
-  );
-}
-
 const BODY: Partial<Record<PageKey, (p: { year: string }) => ReactNode>> = {
   about: () => <About />,
   committee: () => <Committee />,
@@ -989,8 +943,7 @@ const BODY: Partial<Record<PageKey, (p: { year: string }) => ReactNode>> = {
   club: () => <ClubPage />,
   project: () => <ProjectPage />,
   event: () => <EventPage />,
-  dignitary: () => <DignitaryPage />,
-  member: () => <MemberPage />
+  dignitary: () => <DignitaryPage />
 };
 
 function Body({ page, year }: { page: PageKey; year: string }) {

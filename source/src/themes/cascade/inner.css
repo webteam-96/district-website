@@ -341,9 +341,13 @@ details[open] > summary .ci-chev { rotate: 180deg; }
 /* rank of the card among those shown (1 = newest); hidden cards have no box, so they are not counted */
 .ci-projs { counter-reset: ci-rank; }
 .ci-proj { counter-increment: ci-rank; }
-.ci-proj__no { position: absolute; top: 12px; right: 12px; z-index: 1; display: inline-flex; align-items: baseline; justify-content: center; gap: 1px; min-width: 48px; height: 48px; padding: 12px 10px 0; border-radius: 16px; background: var(--plum); color: #fff; font-family: var(--f-display); font-size: 22px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.92), 0 8px 18px rgba(36, 8, 43, 0.3); }
-.ci-proj__no::before { content: '#'; font-size: 15px; color: #ffb98a; }
+.ci-proj__no { position: absolute; right: -10px; bottom: -10px; z-index: 1; display: inline-flex; align-items: baseline; justify-content: center; gap: 1px; min-width: 48px; height: 48px; padding: 12px 10px 0; border-radius: 16px; background: var(--plum); color: #fff; font-family: var(--f-display); font-size: 22px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.92), 0 8px 18px rgba(36, 8, 43, 0.3); }
 .ci-proj__no::after { content: attr(data-no); }
+/* the avenue label and the rank stand on the lower lip of the photo's offset block: the photo shows whole, with only a
+   corner of it under each.
+   ponytail: both keep their size at every width, so on phones narrower than about 360px they can hide a little over
+   8% of a photo that fills the frame (about 10% at 320px); make .ci-proj__no smaller there if that matters */
+.ci-proj__photo .ci-pill { left: 20px; top: auto; bottom: -10px; padding-block: 2px; }
 .ci-proj__go { align-self: end; margin-top: 18px; }
 .ci-proj__go .btn-go, .ci-story__go .btn-go { min-height: 44px; padding: 0 20px; }
 .ci-story__nums div { display: flex; flex-direction: column-reverse; justify-content: flex-end; min-width: 0; }
@@ -813,21 +817,12 @@ body[data-page] .mmenu__list a[aria-current] { color: #ffb98a; }
   main.cin [data-rv] { transition: none; }
 }
 
-/* =============================== detail pages: club, project, event, dignitary, member =============================== */
-/* one link per card, stretched over it (portrait cards on the committee and member pages) */
-.ci-cardlink { transition: color 0.2s; }
-.ci-cardlink::after { content: ''; position: absolute; inset: 0; z-index: 2; }
-.ci-cardlink:focus-visible, .ci-evlink:focus-visible { outline: none; }
-.ci-pcard:has(.ci-cardlink:focus-visible) { outline: 3px solid var(--coral); outline-offset: 4px; border-radius: 18px; }
-.ci-exec .ci-pcard:has(.ci-cardlink:focus-visible) { outline-color: #ffb98a; }
-@media (hover: hover) {
-  .ci-pcard:hover .ci-cardlink { color: var(--coral-ink); }
-  .ci-exec .ci-pcard:hover .ci-cardlink { color: #ffb98a; }
-}
+/* =============================== detail pages: club, project, event, dignitary =============================== */
 /* club and district events (District Calendar, homepage calendar, club profile): the title is the row's link */
 .ci-ev { position: relative; }
 .ci-evlink { transition: color 0.2s; }
 .ci-evlink::after { content: ''; position: absolute; inset: 0; }
+.ci-evlink:focus-visible { outline: none; }
 .ci-ev:has(.ci-evlink:focus-visible) { outline: 3px solid var(--coral); outline-offset: 2px; }
 @media (hover: hover) {
   .ci-ev:hover .ci-evlink { color: var(--coral-ink); }
@@ -855,12 +850,8 @@ body[data-page] .mmenu__list a[aria-current] { color: #ffb98a; }
 .ci-facts { display: grid; }
 .ci-facts > div { display: grid; grid-template-columns: minmax(110px, max-content) minmax(0, 1fr); align-items: baseline; gap: 4px 20px; padding: 12px 0; border-top: 1px solid var(--line); }
 .ci-facts > div:last-child { border-bottom: 1px solid var(--line); }
-.ci-facts > div:has(.ci-link) { align-items: center; padding-block: 4px; }
 .ci-facts dt { font-size: 14.5px; font-weight: 700; color: var(--ink-3); }
 .ci-facts dd { margin: 0; min-width: 0; font-size: 16px; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
-.ci-link { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; color: var(--coral-ink); font-weight: 800; }
-.ci-link svg { flex: none; transition: translate 0.3s var(--back); }
-@media (hover: hover) { .ci-link:hover { text-decoration: underline 2px; text-underline-offset: 4px; } .ci-link:hover svg { translate: 4px 0; } }
 .ci-reach { display: flex; flex-wrap: wrap; gap: 8px; }
 .ci-reach a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; max-width: 100%; padding: 4px 16px 4px 5px; border-radius: 999px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); font-size: 15px; font-weight: 700; line-height: 1.3; transition: background-color 0.25s, box-shadow 0.25s; }
 .ci-reach span { min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
@@ -908,7 +899,8 @@ body[data-page] .mmenu__list a[aria-current] { color: #ffb98a; }
   .ci-gal__big:hover img { transform: translate(-4px, -5px); }
   .ci-gal__big:hover::before { transform: translate(4px, 5px); }
 }
-.ci-gal__big figcaption { position: absolute; left: 14px; bottom: 14px; max-width: calc(100% - 28px); padding: 6px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.94); color: #24082b; font-size: 14px; font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; pointer-events: none; }
+/* the cover's caption stands under the photo, on the offset block, which runs on below the frame to hold it */
+.ci-gal__big figcaption { position: relative; width: fit-content; max-width: calc(100% - 28px); margin: 14px 0 0 28px; padding: 6px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.94); color: #24082b; font-size: 14px; font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; pointer-events: none; }
 .ci-gal__thumb { position: relative; display: block; border-radius: 12px; transition: translate 0.3s var(--back); }
 .ci-gal__thumb img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 12px; object-fit: cover; }
 @media (hover: hover) { .ci-gal__thumb:hover { translate: 0 -3px; } }
@@ -923,6 +915,10 @@ body[data-page] .mmenu__list a[aria-current] { color: #ffb98a; }
 .ci-zoom { position: relative; display: block; border-radius: 20px; }
 .ci-story__photo .ci-zoom { border-radius: 26px; }
 .ci-zoom:focus-visible { outline: 3px solid var(--coral); outline-offset: 4px; }
+/* a card photo and a gallery's cover show whole (shared/media.css), so they may not fill their frame: the rest of the
+   frame is that rule's faint tint, laid on the sheet colour so the offset block behind does not show through
+   (a.…[data-lightbox] outranks the shared rule) */
+main.cin a.ci-zoom[data-lightbox] img, main.cin a.ci-gal__cover[data-lightbox] img { background-color: var(--surface-2); background-color: color-mix(in srgb, var(--ink) 7%, var(--surface)); }
 .ci-proj__go, .ci-story__go, .ci-split__share { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .ci-share { position: relative; z-index: 3; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px 0 15px; border: 0; border-radius: 999px; background: transparent; box-shadow: inset 0 0 0 1.5px var(--line-2); color: var(--ink); font: inherit; font-size: 15px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: background-color 0.25s, color 0.25s, box-shadow 0.25s; }
 .ci-share svg { flex: none; }
@@ -1045,32 +1041,8 @@ body[data-page] { --share-bg: #fff; --share-ink: #24082b; --share-hover: rgba(25
 .ci-wine .ci-back__a:focus-visible { outline-color: #ffb98a; }
 @media (hover: hover) { .ci-wine .ci-back__a:hover { background: #fff; color: #24082b; } }
 
-/* member: their portrait leads their committee's wine block (the Governor's card on the committee page) */
-.ci-mem-d { padding-top: 36px; }
-.ci-mem-d .ci-exec { margin-bottom: 0; }
-.ci-exec .ci-pcard--lead .ci-facts { margin-top: 14px; }
-.ci-exec .ci-facts > div { border-color: rgba(255, 255, 255, 0.18); }
-.ci-exec .ci-facts dt { color: #ecd3e3; }
-.ci-exec .ci-facts dd { color: #fff; }
-.ci-exec .ci-link { color: #ffb98a; }
-.ci-exec .ci-link:focus-visible { outline-color: #ffb98a; }
-/* the member's own card: half a row, photo beside the text; the rest of the committee fills the grid */
-.ci-pgrid--me > .ci-pcard--lead { grid-column: span 3; grid-row: auto; flex-direction: row; align-items: flex-end; gap: 26px; }
-.ci-pgrid--me > .ci-pcard--lead .ci-pcard__photo { flex: none; width: 200px; }
-.ci-pgrid--me > .ci-pcard--lead .ci-pcard__text { flex: 1; min-width: 0; padding: 0 0 12px; }
-.ci-pgrid--me > .ci-pcard--lead .ci-pcard__name { font-size: 30px; }
-.ci-cap:not(:has(> .ci-all:checked)) > .ci-pgrid--me > :nth-child(n + 11) { display: none; }
-.ci-cap:has(> .ci-pgrid--me > :nth-child(11)) > .ci-all-l { display: flex; }
-.ci-exec--solo .ci-exec__in { padding-top: 64px; }
-.ci-exec--solo .ci-pgrid--me > .ci-pcard--lead { grid-column: 1 / -1; flex-direction: row; align-items: flex-end; gap: 36px; max-width: 860px; }
-.ci-exec--solo .ci-pgrid--me > .ci-pcard--lead .ci-pcard__photo { width: 240px; }
-
 @media (max-width: 1100px) {
   .ci-split, .ci-evd { gap: 36px; }
-  .ci-pgrid--me > .ci-pcard--lead { grid-column: span 2; }
-  .ci-pgrid--me > .ci-pcard--lead .ci-pcard__photo { width: 150px; }
-  .ci-cap:not(:has(> .ci-all:checked)) > .ci-pgrid--me > :nth-child(n + 8) { display: none; }
-  .ci-cap:has(> .ci-pgrid--me > :nth-child(8)) > .ci-all-l { display: flex; }
   .ci-vcard { grid-template-columns: 260px minmax(0, 1fr); gap: 0 40px; padding: 0 40px 40px 32px; }
 }
 @media (max-width: 1000px) {
@@ -1102,7 +1074,7 @@ body[data-page] { --share-bg: #fff; --share-ink: #24082b; --share-hover: rgba(25
   .ci-gal__big { margin: 0 10px 18px 0; }
   .ci-gal__big::before { inset: 10px -10px -10px 10px; border-radius: 20px; }
   .ci-gal__big img { border-radius: 20px; }
-  .ci-gal__big figcaption { left: 10px; bottom: 10px; max-width: calc(100% - 20px); padding: 5px 10px; font-size: 13px; }
+  .ci-gal__big figcaption { max-width: calc(100% - 20px); margin: 10px 0 0 20px; padding: 5px 10px; font-size: 13px; }
   .ci-gal__thumb, .ci-gal__thumb img { border-radius: 10px; }
 
   /* event */
@@ -1139,16 +1111,6 @@ body[data-page] { --share-bg: #fff; --share-ink: #24082b; --share-hover: rgba(25
   .ci-vcard__photo :is(img, span) { border-radius: 18px; font-size: 52px; }
   .ci-other { order: 1; }
   .ci-vcard__main { gap: 28px; padding-top: 0; }
-
-  /* member */
-  .ci-mem-d { padding-top: 22px; }
-  .ci-pgrid--me > .ci-pcard--lead, .ci-exec--solo .ci-pgrid--me > .ci-pcard--lead { grid-column: 1 / -1; flex-direction: column; align-items: flex-start; gap: 4px; }
-  .ci-pgrid--me > .ci-pcard--lead .ci-pcard__photo, .ci-exec--solo .ci-pgrid--me > .ci-pcard--lead .ci-pcard__photo { width: 180px; }
-  .ci-pgrid--me > .ci-pcard--lead .ci-pcard__text { align-self: stretch; padding: 14px 0 0; }
-  .ci-pgrid--me > .ci-pcard--lead .ci-pcard__name { font-size: 25px; }
-  .ci-cap:not(:has(> .ci-all:checked)) > .ci-pgrid--me > :nth-child(n + 4) { display: none; }
-  .ci-cap:has(> .ci-pgrid--me > :nth-child(4)) > .ci-all-l { display: flex; }
-  .ci-exec--solo .ci-exec__in { padding-top: 50px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ci-gal__big img, .ci-gal__big::before { transition: none; }

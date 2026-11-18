@@ -104,7 +104,8 @@ export const clubs = () => R.clubs.list.map(c => {
 });
 
 export const avenueLabel = (k: string) => P.projects.avenues.find(a => a.key === k)?.label ?? k;
-export const projectsOf = (avenue?: string) => P.projects.list.filter(p => !avenue || p.avenue === avenue);
+/* no avenue: Club Projects, every avenue except Club Service (it has its own page), as the district's site counts them */
+export const projectsOf = (avenue?: string) => P.projects.list.filter(p => (avenue ? p.avenue === avenue : p.avenue !== 'club'));
 export const totals = (list: Project[]) => ({
   projects: list.length,
   beneficiaries: list.reduce((s, p) => s + p.beneficiaries, 0),

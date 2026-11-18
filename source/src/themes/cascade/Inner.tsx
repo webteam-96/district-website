@@ -284,7 +284,7 @@ const ProjCard = ({ p, i, n, no }: { p: Project; i: number; n: number; no?: stri
 function Projects() {
   const x = P.projects;
   const list = newest(projectsOf());
-  const avs = [{ key: '', label: x.allLabel, n: list.length }, ...x.avenues.map(a => ({ ...a, n: list.filter(p => p.avenue === a.key).length }))];
+  const avs = [{ key: '', label: x.allLabel, n: list.length }, ...x.avenues.filter(a => a.key !== 'club').map(a => ({ ...a, n: list.filter(p => p.avenue === a.key).length }))];
   return (
     <div className="ci-page" data-filter data-page-size={x.pageSize}>
       <Head k="projects" mod="ci-head--tabs" plate={<Totals list={list} />} tabs={
@@ -320,10 +320,7 @@ function Service() {
   const t = totals(list);
   return (
     <div className="ci-page" data-filter data-page-size={x.pageSize}>
-      <Head k="service" mod="ci-head--strip" strip={<Counters rows={[
-        ['Projects', num(t.projects)], ['Clubs Involved', num(new Set(list.map(p => p.club)).size)],
-        ['Beneficiaries', num(t.beneficiaries)], ['Volunteer Hours', num(t.hours)], ['Amount Spent', `₹${R.fmt.num(t.amount, 1)} L`]
-      ]} />} />
+      <Head k="service" />
       <section className="ci-sheet ci-sheet--slim">
         <div className="wrap ci-tools" data-rv><Search label={x.searchLabel} /><Count n={list.length} one="project" many="projects" /></div>
       </section>

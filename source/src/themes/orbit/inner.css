@@ -238,9 +238,9 @@ body[data-page] :is(.strip, .bar, .mmenu, .foot__bar) :focus-visible { outline-c
 .oi-lane .oi-mem > div { width: 100%; }
 .oi-com .oi-empty { margin-top: 8px; }
 /* the cap, CSS only: a committee shows its first four, the executive the Governor and two rows; "Show all" opens the rest */
-.oi-lane:has(> .oi-all input:not(:checked)) .oi-lane__list > li:nth-child(n + 5 of :not([hidden])) { display: none; }
+.oi-scope:not([data-f-group]) .oi-lane:has(> .oi-all input:not(:checked)) .oi-lane__list > li:nth-child(n + 5 of :not([hidden])) { display: none; }
 .oi-lane:not(:has(.oi-lane__list > li:nth-child(5 of :not([hidden])))) > .oi-all { display: none; }
-.oi-execs:has(> .oi-all input:not(:checked)) .oi-exec > li:nth-child(n + 10 of :not([hidden])) { display: none; }
+.oi-scope:not([data-f-group]) .oi-execs:has(> .oi-all input:not(:checked)) .oi-exec > li:nth-child(n + 10 of :not([hidden])) { display: none; }
 @media (min-width: 761px) { .oi-execs:not(:has(.oi-exec > li:nth-child(10 of :not([hidden])))) > .oi-all { display: none; } }
 .oi-execs > .oi-all { display: flex; width: fit-content; margin: 22px auto 0; }
 
@@ -842,7 +842,7 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
   .oi-com .oi-who { font-size: 15.5px; }
   .oi-lane { padding: 22px 0 24px; gap: 16px; }
   .oi-lane__list { --cols: 2; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
-  .oi-execs:has(> .oi-all input:not(:checked)) .oi-exec > li:nth-child(n + 6 of :not([hidden])) { display: none; }
+  .oi-scope:not([data-f-group]) .oi-execs:has(> .oi-all input:not(:checked)) .oi-exec > li:nth-child(n + 6 of :not([hidden])) { display: none; }
   .oi-execs:not(:has(.oi-exec > li:nth-child(6 of :not([hidden])))) > .oi-all { display: none; }
   .oi-execs > .oi-all, .oi-lane > .oi-all { min-height: 44px; }
 
@@ -1047,3 +1047,10 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
 @media (prefers-reduced-motion: reduce) {
   .oi-lead__ring, .oi-panel__ring, .oi-sheet__ring i, .oi-days, .oi-agenda, .oi-year, .oi-press [data-panel], .oi-work [data-panel] { animation: none; }
 }
+
+/* Club Service without the counter panel (client, 18 Nov 2026): the stories fill the width, in columns */
+.oi-svc__grid { grid-template-columns: minmax(0, 1fr); }
+.oi-svc .oi-stories { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+
+/* District Committee (client, 18 Nov 2026): a committee chosen with its tile shows all its members, no Show all */
+.oi-scope[data-f-group] :is(.oi-lane, .oi-execs) > .oi-all { display: none; }

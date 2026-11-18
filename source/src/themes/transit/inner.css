@@ -227,25 +227,25 @@ body[data-page] .head { position: sticky; top: 0; }
 .tx-card__club { font-size: 13.5px; color: var(--ink-3); }
 :root[data-theme='dark'] .tx-card__photo.is-ini { background: color-mix(in srgb, var(--gc) 30%, var(--surface)); color: #fff; }
 /* the cap: phones 2 x 2, then 3, 4 or 6 a row by the committee's width; no cap while searching */
-[data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+5 of [data-item]:not([hidden])) { display: none; }
+[data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+5 of [data-item]:not([hidden])) { display: none; }
 .tx-group:not(:has(> .tx-cards > :nth-child(5 of [data-item]:not([hidden])))) > .tx-all { display: none; }
 [data-filter]:has([data-f-search]:not(:placeholder-shown)) .tx-all { display: none; }
 @container (min-width: 440px) {
   .tx-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+5 of [data-item]:not([hidden])) { display: flex; }
-  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+7 of [data-item]:not([hidden])) { display: none; }
+  [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+5 of [data-item]:not([hidden])) { display: flex; }
+  [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+7 of [data-item]:not([hidden])) { display: none; }
   .tx-group:not(:has(> .tx-cards > :nth-child(7 of [data-item]:not([hidden])))) > .tx-all { display: none; }
 }
 @container (min-width: 660px) {
   .tx-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+7 of [data-item]:not([hidden])) { display: flex; }
-  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+9 of [data-item]:not([hidden])) { display: none; }
+  [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+7 of [data-item]:not([hidden])) { display: flex; }
+  [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+9 of [data-item]:not([hidden])) { display: none; }
   .tx-group:not(:has(> .tx-cards > :nth-child(9 of [data-item]:not([hidden])))) > .tx-all { display: none; }
 }
 @container (min-width: 940px) {
   .tx-cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+9 of [data-item]:not([hidden])) { display: flex; }
-  [data-filter]:not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+13 of [data-item]:not([hidden])) { display: none; }
+  [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+9 of [data-item]:not([hidden])) { display: flex; }
+  [data-filter]:not([data-f-group]):not(:has([data-f-search]:not(:placeholder-shown))) .tx-group:not(:has(> .tx-all[open])) > .tx-cards > :nth-child(n+13 of [data-item]:not([hidden])) { display: none; }
   .tx-group:not(:has(> .tx-cards > :nth-child(13 of [data-item]:not([hidden])))) > .tx-all { display: none; }
 }
 /* "Show all N": a pill at the platform's foot; open, it reads "Show fewer" */
@@ -1047,3 +1047,7 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .rv-on .tx-main [data-rv], .rv-on .tx-main [data-rv]:not(.is-in) { opacity: 1; transform: none; }
   .tx-head__art::before, .tx-head__art::after, .tx-about::before, .tx-about::after { animation: none; }
 }
+
+/* District Committee (client, 18 Nov 2026): no timeline line down the committee list; a chosen committee shows all of it */
+.tx-stop::before { display: none; }
+[data-filter][data-f-group] .tx-all { display: none; }

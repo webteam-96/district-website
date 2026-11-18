@@ -168,7 +168,6 @@ function Committee() {
               </article>
             )}
             <div className="cstage__index">
-              <p className="cstage__total"><b data-count>{num(total)}</b> members in <b data-count>{num(groups.length)}</b> committees</p>
               {groups.length > 1 && (
                 <div className="cstage__chips" role="group" aria-label="Committee">
                   <button type="button" className="cchip" data-f-chip="group" data-v="" aria-pressed="true"><span>All</span><b>{num(total)}</b></button>
@@ -322,20 +321,10 @@ function Projects({ service = false }: { service?: boolean }) {
       )}
       <section className="psec psec--top">
         <div className="wrap">
-          {service ? (
-            <ul className="sstrip">
-              {strip.map((s, i) => (
-                <li key={s.key} className={`sstrip__cell sstrip__cell--${s.key}`} data-glow data-rv style={v({ '--accent': s.accent, '--d': `${i * 60}ms` })}>
-                  <span className="sstrip__icon" aria-hidden="true">{SNAP[s.key]}</span>
-                  <span className="sstrip__label">{s.label}</span>
-                  <b className="sstrip__num" data-count>{s.value}</b>
-                </li>
-              ))}
-            </ul>
-          ) : (
+          {!service && (
             <div className="gchips" role="group" aria-label="Avenue of service" data-rv>
               <button type="button" className="gchip" data-f-chip="avenue" data-v="" aria-pressed="true">{x.allLabel}<b>{num(list.length)}</b></button>
-              {x.avenues.map(a => {
+              {x.avenues.filter(a => a.key !== 'club').map(a => {
                 const n = list.filter(p => p.avenue === a.key).length;
                 return n ? <button key={a.key} type="button" className="gchip" data-f-chip="avenue" data-v={a.key} aria-pressed="false"><i className={`gdot gdot--${a.key}`} aria-hidden="true" />{a.label}<b>{num(n)}</b></button> : null;
               })}

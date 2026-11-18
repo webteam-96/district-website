@@ -74,8 +74,6 @@ export default function Hero() {
           <div
             ref={col}
             className="hero__deck"
-            onPointerEnter={() => setHold(true)}
-            onPointerLeave={() => setHold(false)}
           >
             <CardSwap
               ref={deck}
@@ -87,7 +85,7 @@ export default function Hero() {
               visibleCards={Math.min(4, slides.length)}
               delay={h.autoplayMs}
               autoplay={playing}
-              pauseOnHover
+              pauseOnHover={false}
               skewAmount={2}
               cardRadius={24}
               theme={theme}

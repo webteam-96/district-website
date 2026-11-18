@@ -305,11 +305,7 @@ function Projects({ service = false }: { service?: boolean }) {
     { k: 'hours', label: 'Volunteer Hours', v: num(t.hours) },
     { k: 'amount', label: 'Amount Spent', v: lakh(t.amount) }
   ];
-  const slot = service ? (
-    <div className="tx-stotals tx-ccard" data-glow>
-      {strip.map(s => <p key={s.k}><b data-count>{s.v}</b><span>{s.label}</span></p>)}
-    </div>
-  ) : (
+  const slot = service ? null : (
     <ul className="tx-bento">
       {stats.map((s, i) => (
         <li key={s.k} className={`tx-ccard tx-bento__${s.k}`} style={css({ '--c': BENTO[i] })} data-glow={i === 0 ? '' : undefined}>
@@ -329,7 +325,7 @@ function Projects({ service = false }: { service?: boolean }) {
             <div className="tx-bar" data-rv>
               <div className="tx-chips" role="group" aria-label="Avenue of service" data-lenis-prevent>
                 <Chip attr="avenue" v="" on>{x.allLabel}</Chip>
-                {x.avenues.map(a => <Chip key={a.key} attr="avenue" v={a.key} c={AV[a.key]}><i className="dot" aria-hidden="true" />{a.label}</Chip>)}
+                {x.avenues.filter(a => a.key !== 'club').map(a => <Chip key={a.key} attr="avenue" v={a.key} c={AV[a.key]}><i className="dot" aria-hidden="true" />{a.label}</Chip>)}
               </div>
               <Count n={list.length} noun="projects" />
             </div>

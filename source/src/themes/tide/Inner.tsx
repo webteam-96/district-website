@@ -368,7 +368,7 @@ function Projects({ service = false }: { service?: boolean }) {
   return (
     <div className="tp-flt" data-filter data-page-size={x.pageSize}>
       <PageHead k={service ? 'service' : 'projects'} dock={<>
-        <Stats list={stats} className={service ? 'tp-stats--row' : ''} />
+        {!service && <Stats list={stats} />}
         <Find label={x.searchLabel} deep />
       </>} />
       <section className={`tp-body ${service ? 'tp-sv' : 'tp-pjs'}`}>
@@ -383,24 +383,11 @@ function Projects({ service = false }: { service?: boolean }) {
               <div className="tp-rail" data-rv>
                 <div className="tp-chips" role="group" aria-label="Avenue of service">
                   <Chip attr="avenue" val="" on>{x.allLabel}</Chip>
-                  {x.avenues.map(a => <Chip key={a.key} attr="avenue" val={a.key}>{a.label}</Chip>)}
+                  {x.avenues.filter(a => a.key !== 'club').map(a => <Chip key={a.key} attr="avenue" val={a.key}>{a.label}</Chip>)}
                 </div>
                 <Count total={list.length} noun="projects" />
               </div>
-              <div className="tp-logs">
-                {[...months].map(([ym, ps]) => {
-                  const d = parseISO(`${ym}-01`);
-                  return (
-                    <section key={ym} className="tp-log" data-f-group data-rv aria-label={monthLabel(d)}>
-                      <header className="tp-log__m">
-                        <h2><b>{monthLabel(d).slice(0, 3)}</b> <span>{d.getFullYear()}</span></h2>
-                        <p className="tp-log__n">{L.projects} <b data-f-group-count>{num(ps.length)}</b></p>
-                      </header>
-                      <ul className="tp-log__cards">{ps.map(p => <ProjectCard key={p.id} p={p} no={nos.get(p.id)} />)}</ul>
-                    </section>
-                  );
-                })}
-              </div>
+              <ul className="tp-spreads">{list.map(p => <Spread key={p.id} p={p} />)}</ul>
             </>
           )}
           <Empty text={x.empty} />

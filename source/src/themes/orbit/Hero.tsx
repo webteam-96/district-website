@@ -60,8 +60,6 @@ export default function Hero() {
         role="region"
         aria-roledescription="carousel"
         aria-label={h.title}
-        onPointerEnter={() => setHold(true)}
-        onPointerLeave={() => setHold(false)}
         onKeyDown={e => {
           if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
           if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }

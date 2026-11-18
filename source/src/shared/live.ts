@@ -459,7 +459,7 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
     const kept = all.filter(p => (seen[p.avenue] = (seen[p.avenue] ?? 0) + 1) <= PER);
     const clubs = (l: Project[]) => l.filter(p => p.avenue === 'club').length;
     /* real photos for the cards a visitor sees first: the first page of every avenue filter, one request a card (as production) */
-    const views = page === 'service' ? [kept.filter(p => p.avenue === 'club')] : [kept, ...P.projects.avenues.map(a => kept.filter(p => p.avenue === a.key))];
+    const views = page === 'service' ? [kept.filter(p => p.avenue === 'club')] : [kept.filter(p => p.avenue !== 'club'), ...P.projects.avenues.filter(a => a.key !== 'club').map(a => kept.filter(p => p.avenue === a.key))];
     const first = new Set(views.flatMap(v => v.slice(0, P.projects.pageSize)));
     await cardPhotos([...first], y);
     return () => {

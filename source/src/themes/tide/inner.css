@@ -390,7 +390,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 
 /* ======================= Club Service: alternating overlap spreads ======================= */
 .tp-rail--bare { min-height: 8px; }
-.tp-spreads { --ov: 72px; display: grid; gap: 40px; margin-top: 20px; }
+.tp-spreads { --ov: 72px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; margin-top: 20px; }   /* ROW: a wide photo cannot widen the column */
 .tp-sp { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; }
 .tp-sp__photo { grid-area: 1 / 1; height: 340px; margin: 0; overflow: hidden; border-radius: 18px; background: var(--tint); box-shadow: 0 24px 54px rgba(6, 43, 51, 0.2); }
 .tp-sp__photo img { width: 100%; height: 100%; object-fit: cover; }

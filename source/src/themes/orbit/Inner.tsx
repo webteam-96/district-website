@@ -126,6 +126,9 @@ function Ring({ text }: { text: string }) {
     </svg>
   );
 }
+/* a committee's name as a heading for its members: "District Secretary" names a group of them */
+const teamName = (t: string) => t.replace(/\bSecretary$/, 'Secretaries');
+
 function Committee() {
   const groups = committee();
   const total = groups.reduce((s, g) => s + g.members.length, 0);
@@ -138,7 +141,7 @@ function Committee() {
         <div className="wrap">
           <div className="oi-index" role="group" aria-label="Committees" data-rv data-lenis-prevent>
             <Chip attr="group" v="" on cls="oi-chip--tile"><span>All committees</span><b data-count>{total}</b></Chip>
-            {groups.map(g => <Chip key={g.key} attr="group" v={g.key} cls="oi-chip--tile"><span>{g.title}</span><b data-count>{g.members.length}</b></Chip>)}
+            {groups.map(g => <Chip key={g.key} attr="group" v={g.key} cls="oi-chip--tile"><span>{teamName(g.title)}</span><b data-count>{g.members.length}</b></Chip>)}
           </div>
 
           <section className="oi-execs" data-f-group>
@@ -172,7 +175,7 @@ function Committee() {
           {lanes.map(g => (
             <section key={g.key} className="oi-lane" data-f-group data-rv>
               <div className="oi-lane__head">
-                <h2>{g.title}</h2>
+                <h2>{teamName(g.title)}</h2>
                 <b className="oi-ring-n" data-f-group-count>{g.members.length}</b>
               </div>
               <ul className="oi-lane__list">
@@ -208,13 +211,6 @@ function Finder() {
   const tools = (
     <div className="oi-ftools">
       <Search label={f.searchLabel} total={list.length} />
-      <p className="oi-ftools__label" id="oi-daylabel">{f.dayLabel}</p>
-      <div className="oi-week" role="group" aria-labelledby="oi-daylabel" data-lenis-prevent>
-        <button type="button" className="oi-week__any" data-f-chip="day" data-v="" aria-pressed="true" aria-label={f.anyDay} title={f.anyDay}>Any</button>
-        {f.days.map((d, i) => (
-          <button key={d} type="button" data-f-chip="day" data-v={d} aria-pressed="false" aria-label={`${d} (${perDay(d)})`} title={`${d} (${perDay(d)})`} style={{ left: `${WEEK[i][0]}%`, top: `${WEEK[i][1]}%` }}>{d.slice(0, 2)}</button>
-        ))}
-      </div>
     </div>
   );
   return (
@@ -316,7 +312,7 @@ function Projects() {
         <div className="wrap">
           <div className="oi-chips" role="group" aria-label="Avenues of service" data-rv data-lenis-prevent>
             <Chip attr="avenue" v="" on>{x.allLabel}</Chip>
-            {x.avenues.map(a => <Chip key={a.key} attr="avenue" v={a.key}>{a.label}</Chip>)}
+            {x.avenues.filter(a => a.key !== 'club').map(a => <Chip key={a.key} attr="avenue" v={a.key}>{a.label}</Chip>)}
           </div>
           <ul className="oi-pgrid">
             {list.map((p, i, a) => <ProjCard key={p.id} p={p} no={projNo(i, a.length)} />)}
@@ -347,15 +343,6 @@ function Service() {
       <Head k="service" />
       <section className="oi-sec oi-svc">
         <div className="wrap oi-svc__grid" data-filter data-page-size={x.pageSize}>
-          <div className="oi-panel" data-rv>
-            <div className="oi-panel__total oi-turn" data-rv>
-              <span className="oi-panel__ring" aria-hidden="true"><i /></span>
-              <p className="oi-hub oi-hub--paper" style={css({ '--len': first.value.length })}><b data-count>{first.value}</b><span>{first.label}</span></p>
-            </div>
-            <ul className="oi-panel__stats">
-              {stats.map((r, i) => <li key={r.label} style={css({ '--c': ACCENT[i] })}><span>{r.label}</span><b data-count>{r.value}</b></li>)}
-            </ul>
-          </div>
           <div className="oi-svc__list">
             <ul className="oi-stories">
               {list.map((p, i, a) => (

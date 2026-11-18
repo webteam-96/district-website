@@ -185,7 +185,6 @@ function Committee() {
   return (
     <div data-filter>
       <PageHead k="committee">
-        <p className="px-kfig"><b data-count>{num(total)}</b><span>members</span><b data-count>{num(groups.length)}</b><span>committees</span></p>
         <Search label={P.committee.searchLabel} count={total} />
       </PageHead>
       <div className="wrap px-body">
@@ -241,7 +240,8 @@ function Finder() {
         <Search label={f.searchLabel} hero />
       </PageHead>
       <div className="wrap px-body">
-        <div className="px-week" role="group" aria-label={f.dayLabel} data-rv>
+        <p className="px-week__label" id="px-daylabel" data-rv>Filter clubs by meeting day</p>
+        <div className="px-week" role="group" aria-labelledby="px-daylabel" data-rv>
           <button type="button" className="px-wtile" data-f-chip="day" data-v="" aria-pressed="true">
             <span className="px-wtile__d">{f.anyDay}</span>
             <b className="px-wtile__n" data-count>{num(list.length)}</b>
@@ -329,7 +329,7 @@ function Projects() {
   const x = P.projects;
   const list = latest(projectsOf());
   const n = (k: string) => list.filter(p => p.avenue === k).length;
-  const used = x.avenues.filter(a => n(a.key) > 0);
+  const used = x.avenues.filter(a => a.key !== 'club').filter(a => n(a.key) > 0);
   return (
     <div data-filter data-page-size={x.pageSize}>
       <PageHead k="projects"><Totals list={list} /></PageHead>
@@ -339,7 +339,7 @@ function Projects() {
           <div className="px-spectrum" aria-hidden="true">
             {used.map((a, i) => <i key={a.key} title={a.label} style={css({ '--n': n(a.key), '--accent': AVENUE[a.key] ?? ACC[0], '--k': i })} />)}
           </div>
-          <Chips attr="avenue" all={x.allLabel} label="Avenue of service" items={x.avenues.map(a => ({ v: a.key, label: a.label, n: n(a.key), color: AVENUE[a.key] ?? ACC[0] }))} />
+          <Chips attr="avenue" all={x.allLabel} label="Avenue of service" items={x.avenues.filter(a => a.key !== 'club').map(a => ({ v: a.key, label: a.label, n: n(a.key), color: AVENUE[a.key] ?? ACC[0] }))} />
         </div>
         <ul className="px-ledger px-projs">{list.map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} glow />)}</ul>
         <Empty text={x.empty} />
@@ -358,9 +358,7 @@ function Service() {
     ['Beneficiaries', num(t.beneficiaries)], ['Volunteer Hours', num(t.hours)], ['Amount Spent', lakh(t.amount)]];
   return (
     <div data-filter data-page-size={x.pageSize}>
-      <PageHead k="service" wide>
-        <dl className="px-kquad px-kquad--lead px-kstrip">{strip.map(([l, v]) => <div key={l}><dt>{l}</dt><dd data-count>{v}</dd></div>)}</dl>
-      </PageHead>
+      <PageHead k="service" wide>{null}</PageHead>
       <div className="wrap px-body">
         <div className="px-bar" data-rv><Search label={x.searchLabel} count={list.length} /></div>
         <ul className="px-posters">{list.map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} />)}</ul>

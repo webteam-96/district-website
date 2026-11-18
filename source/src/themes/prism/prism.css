@@ -503,3 +503,9 @@ ul, ol { padding: 0; list-style: none; }
 
 /* month and year picker: colours (shared/month-picker.css) */
 .mp-pop { --mp-accent: var(--azure); --mp-on-accent: #fff; }
+
+/* client, 18 Nov 2026: the logo at the left, the whole menu at the right */
+.head__row { grid-template-columns: auto minmax(0, 1fr); }
+.head__brand { justify-self: start; }
+.hnav--right ul { justify-content: flex-end; }
+@media (max-width: 1100px) { .head__row { grid-template-columns: auto minmax(0, 1fr) auto; } }

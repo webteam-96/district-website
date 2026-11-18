@@ -44,7 +44,7 @@ const Hexes = ({ figs, className = '' }: { figs: Fig[]; className?: string }) =>
       <li key={i} className={`kx-fig kx-${f.tone}`} style={v({ '--i': i })}>
         <span className="kx-fig__in">
           {f.top && <span className="kx-fig__l">{f.top}</span>}
-          <span className="kx-fig__n">{f.pre && <small>{f.pre}</small>}{f.count === false ? <b>{f.n}</b> : <b data-count>{f.n}</b>}{f.post && <small>{f.post}</small>}</span>
+          <span className="kx-fig__n" style={v({ '--len': String(f.n).length + (f.pre ? 1 : 0) + (f.post ? 1 : 0) })}>{f.pre && <small>{f.pre}</small>}{f.count === false ? <b>{f.n}</b> : <b data-count>{f.n}</b>}{f.post && <small>{f.post}</small>}</span>
           <span className="kx-fig__l">{f.label}</span>
         </span>
       </li>
@@ -270,7 +270,7 @@ function Projects() {
   const x = P.projects;
   const list = projectsOf();
   /* the avenues in their usual order, then any the data adds */
-  const keys = [...new Set([...x.avenues.map(a => a.key), ...list.map(p => p.avenue)])];
+  const keys = [...new Set([...x.avenues.filter(a => a.key !== 'club').map(a => a.key), ...list.map(p => p.avenue)])];
   return (
     <div data-filter>
       <Head
@@ -278,7 +278,7 @@ function Projects() {
         figs={totalFigs(totals(list))}
         tools={<>
           <Search label={x.searchLabel} total={list.length} />
-          <Chips attr="avenue" all={x.allLabel} label="Avenue of service" items={x.avenues.map(a => ({ v: a.key, label: a.label }))} />
+          <Chips attr="avenue" all={x.allLabel} label="Avenue of service" items={x.avenues.filter(a => a.key !== 'club').map(a => ({ v: a.key, label: a.label }))} />
         </>}
       />
       <section className="kx-body">
@@ -319,7 +319,7 @@ function Service() {
   ];
   return (
     <>
-      <Head k="service" figs={strip} />
+      <Head k="service" />
       <div className="kx-chapters" data-filter data-page-size={x.pageSize}>
         <ol className="kx-chaps">
           {list.map((p, i) => (

@@ -102,15 +102,13 @@ export function Header() {
       </a>
     </li>
   );
-  const left = R.nav.slice(0, 3), right = R.nav.slice(3);
   return (
     <header className={`head ${stuck ? 'is-stuck' : ''}`}>
       <div className="wrap head__row">
-        <nav className="hnav hnav--left" aria-label="Main"><ul>{left.map(link)}</ul></nav>
         <Brand className="head__brand">
           <a href={R.nav[0].current ? '#top' : R.nav[0].href}><img src={theme === 'dark' ? R.brand.logoReversed : R.brand.logo} alt={R.site.name} width="392" height="148" /></a>
         </Brand>
-        <nav className="hnav hnav--right" aria-label="More pages"><ul>{right.map(link)}</ul></nav>
+        <nav className="hnav hnav--right" aria-label="Main"><ul>{R.nav.map(link)}</ul></nav>
         <button ref={btn} type="button" className="head__menu" aria-expanded={open} aria-controls="m-menu" onClick={() => setOpen(true)}>
           <span>Menu</span>
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M4 8h16M4 16h16" /></svg>

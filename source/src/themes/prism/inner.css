@@ -1016,3 +1016,10 @@ body[data-page] .visits__tile::after { content: ''; position: absolute; left: 0;
 @media (prefers-reduced-motion: reduce) {
   .px-progress { display: none; }
 }
+
+/* Club Finder (client, 18 Nov 2026): the day tiles must read as a filter — a label, a blue edge, the chosen day filled */
+.px-week__label { margin: 0 0 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--azure-ink); }
+.px-wtile { border-color: color-mix(in srgb, var(--azure) 38%, var(--line)); }
+.px-wtile:hover { border-color: var(--azure); }
+.px-wtile[aria-pressed='true'] { border-color: transparent; background: linear-gradient(135deg, var(--azure), var(--blue)); color: #fff; }
+.px-wtile[aria-pressed='true'] :is(.px-wtile__d, .px-wtile__u) { color: #fff; }

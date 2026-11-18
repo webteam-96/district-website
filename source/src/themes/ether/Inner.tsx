@@ -156,7 +156,7 @@ function Committee() {
         <div className="wrap">
           <div className="cstage glass glass--stage" data-glow data-rv>
             {gov && (
-              <article className="cstage__gov" data-item data-q={gov.q} data-group={groups[0].key}>
+              <article className="cstage__gov">
                 <div className="portrait">
                   {gov.photo ? <img src={gov.photo.src} alt={gov.photo.alt} width={gov.photo.w} height={gov.photo.h} /> : <span className="portrait__plate" aria-hidden="true">{gov.initials}</span>}
                 </div>
@@ -754,9 +754,11 @@ function ProjectPage() {
   return (
     <>
       <PageHead k="project" title={p.title}>
-        <ul className="hticker glass" aria-label={D.project.figures}>
+        {!(p.avenue === 'club') && (
+<ul className="hticker glass" aria-label={D.project.figures}>
           {figs.map(f => <li key={f.key} style={v({ '--accent': f.accent })}><b data-count>{f.value}</b><span>{f.label}</span></li>)}
         </ul>
+)}
       </PageHead>
       <section className="psec psec--top">
         <div className="wrap dstack">

@@ -801,11 +801,11 @@ function ProjectPage() {
             <ShareBtn url={projectHref(p)} title={p.title} />
           </div>
         }
-        slot={
+        slot={p.avenue === 'club' ? undefined : (
           <div className="tx-stotals tx-figs tx-ccard" data-glow aria-label={D.project.figures} style={css({ '--n': figs.length })}>
             {figs.map(s => <p key={s.k}><b data-count>{s.v}</b><span>{s.label}</span></p>)}
           </div>
-        } />
+          )} />
       <section className="tx-sec tx-sec--first">
         <div className={`wrap tx-story${cover ? '' : ' tx-story--text'}`}>
           {cover && (

@@ -841,7 +841,7 @@ function ProjectPage() {
   const gal = (p.gallery ?? []).filter(x => x?.src);
   return (
     <>
-      <Head k="project" title={p.title} mod="ci-head--item" plate={<Stripes rows={figs} label={X.figures} />} />
+      <Head k="project" title={p.title} mod="ci-head--item" plate={p.avenue === 'club' ? undefined : <Stripes rows={figs} label={X.figures} />} />
       <section className="ci-sheet ci-item">
         <div className={`wrap ci-split${gal.length ? '' : ' ci-split--solo'}`}>
           {gal.length > 0 && <Gallery photos={gal} id={`p-${p.id}`} label={X.gallery} style={tone(ai, av.length)} />}

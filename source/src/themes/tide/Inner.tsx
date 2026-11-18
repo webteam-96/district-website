@@ -916,10 +916,12 @@ function ProjectPage() {
               <SecHead title={D.project.about} />
               <Paras text={p.description} empty="No description added yet." />
             </section>
-            <aside className="tp-dsec tp-impact" aria-labelledby="tp-impact-h" data-rv style={v({ '--i': 1 })}>
+            {!(p.avenue === 'club') && (
+<aside className="tp-dsec tp-impact" aria-labelledby="tp-impact-h" data-rv style={v({ '--i': 1 })}>
               <h2 id="tp-impact-h">{D.project.figures}</h2>
               <Stats list={figs} className="tp-stats--pair" />
             </aside>
+)}
           </div>
           {rest.length > 0 && <Gallery title={D.project.gallery} photos={rest} group={`p-${p.id}`} />}
         </div>

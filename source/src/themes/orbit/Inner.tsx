@@ -903,7 +903,7 @@ function ProjectPage() {
   return (
     <>
       <Head k="project" crumb={p.title} title={p.title}
-        sub={<Ledger rv={false} rows={[
+        sub={p.avenue === 'club' ? undefined : <Ledger rv={false} rows={[
           { label: L.beneficiaries, value: num(p.beneficiaries) },
           { label: L.amount, value: lakh(p.amount) },
           { label: L.hours, value: num(p.hours) },

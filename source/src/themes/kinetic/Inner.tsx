@@ -855,7 +855,7 @@ function ProjectPage() {
   ];
   return (
     <>
-      <ItemHead name={p.title} figs={figs} />
+      <ItemHead name={p.title} figs={p.avenue === 'club' ? [] : figs} />
       <section className="kx-body kx-story">
         <div className="wrap kx-story__in">
           <div className="kx-story__side">

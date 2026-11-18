@@ -925,7 +925,7 @@ function ProjectPage() {
   return (
     <>
       <PageHead k="project" title={p.title}>
-        <Figures title={D.project.figures} cells={cells} />
+        {!(p.avenue === 'club') && <Figures title={D.project.figures} cells={cells} />}
       </PageHead>
       <div className="wrap px-body px-detail">
         <div className="px-split">

@@ -329,7 +329,6 @@ function Service() {
                 <h2 className="kx-chap__title kx-stretch"><a href={projectHref(p)}>{p.title}</a></h2>
                 <Ph className="kx-chap__img" photo={p.photo} group={`p-${p.id}`} eager={i === 0} />
                 <p className="kx-chap__sum">{p.summary}</p>
-                <Hexes figs={figsOf(p)} className="kx-chap__nums" />
                 <Share p={p} />
               </div>
             </li>

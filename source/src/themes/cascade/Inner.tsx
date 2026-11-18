@@ -336,11 +336,6 @@ function Service() {
                 <h2 className="ci-story__title">{p.title}</h2>
                 <p className="ci-story__meta">{shortDate(p.date)} · {clubName(p.club)}</p>
                 <p className="ci-story__sum">{p.summary}</p>
-                <dl className="ci-story__nums">
-                  <div><dt>{L.beneficiaries}</dt><dd data-count>{num(p.beneficiaries)}</dd></div>
-                  <div><dt>{L.amount}</dt><dd data-count>{`₹${R.fmt.num(p.amount, 1)} L`}</dd></div>
-                  <div><dt>{L.hours}</dt><dd data-count>{num(p.hours)}</dd></div>
-                </dl>
                 <p className="ci-story__go"><ReadMore p={p} /><ShareBtn url={projectHref(p)} title={p.title} /></p>
               </div>
             </div>

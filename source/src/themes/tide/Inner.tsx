@@ -339,7 +339,7 @@ const Spread = ({ p }: { p: Project }) => (
       <p className="tp-sp__club">{clubName(p.club)}</p>
       <p className="tp-sp__sum">{p.summary}</p>
       <div className="tp-sp__acts"><ReadMore p={p} /><ShareBtn p={p} /></div>
-      <Nums p={p} className="tp-sp__nums" />
+      {p.avenue !== 'club' && <Nums p={p} className="tp-sp__nums" />}
     </div>
   </li>
 );

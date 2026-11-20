@@ -1114,3 +1114,13 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-pjfigs dd { font-size: min(2rem, calc(19cqi / var(--n, 4))); }
 }
 .tx-story__text .tx-pjfigs + .tx-org { margin-top: 28px; }
+
+/* project page photos 2026-11-20: smaller tiles in a grid (2 huge columns before); each photo whole, never cropped */
+.tx-sec--more .tx-gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; align-items: start; column-count: auto; }
+.tx-sec--more .tx-gal > li { margin: 0; }
+.tx-sec--more .tx-gal--one { display: block; }
+.tx-sec--more .tx-gal--one img { max-height: 420px; }
+@media (max-width: 760px) {
+  .tx-sec--more .tx-gal { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tx-sec--more .tx-gal--one img { max-height: 320px; }
+}

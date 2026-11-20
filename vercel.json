@@ -10,5 +10,12 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:theme(ether|prism|orbit|tide|transit|cascade|kinetic)",
+      "destination": "/:theme/",
+      "permanent": false
+    }
   ]
 }

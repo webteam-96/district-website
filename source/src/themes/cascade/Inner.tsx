@@ -266,10 +266,17 @@ const ShareBtn = ({ url, title }: { url: string; title: string }) => (
 const Zoom = ({ ph, group, label, cls = 'ci-zoom', children }: { ph: Photo; group: string; label?: string; cls?: string; children: ReactNode }) => (ph.src.startsWith('data:')
   ? <span className={cls}>{children}</span>
   : <a className={cls} href={ph.src} data-lightbox={group} data-caption={ph.alt} aria-label={label}>{children}</a>);
+/* a card's own figures; a 0 is left out, and no figures means no row */
+const CardFigs = ({ p, cls }: { p: Project; cls: string }) => {
+  const L = P.projects.statLabels;
+  const f = ([[L.beneficiaries, p.beneficiaries, num(p.beneficiaries)], [L.amount, p.amount, lakh(p.amount)], [L.hours, p.hours, num(p.hours)]] as const).filter(x => x[1]);
+  return f.length ? <dl className={cls}>{f.map(([l, , v]) => <div key={l}><dt>{l}</dt><dd>{v}</dd></div>)}</dl> : null;
+};
 /* a project card: the photo (it opens full size) rises out of its top edge on an offset block (the ramp, item i
-   of n), its rank among the cards shown (a CSS counter: 1 is the newest) on it; Read more, then Share */
-const ProjCard = ({ p, i, n, no }: { p: Project; i: number; n: number; no?: string }) => (
-  <li className="ci-proj" data-item data-q={projQ(p)} data-avenue={p.avenue}>
+   of n), its rank among the cards shown (a CSS counter: 1 is the newest) on it; Read more, then Share.
+   figs (the listing pages): the card's own figures above Read more, one more row of the subgrid */
+const ProjCard = ({ p, i, n, no, figs = false }: { p: Project; i: number; n: number; no?: string; figs?: boolean }) => (
+  <li className={`ci-proj${figs ? ' ci-proj--figs' : ''}`} data-item data-q={projQ(p)} data-avenue={p.avenue}>
     <figure className="ci-proj__photo ci-t" style={tone(i % n, n)}>
       <Zoom ph={p.photo} group={`p-${p.id}`}><img src={p.photo.src} alt={p.photo.alt} width={p.photo.w} height={p.photo.h} loading="lazy" /></Zoom>
       <figcaption className="ci-pill">{avenueLabel(p.avenue)}</figcaption>
@@ -278,6 +285,7 @@ const ProjCard = ({ p, i, n, no }: { p: Project; i: number; n: number; no?: stri
     <h3 className="ci-proj__title">{p.title}</h3>
     <p className="ci-proj__meta">{shortDate(p.date)} · {clubName(p.club)}</p>
     <p className="ci-proj__sum">{p.summary}</p>
+    {figs && <CardFigs p={p} cls="ci-proj__nums" />}
     <p className="ci-proj__go"><ReadMore p={p} /><ShareBtn url={projectHref(p)} title={p.title} /></p>
   </li>
 );
@@ -297,7 +305,7 @@ function Projects() {
       <section className="ci-sheet">
         <div className="wrap">
           <div className="ci-tools" data-rv><Search label={x.searchLabel} /><Count n={list.length} one="project" many="projects" /></div>
-          <ul className="ci-projs">{list.map((p, i, a) => <ProjCard key={p.id} p={p} i={i} n={x.pageSize} no={projNo(i, a.length)} />)}</ul>
+          <ul className="ci-projs">{list.map((p, i, a) => <ProjCard key={p.id} p={p} i={i} n={x.pageSize} no={projNo(i, a.length)} figs />)}</ul>
           <Empty text={x.empty} />
           <More label={x.more} />
         </div>
@@ -337,6 +345,7 @@ function Service() {
                 <h2 className="ci-story__title">{p.title}</h2>
                 <p className="ci-story__meta">{shortDate(p.date)} · {clubName(p.club)}</p>
                 <p className="ci-story__sum">{p.summary}</p>
+                <CardFigs p={p} cls="ci-story__nums" />
                 <p className="ci-story__go"><ReadMore p={p} /><ShareBtn url={projectHref(p)} title={p.title} /></p>
               </div>
             </div>
@@ -687,6 +696,15 @@ const Portrait = ({ name, photo }: { name: string; photo?: Photo | null }) => (p
 const Facts = ({ list, label }: { list: Fact[]; label?: string }) => (
   <dl className="ci-facts" aria-label={label}>{list.map(f => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>
 );
+/* project page: the facts as compact cards in the head, the figures as ramp tiles in the body */
+const HeadFacts = ({ list }: { list: Fact[] }) => (
+  <dl className="ci-hfacts">{list.map((f, i) => <div key={f.label} className="ci-t" style={tone(i, list.length)}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>
+);
+const Figs = ({ rows, label }: { rows: [string, string][]; label: string }) => (
+  <div className="ci-pfigs" data-rv>
+    <ul aria-label={label}>{rows.map(([k, v], i) => <li key={k} className="ci-t" style={tone(i, rows.length)}><b data-count>{v}</b><span>{k}</span></li>)}</ul>
+  </div>
+);
 type Reach = { href: string; icon: ReactNode; text: string; ext?: boolean };
 const reachOf = (c?: { email?: string; phone?: string; web?: string } | null): Reach[] => {
   const l: Reach[] = [];
@@ -760,8 +778,10 @@ function ClubPage() {
   const reach = reachOf(c.contact);
   const board = c.leaders.length;
   const evs = [...c.events.filter(e => e.date >= C.today).sort(byDate), ...c.events.filter(e => e.date < C.today).sort(byDate).reverse()];
+  const projects = c.projects.filter(p => p.avenue !== 'club'), service = c.projects.filter(p => p.avenue === 'club');
   const tabs = [
-    { key: 'projects', label: X.tabs.projects, n: c.projects.length },
+    { key: 'projects', label: X.tabs.projects, n: projects.length },
+    { key: 'service', label: X.tabs.service, n: service.length },
     { key: 'bulletins', label: X.tabs.bulletins, n: c.bulletins.length },
     { key: 'events', label: X.tabs.events, n: evs.length }
   ];
@@ -829,9 +849,12 @@ function ClubPage() {
           ))}
         </div>
         <div className="wrap">
-          {panel('projects', c.projects.length
-            ? <ul className="ci-projs">{newest(c.projects).map((p, i, a) => <ProjCard key={p.id} p={p} i={i} n={6} no={projNo(i, a.length)} />)}</ul>
-            : <p className="ci-empty">{X.none.projects}</p>, c.projects.length > 3 && <ShowAll id="projects" n={c.projects.length} />)}
+          {panel('projects', projects.length
+            ? <ul className="ci-projs">{newest(projects).map((p, i, a) => <ProjCard key={p.id} p={p} i={i} n={6} no={projNo(i, a.length)} />)}</ul>
+            : <p className="ci-empty">{X.none.projects}</p>, projects.length > 3 && <ShowAll id="projects" n={projects.length} />)}
+          {panel('service', service.length
+            ? <ul className="ci-projs">{newest(service).map((p, i, a) => <ProjCard key={p.id} p={p} i={i} n={6} no={projNo(i, a.length)} />)}</ul>
+            : <p className="ci-empty">{X.none.service}</p>, service.length > 3 && <ShowAll id="service" n={service.length} />)}
           {panel('bulletins', c.bulletins.length
             ? <ul className="ci-stack">{c.bulletins.map((b, i) => <Strip key={b.title + i} n={i} title={b.title} date={b.date} pdf={b.pdf} />)}</ul>
             : <p className="ci-empty">{X.none.bulletins}</p>, c.bulletins.length > 3 && <ShowAll id="bulletins" n={c.bulletins.length} />)}
@@ -867,12 +890,12 @@ function ProjectPage() {
   const gal = (p.gallery ?? []).filter(x => x?.src);
   return (
     <>
-      <Head k="project" title={p.title} mod="ci-head--item" plate={p.avenue === 'club' ? undefined : <Stripes rows={figs} label={X.figures} />} />
+      <Head k="project" title={p.title} mod="ci-head--item" plate={<HeadFacts list={facts} />} />
       <section className="ci-sheet ci-item">
         <div className={`wrap ci-split${gal.length ? '' : ' ci-split--solo'}`}>
           {gal.length > 0 && <Gallery photos={gal} id={`p-${p.id}`} label={X.gallery} style={tone(ai, av.length)} />}
           <div className="ci-split__text">
-            <Facts list={facts} />
+            {p.avenue !== 'club' && <Figs rows={figs} label={X.figures} />}
             <p className="ci-split__share"><ShareBtn url={projectHref(p)} title={p.title} /></p>
             {text.length > 0 && (
               <section className="ci-about" data-rv aria-labelledby="ci-about-t">

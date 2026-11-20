@@ -70,7 +70,7 @@ export interface DignitaryProfile extends Person {
 /* The words on these pages, and what live.ts fills (content.js → R.pages.club, .project, …) */
 export interface DetailPages {
   club: { missing: string; back: string; details: string; glance: string; leadership: string; members: string; searchLabel: string; empty: string; more: string; pageSize: number;
-          tabs: Record<'projects' | 'bulletins' | 'events', string>; none: Record<'projects' | 'bulletins' | 'events' | 'leaders', string>;
+          tabs: Record<'projects' | 'service' | 'bulletins' | 'events', string>; none: Record<'projects' | 'service' | 'bulletins' | 'events' | 'leaders', string>;
           example: string; sample: { leaders: Leader[]; members: Member[]; details: Fact[]; meetingTime: string; contact?: ClubProfile['contact'] }; item?: ClubProfile | null };
   project: { missing: string; back: string; about: string; gallery: string; organiser: string; figures: string; example: string;
              sample: Record<string, { description?: string; gallery?: Photo[]; location?: string; rotarians?: number; focus?: string }>; item?: ProjectDetail | null };

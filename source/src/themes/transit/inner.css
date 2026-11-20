@@ -718,7 +718,6 @@ body[data-page] { --lb-bg: rgba(11, 20, 55, 0.95); }
 .tx-dep__date span { font: 700 13.5px/1 var(--f-body); }
 
 /* ================= Project ================= */
-.tx-figs { grid-template-columns: none; grid-auto-flow: column; width: calc(var(--n, 4) * 128px + 48px); }
 .tx-pj__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 16px; }
 .tx-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; }
 .tx-pj__tools > .tx-meta { margin-top: 0; }
@@ -999,7 +998,7 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
 /* ================= detail pages: tablets and phones ================= */
 @media (max-width: 899px) {
   .tx-story, .tx-evt, .tx-bio { grid-template-columns: minmax(0, 1fr); }
-  .tx-when, .tx-figs { width: 100%; }
+  .tx-when { width: 100%; }
   .tx-bio__main, .tx-story--text { max-width: none; }
 }
 @media (min-width: 600px) and (max-width: 899px) {
@@ -1011,13 +1010,11 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-meet { display: grid; width: 100%; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; margin-top: 12px; padding: 8px 14px 8px 8px; }
   .tx-meet__day { width: 52px; height: 52px; font-size: 15.5px; }
   .tx-bento--club .tx-bento__members { grid-column: 1 / -1; }
-  .tx-figs { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tx-figs > p:nth-child(3):last-child { grid-column: 1 / -1; }
   .tx-meta { gap: 6px; margin-top: 12px; }
   .tx-meta > li { min-height: 32px; padding: 5px 12px; font-size: 14px; }
-  .tx-switch--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .tx-switch--3 .tx-tab { flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 8px 4px; font-size: 14px; text-align: center; }
-  .tx-switch--3 .tx-tab b { min-width: 26px; height: 22px; font-size: 13px; }
+  .tx-switch--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tx-switch--4 .tx-tab { flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 8px 4px; font-size: 14px; text-align: center; }
+  .tx-switch--4 .tx-tab b { min-width: 26px; height: 22px; font-size: 13px; }
   .tx-docs { grid-template-columns: minmax(0, 1fr); }
   .tx-docs .tx-issue time { height: 62px; }
   .tx-gal { column-count: min(var(--cols, 3), 2); column-gap: 10px; }
@@ -1102,3 +1099,18 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-pick__d.is-out { background: none; }
   .tx-pick__d.is-today { background: var(--violet, #7b2fbe); color: #fff; }
 }
+
+/* project figures in About 2026-11-20 */
+/* the project's figures as tiles on its avenue tint, under the heading: 4 across when the column has room, else 2x2 */
+.tx-pjfigs { container-type: inline-size; margin: 0 0 22px; }
+.tx-pjfigs > dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 8px; border-radius: 24px; background: var(--tint); }
+.tx-pjfigs > dl > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 6px; min-width: 0; padding: 14px 16px 16px; border-top: 4px solid var(--c); border-radius: 16px; background: var(--surface); box-shadow: 0 10px 26px -20px rgba(20, 30, 80, 0.45); }
+.tx-pjfigs dd { margin: 0; font: 800 min(2rem, 8.6cqi)/1 var(--f-display); letter-spacing: -0.02em; white-space: nowrap; color: var(--pop); font-variant-numeric: tabular-nums; }
+.tx-pjfigs dt { font: 700 13.5px/1.25 var(--f-body); color: var(--ink-2); }
+.tx-pjfigs > dl > div:nth-child(3):last-child { grid-column: 1 / -1; }
+@container (min-width: 560px) {
+  .tx-pjfigs > dl { grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); }
+  .tx-pjfigs > dl > div:nth-child(3):last-child { grid-column: auto; }
+  .tx-pjfigs dd { font-size: min(2rem, calc(19cqi / var(--n, 4))); }
+}
+.tx-story__text .tx-pjfigs + .tx-org { margin-top: 28px; }

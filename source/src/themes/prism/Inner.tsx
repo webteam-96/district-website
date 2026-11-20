@@ -74,7 +74,7 @@ const Crumbs = ({ title }: { title: string }) => (
 
 /* ---------- page head: tinted band with the breadcrumb and the title only, the blue panel right (bleeds to the
    screen edge). Detail pages pass the item's name as the title; `wide` gives the panel the larger share. ---------- */
-function PageHead({ k, children, keyClass = '', title, wide = false }: { k: PageKey; children: ReactNode; keyClass?: string; title?: string; wide?: boolean }) {
+function PageHead({ k, children, keyClass = '', title, wide = false }: { k: PageKey; children?: ReactNode; keyClass?: string; title?: string; wide?: boolean }) {
   const t = title ?? pageInfo(k).title;
   return (
     <section className={wide ? 'px-head px-head--wide' : 'px-head'} id="top">
@@ -83,7 +83,7 @@ function PageHead({ k, children, keyClass = '', title, wide = false }: { k: Page
           <Crumbs title={t} />
           <h1 className={title ? 'px-head__title px-head__title--item' : 'px-head__title'}><HL text={t} /></h1>
         </div>
-        <div className={`px-head__key ${keyClass}`.trim()} data-glow data-rv>{children}</div>
+        {children && <div className={`px-head__key ${keyClass}`.trim()} data-glow data-rv>{children}</div>}
       </div>
     </section>
   );
@@ -297,12 +297,19 @@ const Totals = ({ list }: { list: Project[] }) => {
   return <dl className="px-kquad">{cells.map(([l, v]) => <div key={l}><dt>{l}</dt><dd data-count>{v}</dd></div>)}</dl>;
 };
 
+/* a card's own figures; a 0 is left out, and no figures means no row */
+const CardFigs = ({ p }: { p: Project }) => {
+  const L = P.projects.statLabels;
+  const f = ([[L.beneficiaries, p.beneficiaries, num(p.beneficiaries)], [L.amount, p.amount, lakh(p.amount)], [L.hours, p.hours, num(p.hours)]] as const).filter(x => x[1]);
+  return f.length ? <dl className="px-figs">{f.map(([l, , v]) => <div key={l}><dt>{l}</dt><dd>{v}</dd></div>)}</dl> : null;
+};
+
 /* newest first: the cards are numbered in this order (#1 = the latest), by a CSS counter over the visible ones */
 const latest = (list: Project[]) => [...list].sort((a, b) => b.date.localeCompare(a.date));
 
 /* "Read more" is the card's action and covers the card; above it sit the two smaller controls: the photo (opens
    full size in the lightbox) and Share */
-function ProjectItem({ p, i, glow = false, no }: { p: Project; i: number; glow?: boolean; no?: string }) {
+function ProjectItem({ p, i, glow = false, no, figs = false }: { p: Project; i: number; glow?: boolean; no?: string; figs?: boolean }) {
   return (
     <li className="px-proj" style={css({ '--accent': AVENUE[p.avenue] ?? ACC[0], '--i': glow ? 0 : i % 3 })} data-item data-q={`${p.title} ${p.club} ${avenueLabel(p.avenue)}`.toLowerCase()} data-avenue={p.avenue} data-rv>
       <figure className="px-proj__photo">
@@ -316,6 +323,7 @@ function ProjectItem({ p, i, glow = false, no }: { p: Project; i: number; glow?:
           <span>{shortDate(p.date)}{p.club ? ` · ${clubName(p.club)}` : ''}</span>
         </p>
         <p className="px-proj__sum">{p.summary}</p>
+        {figs && <CardFigs p={p} />}
         <div className="px-proj__acts">
           <a className="btn px-proj__more" href={projectHref(p)}>Read more<span className="sr-only">: {p.title}</span>{I.next}</a>
           <Share p={p} />
@@ -342,7 +350,7 @@ function Projects() {
           </div>
           <Chips attr="avenue" all={x.allLabel} label="Avenue of service" items={x.avenues.filter(a => a.key !== 'club').map(a => ({ v: a.key, label: a.label, n: n(a.key), color: AVENUE[a.key] ?? ACC[0] }))} />
         </div>
-        <ul className="px-ledger px-projs">{list.map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} glow />)}</ul>
+        <ul className="px-ledger px-projs">{list.map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} glow figs />)}</ul>
         <Empty text={x.empty} />
         <More label={x.more} />
       </div>
@@ -362,7 +370,7 @@ function Service() {
       <PageHead k="service" wide>{null}</PageHead>
       <div className="wrap px-body">
         <div className="px-bar" data-rv><Search label={x.searchLabel} count={list.length} /></div>
-        <ul className="px-posters">{list.map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} />)}</ul>
+        <ul className="px-posters">{list.map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} figs />)}</ul>
         <Empty text={x.empty} />
         <More label={x.more} />
       </div>
@@ -820,7 +828,8 @@ function ClubPage() {
     ...(ct?.web ? [{ icon: I.globe, label: 'Website', value: <a href={ct.web} target="_blank" rel="noopener">{ct.web.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a> }] : [])
   ];
   const events = [...c.events].sort((a, b) => a.date.localeCompare(b.date));
-  const tabs = [['projects', c.projects.length], ['bulletins', c.bulletins.length], ['events', events.length]] as const;
+  const projects = c.projects.filter(p => p.avenue !== 'club'), service = c.projects.filter(p => p.avenue === 'club');
+  const tabs = [['projects', projects.length], ['service', service.length], ['bulletins', c.bulletins.length], ['events', events.length]] as const;
   return (
     <>
       <PageHead k="club" title={name}>
@@ -882,12 +891,20 @@ function ClubPage() {
             ))}
           </div>
           <div className="px-ctab px-ctab--projects" data-panel="projects" role="tabpanel" aria-label={W.tabs.projects}>
-            {c.projects.length ? (
+            {projects.length ? (
               <>
-                <ul className="px-ledger px-projs">{latest(c.projects).map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} glow />)}</ul>
-                {c.projects.length > 6 && <ShowAll n={c.projects.length} noun={W.tabs.projects.toLowerCase()} />}
+                <ul className="px-ledger px-projs">{latest(projects).map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} glow />)}</ul>
+                {projects.length > 6 && <ShowAll n={projects.length} noun={W.tabs.projects.toLowerCase()} />}
               </>
             ) : <Empty text={W.none.projects} live={false} hidden={false} />}
+          </div>
+          <div className="px-ctab px-ctab--service" data-panel="service" role="tabpanel" aria-label={W.tabs.service} hidden>
+            {service.length ? (
+              <>
+                <ul className="px-ledger px-projs">{latest(service).map((p, i, a) => <ProjectItem key={p.id} p={p} i={i} no={projNo(i, a.length)} glow />)}</ul>
+                {service.length > 6 && <ShowAll n={service.length} noun={W.tabs.service.toLowerCase()} />}
+              </>
+            ) : <Empty text={W.none.service} live={false} hidden={false} />}
           </div>
           <div className="px-ctab px-ctab--bulletins" data-panel="bulletins" role="tabpanel" aria-label={W.tabs.bulletins} hidden>
             {c.bulletins.length ? (
@@ -947,10 +964,14 @@ function ProjectPage() {
   const [cover, ...rest] = p.gallery.length ? p.gallery : [p.photo];
   return (
     <>
-      <PageHead k="project" title={p.title}>
-        {!(p.avenue === 'club') && <Figures title={D.project.figures} cells={cells} />}
-      </PageHead>
+      <PageHead k="project" title={p.title} />
       <div className="wrap px-body px-detail">
+        {/* the project's figures, first and large: one tile each in the spectrum's colours (a Club Service report has none) */}
+        {!(p.avenue === 'club') && (
+          <ul className="px-pfigs" aria-label={D.project.figures} data-rv>
+            {cells.map(([l, v], i) => <li key={l} style={css({ '--accent': ACC[i % ACC.length], '--i': i })}><b data-count>{v}</b><span>{l}</span></li>)}
+          </ul>
+        )}
         <div className="px-split">
           {cover && (
             <figure className="px-cover" data-rv>

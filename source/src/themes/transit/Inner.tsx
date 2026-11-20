@@ -738,8 +738,10 @@ function ClubPage() {
     ...(ct.phone ? [{ label: 'Phone', value: ct.phone, href: `tel:${telOf(ct.phone)}`, icon: I.phone }] : []),
     ...(ct.web ? [{ label: 'Website', value: ct.web.replace(/^https?:\/\//i, '').replace(/\/$/, ''), href: webOf(ct.web), icon: I.web, ext: true }] : [])
   ];
+  const projects = c.projects.filter(p => p.avenue !== 'club'), service = c.projects.filter(p => p.avenue === 'club');
   const tabs = [
-    { k: 'projects', label: T.projects, n: c.projects.length },
+    { k: 'projects', label: T.projects, n: projects.length },
+    { k: 'service', label: T.service, n: service.length },
     { k: 'bulletins', label: T.bulletins, n: c.bulletins.length },
     { k: 'events', label: T.events, n: c.events.length }
   ];
@@ -783,15 +785,20 @@ function ClubPage() {
       </section>
       <section className="tx-sec tx-sec--tabs">
         <div className="wrap" data-tabs>
-          <div className="tx-switch tx-switch--3" role="tablist" aria-label={name} data-rv>
+          <div className="tx-switch tx-switch--4" role="tablist" aria-label={name} data-rv>
             {tabs.map((t, i) => (
               <button key={t.k} type="button" role="tab" className={`tx-tab${i ? '' : ' is-on'}`} data-tab={t.k} aria-selected={i === 0} tabIndex={i ? -1 : 0}>{t.label}<b>{num(t.n)}</b></button>
             ))}
           </div>
           <div className="tx-cpanel" data-panel="projects" role="tabpanel" data-filter data-page-size="6">
-            {c.projects.length
-              ? <><ul className="tx-bricks">{c.projects.map((p, i, a) => <ProjectCard key={p.id} p={p} i={i} line={false} no={projNo(i, a.length)} />)}</ul><More label={P.projects.more} /></>
+            {projects.length
+              ? <><ul className="tx-bricks">{projects.map((p, i, a) => <ProjectCard key={p.id} p={p} i={i} line={false} no={projNo(i, a.length)} />)}</ul><More label={P.projects.more} /></>
               : <p className="tx-empty">{N.projects}</p>}
+          </div>
+          <div className="tx-cpanel" data-panel="service" role="tabpanel" hidden data-filter data-page-size="6">
+            {service.length
+              ? <><ul className="tx-bricks">{service.map((p, i, a) => <ProjectCard key={p.id} p={p} i={i} line={false} no={projNo(i, a.length)} />)}</ul><More label={P.projects.more} /></>
+              : <p className="tx-empty">{N.service}</p>}
           </div>
           <div className="tx-cpanel" data-panel="bulletins" role="tabpanel" hidden data-filter data-page-size="8">
             {c.bulletins.length
@@ -810,7 +817,7 @@ function ClubPage() {
   );
 }
 
-/* ================= Project: impact in the head, the cover on its colour block beside the story, then the photos ================= */
+/* ================= Project: impact under "About the project", the cover on its colour block beside the story, then the photos ================= */
 function ProjectPage() {
   const p = projectDetail();
   useDocTitle(p?.title ?? null);
@@ -824,6 +831,7 @@ function ProjectPage() {
     { k: 'hours', label: L.hours, v: num(p.hours) },
     ...(p.rotarians != null ? [{ k: 'rotarians', label: 'Rotarians', v: num(p.rotarians) }] : [])
   ];
+  const showFigs = p.avenue !== 'club';
   const text = paras(p.description);
   const org = p.club ? fullClub(p.club) : '';
   return (
@@ -839,12 +847,7 @@ function ProjectPage() {
             </ul>
             <ShareBtn url={projectHref(p)} title={p.title} />
           </div>
-        }
-        slot={p.avenue === 'club' ? undefined : (
-          <div className="tx-stotals tx-figs tx-ccard" data-glow aria-label={D.project.figures} style={css({ '--n': figs.length })}>
-            {figs.map(s => <p key={s.k}><b data-count>{s.v}</b><span>{s.label}</span></p>)}
-          </div>
-          )} />
+        } />
       <section className="tx-sec tx-sec--first">
         <div className={`wrap tx-story${cover ? '' : ' tx-story--text'}`}>
           {cover && (
@@ -854,7 +857,15 @@ function ProjectPage() {
             </figure>
           )}
           <div className="tx-story__text" data-rv style={css({ '--d': 1 })}>
-            {text.length > 0 && <h2 className="tx-h2">{D.project.about}</h2>}
+            {/* Club Service shows no figures; with figures the heading stays even without a description */}
+            {(text.length > 0 || showFigs) && <h2 className="tx-h2">{D.project.about}</h2>}
+            {showFigs && (
+              <div className="tx-pjfigs">
+                <dl aria-label={D.project.figures} style={css({ '--n': figs.length })}>
+                  {figs.map(s => <div key={s.k}><dt>{s.label}</dt><dd data-count>{s.v}</dd></div>)}
+                </dl>
+              </div>
+            )}
             {text.length > 0 && <div className="tx-text">{text.map((t, i) => <p key={i}>{t}</p>)}</div>}
             {org && (
               <div className="tx-org">

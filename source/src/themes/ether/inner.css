@@ -697,7 +697,7 @@
 .rtile__who b { font-size: 16px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
 .rtile__who span { font-size: 14px; line-height: 1.35; color: var(--gold-t); }
 /* tabs: projects, newsletters, events */
-.ctabs__bar { width: max-content; max-width: 100%; margin-bottom: 20px; }
+.ctabs__bar { width: max-content; max-width: 100%; margin-bottom: 20px; flex-wrap: wrap; border-radius: 28px; }
 .dwall { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; counter-reset: pcard; }
 .dwall > .pcard { counter-increment: pcard; }
 .dpapers { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
@@ -1121,3 +1121,26 @@
    own visibility check every frame made scrolling stutter) */
 .tlane__list [data-item] { content-visibility: visible; }
 .tlane__list { content-visibility: auto; contain-intrinsic-size: auto 480px; }
+
+/* project page and listing figures 2026-11-20 */
+/* the project's figures: large tiles, each lit in its own accent */
+.pfigs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+.pfig { position: relative; overflow: hidden; display: grid; gap: 6px; padding: 22px 22px 20px; border-radius: 22px; box-shadow: inset 0 3px 0 var(--accent), 0 22px 50px -30px var(--accent); }
+.pfig::after { content: ''; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 38%, transparent), transparent); pointer-events: none; }
+.pfig b { font-family: var(--f-display); font-weight: 600; font-size: clamp(2rem, 3.4vw, 3rem); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); }
+.pfig span { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+/* the other photos, after the story */
+.pmore__title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-family: var(--f-display); font-weight: 600; font-size: 24px; letter-spacing: -0.02em; }
+.pmore__title b { padding: 2px 10px; border-radius: 999px; background: var(--well); border: 1px solid var(--line); font-size: 14px; }
+/* listing cards: the project's own figures */
+.pcard__figs { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 2px; padding: 0; list-style: none; }
+.pcard__figs li { display: flex; align-items: baseline; gap: 6px; min-width: 0; padding: 6px 10px; border-radius: 12px; background: var(--well); border: 1px solid var(--line); box-shadow: inset 2px 0 0 var(--accent); }
+.pcard__figs b { font-family: var(--f-display); font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); }
+.pcard__figs span { font-size: 13px; color: var(--ink-2); }
+@media (max-width: 760px) {
+  .pfigs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .pfig { padding: 16px 16px 14px; border-radius: 18px; }
+  .pfig b { font-size: 28px; }
+  .pfig span { font-size: 12px; letter-spacing: 0.06em; }
+  .pmore__title { font-size: 21px; }
+}

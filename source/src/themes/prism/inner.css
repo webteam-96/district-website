@@ -736,6 +736,7 @@ span.px-rtile > b { color: var(--ink-3); font-weight: 700; }
 .px-tab[aria-selected='true'] b { background: rgba(255, 255, 255, 0.22); }
 .px-ctab .px-all { margin-top: 18px; }
 .px-ctab--projects:has(> .px-all input:not(:checked)) .px-projs > li:nth-child(n + 7),
+.px-ctab--service:has(> .px-all input:not(:checked)) .px-projs > li:nth-child(n + 7),
 .px-ctab--bulletins:has(> .px-all input:not(:checked)) .px-stories > li:nth-child(n + 10),
 .px-ctab--events:has(> .px-all input:not(:checked)) .px-erows > li:nth-child(n + 7) { display: none; }
 /* events: a date tile, the title, time and venue */
@@ -1054,4 +1055,35 @@ body[data-page] .visits__tile::after { content: ''; position: absolute; left: 0;
   .px-ruler { gap: 4px; }
   .px-rtile { height: 52px; border-radius: 10px; }
   .px-rtile > b { font-size: 15px; }
+}
+
+/* listing figures 2026-11-20 */
+.px-figs { grid-area: figs; display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; margin: 0; }
+.px-figs > div { display: inline-flex; flex-direction: row-reverse; align-items: baseline; gap: 6px; min-width: 0; min-height: 30px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: color-mix(in srgb, var(--accent, var(--azure)) 8%, var(--surface)); }
+.px-figs dd { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 15px; line-height: 1.1; letter-spacing: -0.02em; white-space: nowrap; color: var(--ink); font-variant-numeric: tabular-nums; }
+.px-figs dt { font-size: 12.5px; font-weight: 600; line-height: 1.2; color: var(--ink-3); }
+.px-projs .px-proj__body:has(> .px-figs) { grid-template-areas: 'title more' 'meta more' 'sum more' 'figs more'; }
+.px-projs > .px-proj:nth-child(1 of :not([hidden])) > .px-proj__body:has(> .px-figs) { grid-template-areas: 'title' 'meta' 'sum' 'figs' 'more'; }
+.px-projs > .px-proj:nth-child(1 of :not([hidden])) .px-figs > div { border-color: rgba(255, 255, 255, 0.24); background: rgba(255, 255, 255, 0.12); }
+.px-projs > .px-proj:nth-child(1 of :not([hidden])) .px-figs dd { color: #fff; }
+.px-projs > .px-proj:nth-child(1 of :not([hidden])) .px-figs dt { color: rgba(255, 255, 255, 0.82); }
+@media (max-width: 1100px) {
+  .px-projs .px-proj__body:has(> .px-figs) { grid-template-areas: 'title' 'meta' 'sum' 'figs' 'more'; }
+}
+@media (max-width: 700px) {
+  .px-projs > .px-proj:not(:nth-child(1 of :not([hidden]))):has(.px-figs) { grid-template-areas: 'photo title' 'photo meta' 'photo sum' 'photo figs' 'photo more'; }
+  .px-projs > .px-proj:not(:nth-child(1 of :not([hidden]))) .px-figs { margin-top: 4px; }
+}
+
+/* project page figures 2026-11-20: large tiles under the head, each lit in its own colour */
+.px-pfigs { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 0 0 26px; padding: 0; list-style: none; }
+.px-pfigs li { position: relative; overflow: hidden; display: grid; gap: 8px; padding: 22px 22px 20px; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 18px 40px -26px var(--accent), inset 0 4px 0 var(--accent); }
+.px-pfigs li::after { content: ''; position: absolute; right: -36px; bottom: -36px; width: 120px; height: 120px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 12%, transparent); pointer-events: none; }
+.px-pfigs b { font-family: var(--f-display); font-weight: 800; font-size: clamp(2.1rem, 3.4vw, 3rem); line-height: 1; letter-spacing: -0.03em; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.px-pfigs span { font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: color-mix(in srgb, var(--accent) 80%, var(--ink)); }
+@media (max-width: 700px) {
+  .px-pfigs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .px-pfigs li { padding: 16px 16px 14px; border-radius: 18px; }
+  .px-pfigs b { font-size: 28px; }
+  .px-pfigs span { font-size: 11.5px; letter-spacing: 0.07em; }
 }

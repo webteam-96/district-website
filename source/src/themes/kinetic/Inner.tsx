@@ -245,11 +245,17 @@ const figsOf = (p: Project): Fig[] => [
   { pre: '₹', n: R.fmt.num(p.amount, 1), post: ' L', label: L.amount, tone: 'c3' },
   { n: num(p.hours), label: L.hours, tone: 'c2' }
 ];
+/* a listing card's own figures: a 0 is left out, and no figures means no row */
+const ownFigs = (p: Project) => figsOf(p).filter((_, i) => [p.beneficiaries, p.amount, p.hours][i]);
+const CardFigs = ({ p }: { p: Project }) => {
+  const f = ownFigs(p);
+  return f.length ? <dl className="kx-pfigs">{f.map(x => <div key={x.label} className={`kx-${x.tone}`}><dt>{x.label}</dt><dd>{x.pre}{x.n}{x.post}</dd></div>)}</dl> : null;
+};
 const qOf = (p: Project) => `${p.title} ${p.club} ${avenueLabel(p.avenue)}`.toLowerCase();
 
-/* a listing card: its number in a hexagon (a CSS counter: #1 is the newest shown, inner.css), no figures;
+/* a listing card: its number in a hexagon (a CSS counter: #1 is the newest shown, inner.css); figs (Club Projects) adds its figures;
    "Read more" is the card's action (its link covers the card), the photo opens full size, Share is the second control */
-function ProjectCard({ p, extra, no }: { p: Project; extra?: boolean; no?: string }) {
+function ProjectCard({ p, extra, no, figs = false }: { p: Project; extra?: boolean; no?: string; figs?: boolean }) {
   return (
     <li className={`kx-proj${extra ? ' is-x' : ''}`} data-item data-no={no} data-q={qOf(p)} data-avenue={p.avenue} data-rv>
       <Ph className="kx-proj__img" photo={p.photo} group={`p-${p.id}`} />
@@ -257,6 +263,7 @@ function ProjectCard({ p, extra, no }: { p: Project; extra?: boolean; no?: strin
         <p className="kx-proj__meta"><time dateTime={p.date}>{shortDate(p.date)}</time> · {clubName(p.club)}</p>
         <h3 className="kx-proj__title">{p.title}</h3>
         <p className="kx-proj__sum">{p.summary}</p>
+        {figs && <CardFigs p={p} />}
         <div className="kx-proj__acts">
           <a className="btn-go kx-proj__go" href={projectHref(p)} aria-label={`Read more: ${p.title}`}>Read more{I.go}</a>
           <Share p={p} />
@@ -292,7 +299,7 @@ function Projects() {
                   <h2 className="kx-avn__title" id={`kx-av-${k}`}>{avenueLabel(k)}</h2>
                   <b className="kx-avn__n" data-f-group-count>{items.length}</b>
                 </div>
-                <ul className="kx-projs">{items.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} />)}</ul>
+                <ul className="kx-projs">{items.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} figs />)}</ul>
                 {/* a real year holds hundreds: each avenue shows its latest three, the rest on request (CSS, inner.css) */}
                 {items.length > 3 && <ShowAll n={items.length} />}
               </section>
@@ -330,6 +337,7 @@ function Service() {
                 <h2 className="kx-chap__title kx-stretch"><a href={projectHref(p)}>{p.title}</a></h2>
                 <Ph className="kx-chap__img" photo={p.photo} group={`p-${p.id}`} eager={i === 0} />
                 <p className="kx-chap__sum">{p.summary}</p>
+                {ownFigs(p).length > 0 && <Hexes figs={ownFigs(p)} className="kx-chap__nums" />}
                 <div className="kx-chap__acts">
                   <a className="btn-go kx-chap__go" href={projectHref(p)} aria-label={`Read more: ${p.title}`}>Read more{I.go}</a>
                   <Share p={p} />
@@ -609,9 +617,10 @@ function Pills({ items }: { items: (Pill | false | '' | null | undefined)[] }) {
 const Facts = ({ items }: { items: Fact[] }) => (
   <dl className="kx-dl">{items.map((f, i) => <div key={i}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>
 );
-const Copy = ({ id, title, text, aside }: { id: string; title: string; text: string[]; aside?: ReactNode }) => (
-  <section className="kx-copy" aria-labelledby={id}>
+const Copy = ({ id, title, text, aside, top, className = '' }: { id: string; title: string; text: string[]; aside?: ReactNode; top?: ReactNode; className?: string }) => (
+  <section className={`kx-copy ${className}`} aria-labelledby={id}>
     <div className="kx-copy__head"><h2 className="kx-sec__t kx-stretch" id={id}>{title}</h2>{aside}</div>
+    {top}
     {text.map((t, i) => <p key={i}>{t}</p>)}
   </section>
 );
@@ -747,9 +756,12 @@ function ClubPage() {
     ct.phone && { v: ct.phone, href: telOf(ct.phone), icon: I.phone },
     ct.web && { v: ct.web.replace(/^https?:\/\//i, '').replace(/\/$/, ''), href: webOf(ct.web), icon: I.web, ext: true }
   ] as (Pill | '' | undefined)[]).filter((x): x is Pill => !!x);
-  const projects = [...c.projects].sort(newest);
+  const all = [...c.projects].sort(newest);
+  const projects = all.filter(p => p.avenue !== 'club');
+  const service = all.filter(p => p.avenue === 'club');
   const tabs = [
     { k: 'projects' as const, n: projects.length },
+    { k: 'service' as const, n: service.length },
     { k: 'bulletins' as const, n: c.bulletins.length },
     { k: 'events' as const, n: c.events.length }
   ];
@@ -822,6 +834,12 @@ function ClubPage() {
               : <p className="kx-empty">{T.none.projects}</p>}
             {projects.length > CAP && <ShowAll n={projects.length} />}
           </div>
+          <div className="kx-cap" data-panel="service" role="tabpanel" aria-label={T.tabs.service} hidden>
+            {service.length
+              ? <ul className="kx-projs kx-projs--club">{service.map((p, i, a) => <ProjectCard key={p.id} p={p} extra={i >= CAP} no={projNo(i, a.length)} />)}</ul>
+              : <p className="kx-empty">{T.none.service}</p>}
+            {service.length > CAP && <ShowAll n={service.length} />}
+          </div>
           <div className="kx-cap" data-panel="bulletins" role="tabpanel" aria-label={T.tabs.bulletins} hidden>
             {c.bulletins.length
               ? <ol className="kx-issues">{c.bulletins.map((b, i) => <Issue key={i} i={i} date={b.date} title={b.title} by={clubName(b.club)} pdf={b.pdf} extra={i >= CAP} />)}</ol>
@@ -851,7 +869,7 @@ function ProjectPage() {
   const cover = p.gallery[0] ?? p.photo;
   const text = paras(p.description || p.summary);
   const av = Math.max(0, P.projects.avenues.findIndex(a => a.key === p.avenue));
-  const figs: Fig[] = [...figsOf(p), ...(p.rotarians != null ? [{ n: num(p.rotarians), label: 'Rotarians', tone: 'c5' }] : [])];
+  const figs: Fig[] = p.avenue === 'club' ? [] : [...figsOf(p), ...(p.rotarians != null ? [{ n: num(p.rotarians), label: 'Rotarians', tone: 'c5' }] : [])];
   const facts: Fact[] = [
     { label: 'Avenue', value: avenueLabel(p.avenue) },
     { label: 'Date', value: longDate(parseISO(p.date)) },
@@ -860,7 +878,7 @@ function ProjectPage() {
   ];
   return (
     <>
-      <ItemHead name={p.title} figs={p.avenue === 'club' ? [] : figs} />
+      <ItemHead name={p.title} />
       <section className="kx-body kx-story">
         <div className="wrap kx-story__in">
           <div className="kx-story__side">
@@ -868,7 +886,9 @@ function ProjectPage() {
             <div className={`kx-card kx-card--facts kx-d${av}`} data-rv><Facts items={facts} /></div>
           </div>
           <div className="kx-story__text">
-            {text.length > 0 ? <Copy id="kx-about-t" title={T.about} text={text} aside={<Share p={p} />} /> : <Share p={p} />}
+            {text.length > 0 || figs.length > 0
+              ? <Copy id="kx-about-t" className="kx-card kx-about" title={T.about} text={text} aside={<Share p={p} />} top={figs.length > 0 && <Hexes figs={figs} className="kx-afigs" />} />
+              : <Share p={p} />}
             {p.club && (
               <section className="kx-org" aria-labelledby="kx-org-t">
                 <h2 className="kx-sub" id="kx-org-t">{T.organiser}</h2>

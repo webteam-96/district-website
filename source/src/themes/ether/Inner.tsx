@@ -552,7 +552,7 @@ const webOf = (s: string) => (/^https?:\/\//i.test(s) ? s : `https://${s}`);
 
 /* photos, the first is the cover: one keeps its own shape, two stand side by side, three or more are a cover
    with two beside it and the rest a strip of thumbnails, two rows until "Show all N" (no photo is cut to a sliver) */
-function Gallery({ photos, label, group }: { photos: Photo[]; label: string; group: string }) {
+function Gallery({ photos, label, group, grid = false }: { photos: Photo[]; label: string; group: string; grid?: boolean }) {
   const n = photos.length;
   if (!n) return null;
   const ar = (x: Photo) => (x.w > 0 && x.h > 0 ? (x.w / x.h).toFixed(3) : '1.5');
@@ -561,12 +561,12 @@ function Gallery({ photos, label, group }: { photos: Photo[]; label: string; gro
       <img src={x.src} alt={x.alt} width={x.w || undefined} height={x.h || undefined} loading={lazy ? 'lazy' : undefined} />
     </a>
   );
-  const rest = photos.slice(3);
+  const lead = grid ? [] : photos.slice(0, 3), rest = grid ? photos : photos.slice(3);
   return (
     <section className="pgal" aria-label={label} data-rv>
-      <div className={`pgal__lead pgal__lead--${Math.min(n, 3)}`}>
-        {photos.slice(0, 3).map((x, i) => <figure key={i} className="pgal__ph" style={v({ '--ar': ar(x) })}>{img(x, i > 0)}</figure>)}
-      </div>
+      {lead.length > 0 && <div className={`pgal__lead pgal__lead--${Math.min(n, 3)}`}>
+        {lead.map((x, i) => <figure key={i} className="pgal__ph" style={v({ '--ar': ar(x) })}>{img(x, i > 0)}</figure>)}
+      </div>}
       {rest.length > 0 && (
         <div className="dlist dlist--12">
           <ul className="pgal__grid">{rest.map((x, i) => <li key={i} className="pgal__ph">{img(x, true)}</li>)}</ul>
@@ -629,10 +629,13 @@ function ClubPage() {
     { key: 'hours' as const, label: 'Volunteer Hours', value: num(g.hours), accent: HUE[0] },
     { key: 'amount' as const, label: 'Amount Spent', value: lakh(g.amount), accent: HUE[1] }
   ];
-  const projects = [...c.projects].sort((a, b) => b.date.localeCompare(a.date));
+  const all = [...c.projects].sort((a, b) => b.date.localeCompare(a.date));
+  const projects = all.filter(p => p.avenue !== 'club');
+  const service = all.filter(p => p.avenue === 'club');
   const events = [...c.events].sort((a, b) => a.date.localeCompare(b.date));
   const tabs = [
     { key: 'projects', label: C.tabs.projects, n: projects.length },
+    { key: 'service', label: C.tabs.service, n: service.length },
     { key: 'bulletins', label: C.tabs.bulletins, n: c.bulletins.length },
     { key: 'events', label: C.tabs.events, n: events.length }
   ];
@@ -709,6 +712,14 @@ function ClubPage() {
                 </div>
               ) : <p className="gempty">{C.none.projects}</p>}
             </div>
+            <div data-panel="service" role="tabpanel" aria-label={C.tabs.service} hidden>
+              {service.length ? (
+                <div data-filter data-page-size="8">
+                  <ul className="dwall">{service.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} />)}</ul>
+                  <More label={P.projects.more} />
+                </div>
+              ) : <p className="gempty">{C.none.service}</p>}
+            </div>
             <div data-panel="bulletins" role="tabpanel" aria-label={C.tabs.bulletins} hidden>
               {c.bulletins.length ? (
                 <div data-filter data-page-size="8">
@@ -755,16 +766,17 @@ function ProjectPage() {
   ];
   return (
     <>
-      <PageHead k="project" title={p.title}>
-        {!(p.avenue === 'club') && (
-<ul className="hticker glass" aria-label={D.project.figures}>
-          {figs.map(f => <li key={f.key} style={v({ '--accent': f.accent })}><b data-count>{f.value}</b><span>{f.label}</span></li>)}
-        </ul>
-)}
-      </PageHead>
+      <PageHead k="project" title={p.title} />
       <section className="psec psec--top">
         <div className="wrap dstack">
-          <Gallery photos={p.gallery} label={D.project.gallery} group={`p-${p.id}`} />
+          {/* the project's figures come first and stand out; a Club Service report has none */}
+          {!(p.avenue === 'club') && (
+            <ul className="pfigs" aria-label={D.project.figures} data-rv>
+              {figs.map(f => <li key={f.key} className="pfig glass" style={v({ '--accent': f.accent })}><b data-count>{f.value}</b><span>{f.label}</span></li>)}
+            </ul>
+          )}
+          {/* the main photo at the start, the others after the story */}
+          <Gallery photos={p.gallery.slice(0, 1)} label={D.project.gallery} group={`p-${p.id}`} />
           <div className="dbody">
             {text.length > 0 && (
               <article className="dsheet glass" data-rv aria-labelledby="pa-t">
@@ -780,6 +792,12 @@ function ProjectPage() {
               </div>
             </aside>
           </div>
+          {p.gallery.length > 1 && (
+            <section className="pmore" aria-labelledby="pm-t">
+              <h2 id="pm-t" className="pmore__title">More photos <b>{num(p.gallery.length - 1)}</b></h2>
+              <Gallery photos={p.gallery.slice(1)} label={D.project.gallery} group={`p-${p.id}`} grid />
+            </section>
+          )}
           <Back href={list.file} label={p.avenue === 'club' ? list.title : D.project.back} />
         </div>
       </section>

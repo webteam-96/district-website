@@ -1089,3 +1089,33 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
   .oi-xcard .oi-hub, .oi-lane .oi-mem .oi-hub { --s: 72px; flex: none; font-size: 22px; }
   .oi-xcard > div, .oi-lane .oi-mem > div { width: auto; flex: 1 1 auto; }
 }
+
+/* listing figures 2026-11-20 */
+.oi-figs { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; margin: 0; }
+.oi-figs > div { display: inline-flex; flex-direction: row-reverse; align-items: baseline; gap: 6px; min-width: 0; padding: 6px 12px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--line-2); }
+.oi-figs dd { margin: 0; font: 600 15px/1.1 var(--f-display); letter-spacing: -0.03em; white-space: nowrap; color: var(--ink); font-variant-numeric: tabular-nums; }
+.oi-figs dt { font-size: 12.5px; font-weight: 700; line-height: 1.2; color: var(--ink-2); }
+.oi-figs > div:first-child { box-shadow: inset 0 0 0 1.5px var(--gold); }
+.oi-story .oi-figs { margin-top: 16px; }
+/* phone: the card body is display:contents, so the figures get their own full-width row under the photo and text */
+@media (max-width: 760px) {
+  .oi-proj > .oi-proj__body > .oi-figs { grid-area: 3 / 1 / 4 / -1; margin: 0 14px 14px; }
+}
+
+/* project page figures and card strip 2026-11-20 */
+/* About the project: the figures as ringed tiles, the first in gold */
+.oi-pfigs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 16px 0 22px; padding: 0; list-style: none; }
+.oi-pfigs li { display: grid; gap: 4px; padding: 16px 16px 14px; border-radius: 20px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--line-2), 0 12px 28px -22px rgba(23, 16, 63, 0.5); }
+.oi-pfigs li:first-child { box-shadow: inset 0 0 0 2px var(--gold), 0 14px 30px -20px rgba(247, 168, 27, 0.6); }
+.oi-pfigs b { font: 700 clamp(1.6rem, 2.4vw, 2.1rem)/1 var(--f-display); letter-spacing: -0.04em; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.oi-pfigs span { font-size: 13.5px; font-weight: 700; color: var(--ink-2); }
+/* listing cards: the figures as one strip of columns with thin dividers */
+.oi-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 0; margin: 12px 0 0; padding: 10px 4px; border-radius: 16px; background: color-mix(in srgb, var(--gold) 8%, var(--surface)); box-shadow: inset 0 0 0 1px var(--line); }
+.oi-figs > div, .oi-figs > div:first-child { display: grid; flex-direction: initial; justify-items: center; align-content: center; gap: 2px; padding: 2px 6px; border-radius: 0; box-shadow: none; text-align: center; }
+.oi-figs > div + div { border-left: 1px solid var(--line-2); }
+.oi-figs dd { order: -1; font: 700 17px/1.1 var(--f-display); }
+.oi-figs dt { font-size: 12px; font-weight: 700; line-height: 1.25; color: var(--ink-3); }
+@media (max-width: 760px) {
+  .oi-pfigs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .oi-pfigs b { font-size: 26px; }
+}

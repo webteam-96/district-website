@@ -285,8 +285,14 @@ const Ledger = ({ rows, rv = true }: { rows: Stat[]; rv?: boolean }) => (
     {rows.map((r, i) => <li key={r.label} style={css({ '--c': ACCENT[i % 4] })}><b data-count>{r.value}</b><span>{r.label}</span></li>)}
   </ul>
 );
+/* a card's own figures; a 0 is left out, and no figures means no row */
+const CardFigs = ({ p }: { p: Project }) => {
+  const L = P.projects.statLabels;
+  const f = ([[L.beneficiaries, p.beneficiaries, num(p.beneficiaries)], [L.amount, p.amount, lakh(p.amount)], [L.hours, p.hours, num(p.hours)]] as const).filter(x => x[1]);
+  return f.length ? <dl className="oi-figs">{f.map(([l, , v]) => <div key={l}><dt>{l}</dt><dd>{v}</dd></div>)}</dl> : null;
+};
 /* one project card: one action, "Read more", which covers the card */
-const ProjCard = ({ p, club = true, no }: { p: Project; club?: boolean; no?: string }) => (
+const ProjCard = ({ p, club = true, no, figs = false }: { p: Project; club?: boolean; no?: string; figs?: boolean }) => (
   <li className="oi-proj oi-card" data-item data-q={projQ(p)} data-avenue={p.avenue} data-glow data-rv>
     <figure className="oi-proj__photo"><Zoom ph={p.photo} group={`p-${p.id}`} /></figure>
     <span className="oi-tab">{avenueLabel(p.avenue)}</span>
@@ -298,6 +304,7 @@ const ProjCard = ({ p, club = true, no }: { p: Project; club?: boolean; no?: str
         <h2 className="oi-proj__title">{p.title}</h2>
         <p className="oi-proj__sum">{p.summary}</p>
       </div>
+      {figs && <CardFigs p={p} />}
       <div className="oi-acts"><ReadMore p={p} cls="oi-proj__go" /><ShareBtn p={p} /></div>
     </div>
   </li>
@@ -317,7 +324,7 @@ function Projects() {
             {x.avenues.filter(a => a.key !== 'club').map(a => <Chip key={a.key} attr="avenue" v={a.key}>{a.label}</Chip>)}
           </div>
           <ul className="oi-pgrid">
-            {list.map((p, i, a) => <ProjCard key={p.id} p={p} no={projNo(i, a.length)} />)}
+            {list.map((p, i, a) => <ProjCard key={p.id} p={p} no={projNo(i, a.length)} figs />)}
           </ul>
           <Empty text={x.empty} />
           <More label={x.more} />
@@ -360,6 +367,7 @@ function Service() {
                       </div>
                     </div>
                     <p className="oi-story__sum">{p.summary}</p>
+                    <CardFigs p={p} />
                     <div className="oi-acts oi-story__acts"><ReadMore p={p} cls="oi-story__go" /><ShareBtn p={p} /></div>
                   </div>
                 </li>
@@ -778,8 +786,10 @@ function ClubPage() {
   const day = P.finder.days.find(d => m.day && d.slice(0, 3).toLowerCase() === m.day.trim().slice(0, 3).toLowerCase()) ?? '';
   const ini = initials(c.name) || c.name.slice(0, 2).toUpperCase();
   const paged = (n: number) => (n ? { 'data-filter': '', 'data-page-size': 6 } : {});
+  const projects = c.projects.filter(p => p.avenue !== 'club'), service = c.projects.filter(p => p.avenue === 'club');
   const tabs = [
-    { key: 'projects', label: C.tabs.projects, n: c.projects.length },
+    { key: 'projects', label: C.tabs.projects, n: projects.length },
+    { key: 'service', label: C.tabs.service, n: service.length },
     { key: 'bulletins', label: C.tabs.bulletins, n: c.bulletins.length },
     { key: 'events', label: C.tabs.events, n: c.events.length }
   ];
@@ -841,11 +851,17 @@ function ClubPage() {
           <div className="oi-ntabs" role="tablist" aria-label={`Rotary Club of ${c.name}`} data-rv>
             {tabs.map((t, i) => <button key={t.key} type="button" role="tab" className={`oi-ntab ${i ? '' : 'is-on'}`} data-tab={t.key} aria-selected={!i} tabIndex={i ? -1 : 0}>{t.label}<b data-count>{num(t.n)}</b></button>)}
           </div>
-          <div data-panel="projects" role="tabpanel" aria-label={C.tabs.projects} {...paged(c.projects.length)}>
-            {c.projects.length ? <>
-              <ul className="oi-pgrid">{newest(c.projects).map((p, i, a) => <ProjCard key={p.id} p={p} club={false} no={projNo(i, a.length)} />)}</ul>
+          <div data-panel="projects" role="tabpanel" aria-label={C.tabs.projects} {...paged(projects.length)}>
+            {projects.length ? <>
+              <ul className="oi-pgrid">{newest(projects).map((p, i, a) => <ProjCard key={p.id} p={p} club={false} no={projNo(i, a.length)} />)}</ul>
               <More label={P.projects.more} />
             </> : <p className="oi-empty">{C.none.projects}</p>}
+          </div>
+          <div data-panel="service" role="tabpanel" aria-label={C.tabs.service} hidden {...paged(service.length)}>
+            {service.length ? <>
+              <ul className="oi-pgrid">{newest(service).map((p, i, a) => <ProjCard key={p.id} p={p} club={false} no={projNo(i, a.length)} />)}</ul>
+              <More label={P.projects.more} />
+            </> : <p className="oi-empty">{C.none.service}</p>}
           </div>
           <div data-panel="bulletins" role="tabpanel" aria-label={C.tabs.bulletins} hidden {...paged(c.bulletins.length)}>
             {c.bulletins.length ? <>
@@ -899,6 +915,12 @@ function ProjectPage() {
   const [cover, ...rest] = photos;
   const t = dayMonth(p.date);
   const text = paras(p.description);
+  const figs = svc ? [] : [
+    { label: L.beneficiaries, value: num(p.beneficiaries) },
+    { label: L.amount, value: lakh(p.amount) },
+    { label: L.hours, value: num(p.hours) },
+    ...(p.rotarians != null ? [{ label: 'Rotarians', value: num(p.rotarians) }] : [])
+  ];
   const facts = factsOf([
     p.club && { icon: I.home, label: X.organiser, value: p.clubId ? <a href={clubHref(p.clubId)}>{clubName(p.club)}{I.arrow}</a> : clubName(p.club) },
     !cover && { icon: I.cal, label: 'Date', value: longDate(parseISO(p.date)) },
@@ -908,13 +930,7 @@ function ProjectPage() {
   ]);
   return (
     <>
-      <Head k="project" crumb={p.title} title={p.title}
-        sub={p.avenue === 'club' ? undefined : <Ledger rv={false} rows={[
-          { label: L.beneficiaries, value: num(p.beneficiaries) },
-          { label: L.amount, value: lakh(p.amount) },
-          { label: L.hours, value: num(p.hours) },
-          ...(p.rotarians != null ? [{ label: 'Rotarians', value: num(p.rotarians) }] : [])
-        ]} />} />
+      <Head k="project" crumb={p.title} title={p.title} />
 
       <section className="oi-sec oi-pbody">
         <div className={`wrap oi-pbody__grid ${cover ? '' : 'is-solo'}`}>
@@ -939,7 +955,14 @@ function ProjectPage() {
             </div>
           )}
           <div className="oi-pbody__text" data-rv style={css({ '--d': 1 })}>
-            {text.length > 0 && <><h2 className="oi-h2">{X.about}</h2><Copy text={text} /></>}
+            {(text.length > 0 || figs.length > 0) && <h2 className="oi-h2">{X.about}</h2>}
+            {/* the project's figures sit with its story (a Club Service report has none) */}
+            {figs.length > 0 && (
+              <ul className="oi-pfigs" aria-label={X.figures}>
+                {figs.map(f => <li key={f.label}><b data-count>{f.value}</b><span>{f.label}</span></li>)}
+              </ul>
+            )}
+            {text.length > 0 && <Copy text={text} />}
             {facts.length > 0 && <div className="oi-card oi-pfacts"><Facts rows={facts} /></div>}
             <div className="oi-acts oi-pacts"><ShareBtn p={p} word /><a className="pbtn" href={list.href}>{I.back}{svc ? list.label : X.back}</a></div>
           </div>

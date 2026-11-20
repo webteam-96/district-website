@@ -283,13 +283,9 @@ function Finder() {
 const q = (p: Project) => `${p.title} ${p.club} ${avenueLabel(p.avenue)}`.toLowerCase();
 const Nums = ({ p, className }: { p: Project; className: string }) => {
   const L = P.projects.statLabels;
-  return (
-    <dl className={className}>
-      <div><dt>{L.beneficiaries}</dt><dd>{num(p.beneficiaries)}</dd></div>
-      <div><dt>{L.amount}</dt><dd>₹{R.fmt.num(p.amount, 1)} L</dd></div>
-      <div><dt>{L.hours}</dt><dd>{num(p.hours)}</dd></div>
-    </dl>
-  );
+  const figs = ([[L.beneficiaries, p.beneficiaries, num(p.beneficiaries)], [L.amount, p.amount, lakh(p.amount)], [L.hours, p.hours, num(p.hours)]] as const).filter(f => f[1]);
+  if (!figs.length) return null;     /* no figures: no row */
+  return <dl className={className}>{figs.map(([l, , v]) => <div key={l}><dt>{l}</dt><dd>{v}</dd></div>)}</dl>;
 };
 
 /* the card's main action: "Read more", whose hit area covers the whole card */
@@ -340,7 +336,7 @@ const Spread = ({ p }: { p: Project }) => (
       <p className="tp-sp__club">{clubName(p.club)}</p>
       <p className="tp-sp__sum">{p.summary}</p>
       <div className="tp-sp__acts"><ReadMore p={p} /><ShareBtn p={p} /></div>
-      {p.avenue !== 'club' && <Nums p={p} className="tp-sp__nums" />}
+      <Nums p={p} className="tp-sp__nums" />
     </div>
   </li>
 );
@@ -790,11 +786,14 @@ function ClubPage() {
   const ct = c.contact ?? {};
   const nl = c.leaders.length;
   const nm = c.members.length;
-  const projects = [...c.projects].sort((a, b) => b.date.localeCompare(a.date));
+  const all = [...c.projects].sort((a, b) => b.date.localeCompare(a.date));
+  const projects = all.filter(p => p.avenue !== 'club');
+  const service = all.filter(p => p.avenue === 'club');
   const bulletins = [...c.bulletins].sort((a, b) => b.date.localeCompare(a.date));
   const events = [...c.events].sort((a, b) => a.date.localeCompare(b.date));
   const tabs = [
     { k: 'projects', label: D.club.tabs.projects, n: projects.length },
+    { k: 'service', label: D.club.tabs.service, n: service.length },
     { k: 'bulletins', label: D.club.tabs.bulletins, n: bulletins.length },
     { k: 'events', label: D.club.tabs.events, n: events.length }
   ];
@@ -879,6 +878,14 @@ function ClubPage() {
                   <ul className="tp-cprj">{projects.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} />)}</ul>
                 </div>
               ) : <Empty text={D.club.none.projects} hidden={false} filter={false} />}
+            </div>
+            <div className="tp-ctabs__p" data-panel="service" role="tabpanel" aria-label={D.club.tabs.service} hidden>
+              {service.length ? (
+                <div className={capBox(service.length, 6, 3)}>
+                  {service.length > 3 && <ShowAll n={service.length} />}
+                  <ul className="tp-cprj">{service.map((p, i, a) => <ProjectCard key={p.id} p={p} no={projNo(i, a.length)} />)}</ul>
+                </div>
+              ) : <Empty text={D.club.none.service} hidden={false} filter={false} />}
             </div>
             <div className="tp-ctabs__p" data-panel="bulletins" role="tabpanel" aria-label={D.club.tabs.bulletins} hidden>
               {bulletins.length ? (

@@ -881,6 +881,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
 .tp-roll h3 { font-size: 20px; }
 .tp-roll .tp-mem__role { color: var(--teal-ink); }
 .tp-ctabs__p { margin-top: 18px; }
+.tp-ctabs .tp-tabs { flex-wrap: wrap; }
 .tp-cprj { counter-reset: tp-no; display: flex; flex-wrap: wrap; gap: 18px; }
 .tp-cprj > .tp-pj { flex: 1 1 300px; }
 
@@ -1009,7 +1010,7 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   .tp-pass__time dd { font-size: 28px; }
   .tp-dsec__bar > .tp-find { flex: 1 1 100%; }
   .tp-roll .tp-ava { width: 48px; height: 56px; }
-  .tp-ctabs .tp-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tp-ctabs .tp-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tp-ctabs .tp-tab { flex-direction: column; justify-content: center; gap: 6px; height: 72px; padding: 0 6px; font-size: 16px; text-align: center; }
   .tp-cprj > .tp-pj { flex-basis: 100%; }
   /* project */
@@ -1110,3 +1111,6 @@ a.tp-club__tel:hover { color: var(--cran-ink); text-decoration-color: var(--cran
   .tp-pass { --stub: 96px; }
   .tp-pass .tp-tk__stub small { font-size: 12px; }
 }
+
+/* listing figures 2026-11-20 */
+.tp-sp__nums { flex-wrap: wrap; row-gap: 10px; pointer-events: none; }     /* positioned, after Read more: let clicks reach its covering link */

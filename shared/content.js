@@ -646,8 +646,8 @@ window.ROTARY = (function () {
         back: 'All clubs',
         details: 'Club details', glance: 'At a glance', leadership: 'Club leadership', members: 'Members',
         searchLabel: 'Search members by name', empty: 'No member matches your search.', more: 'Show more members', pageSize: 24,
-        tabs: { projects: 'Projects', bulletins: 'Newsletters', events: 'Events' },
-        none: { projects: 'No projects reported yet this Rotary year.', bulletins: 'No newsletters yet this Rotary year.', events: 'No upcoming events.', leaders: 'The club has not named its board for this year yet.' },
+        tabs: { projects: 'Club Projects', service: 'Club Service', bulletins: 'Newsletters', events: 'Events' },
+        none: { projects: 'No projects reported yet this Rotary year.', service: 'No club service reported yet this Rotary year.', bulletins: 'No newsletters yet this Rotary year.', events: 'No upcoming events.', leaders: 'The club has not named its board for this year yet.' },
         /* Bombay Pier: the one sample club with both projects and newsletters, so the static page shows full tabs
            (its meeting time, charter date and zone are the club's real ones; board and members are invented) */
         example: '47',

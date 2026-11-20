@@ -16,7 +16,7 @@ import { type DetailPages, type EventDetail, type Fact, type Leader } from './de
 type Row = Record<string, any>;
 type Apply = () => void;
 interface Year { id?: number; label: string }
-interface Ctx { num: string; id: number; years: [Year, Year] }   /* this Rotary year, the next one */
+interface Ctx { num: string; id: number; years: Year[]; cur: string; all: Year[] }   /* years: the ones loaded (this Rotary year, the next one); all: the year menu */
 
 const P = (R as unknown as { pages: Pages }).pages;
 const D = P as unknown as DetailPages;              /* the detail pages' item slots (shared/detail.tsx) */
@@ -24,6 +24,14 @@ const CAP = 30000;                                   /* ms: what has not arrived
 let until = 0;                                      /* performance.now() at which loadLive stops waiting */
 const MEDIA = 'https://rizones45678.org/API';        /* /Documents/… and /uploads/… live under the API host */
 const DEFAULT = { num: '3141', id: 490 };
+const LOGOS: Record<string, string> = { '3141': 'https://rotaryindia.org/Documents/WebsiteData/Group31093/LOGO/UpperLogo030520240653590088347PM.png' };
+/* the logo is blue artwork for light backgrounds; on dark ones the same file shows white (the #reversed rule) */
+const setLogo = (src: string) => {
+  if (!src) return;
+  R.brand.logo = src;
+  R.brand.logoReversed = src + '#reversed';
+  if (!document.getElementById('logo-rev')) document.head.insertAdjacentHTML('beforeend', '<style id="logo-rev">img[src$="#reversed"]{filter:brightness(0) invert(1)}</style>');
+};
 const KEY = 'rid-dev-district';                      /* production's session key for ?district= */
 const PRESIDENT_CLUB = 34297;                        /* production's always-serviceable club; the RI President is the same for every club */
 /* production's DISTRICT_GROUPS: banners and Governor's letters sit under the district's website group */
@@ -281,7 +289,10 @@ async function tenant(): Promise<Ctx> {
   const cur = years.find(y => y.yearLabel === yearOf(new Date())) ?? years.find(y => y.isCurrent);
   if (!cur) throw new Error('the API has no current Rotary year');
   const y0 = parseInt(cur.yearLabel, 10), next = `${y0 + 1}-${String((y0 + 2) % 100).padStart(2, '0')}`;
-  return { num, id, years: [{ id: cur.id, label: cur.yearLabel }, { id: years.find(y => y.yearLabel === next)?.id, label: next }] };
+  /* the year menu: production's rule, ten years back to next year, newest first */
+  const all: Year[] = years.filter(y => /^\d{4}-\d{2}$/.test(y.yearLabel) && +y.yearLabel.slice(0, 4) >= y0 - 10 && +y.yearLabel.slice(0, 4) <= y0 + 1)
+    .sort((a, b) => b.yearLabel.localeCompare(a.yearLabel)).map(y => ({ id: y.id, label: y.yearLabel }));
+  return { num, id, cur: cur.yearLabel, all, years: [{ id: cur.id, label: cur.yearLabel }, { id: years.find(y => y.yearLabel === next)?.id, label: next }] };
 }
 
 /* ---------- one loader per data item: fetch and map, return the step that writes it into window.ROTARY ---------- */
@@ -325,10 +336,17 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
     };
   },
 
+  /* the header logo: the website's own upload, else the district record's, else production's map */
+  async logo(c) {
+    const [w, d] = await Promise.all([api(`/api/districts/${c.id}/website-data/logo`).catch(() => null), api(`/api/Districts/${c.id}`).catch(() => null)]);
+    const row = Array.isArray(w) ? w[0] : w?.items ? w.items[0] : w;
+    const src = media(row?.logoPath ?? row?.LogoPath) || media(d?.districtLogoPath) || LOGOS[c.num] || '';
+    return () => setLogo(src);
+  },
+
   /* District Snapshot: production's sums over the year's avenue-of-service report */
   async snapshot(c) {
-    const [y0, y1] = c.years;
-    const [cur, next, clubs, district] = await Promise.all([feed(c, y0.id), feed(c, y1.id), clubsOf(c), api(`/api/Districts/${c.id}`)]);
+    const [feeds, clubs, district] = await Promise.all([Promise.all(c.years.map(y => feed(c, y.id))), clubsOf(c), api(`/api/Districts/${c.id}`)]);
     const total = (rows: Row[], k: string) => rows.reduce((s, r) => s + (Number(r[k]) || 0), 0);
     const sums = (rows: Row[]) => ({
       projects: rows.filter(r => clean(r.moduleKey).toLowerCase() !== 'club_service').length,   /* club-service reports are not projects */
@@ -338,10 +356,9 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
     });
     /* clubs and members are today's counts in either year: the API keeps no history of them */
     const people = { clubs: clubs.total, members: Number(district?.totalMembers) || 0 };
-    return () => {
-      R.snapshot.byYear[y0.label] = { ...sums(cur), ...people, status: 'in-progress', note: 'Year to date' };
-      R.snapshot.byYear[y1.label] = { ...sums(next), ...people, status: 'upcoming', note: `Rotary year ${y1.label} begins on 1 July ${y1.label.slice(0, 4)}.` };
-    };
+    return () => c.years.forEach((y, i) => {
+      R.snapshot.byYear[y.label] = { ...sums(feeds[i]), ...people, ...(y.label === c.cur ? { status: 'in-progress' as const, note: 'Year to date' } : y.label > c.cur ? { status: 'upcoming' as const, note: `Rotary year ${y.label} begins on 1 July ${y.label.slice(0, 4)}.` } : {}) };
+    });
   },
 
   /* Club Finder (and the homepage's club strip) */
@@ -359,17 +376,18 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
     ]) : Promise.resolve([null, null]))));
     return () => c.years.forEach((y, i) => {
       const [p, g] = got[i] as (Row | null)[], was = R.dignitaries.byYear[y.label];
+      const up = y.label > c.cur, past = y.label < c.cur;
       const pName = clean(p?.name), gName = clean(g?.name);
       const president: Person | undefined = pName
-        ? { name: pName, role: i ? 'President-elect' : 'President', term: `Rotary International ${y.label}`, bio: lead(textOf(p!.description), 260), photo: portrait(media(p!.profilePhotoPath), pName) }
+        ? { name: pName, role: up ? 'President-elect' : 'President', term: `Rotary International ${y.label}`, bio: lead(textOf(p!.description), 260), photo: portrait(media(p!.profilePhotoPath), pName) }
         : was?.president;
       /* the API keeps no bio for the Governor: one line from the roster's own facts */
       const dg: Person | undefined = gName
-        ? { name: gName, role: i ? 'District Governor-elect' : 'District Governor', term: y.label, bio: `${gName} ${i ? 'will lead' : 'leads'} Rotary District ${c.num} in ${y.label}.`, photo: portrait(media(g!.profilePhoto), gName) }
+        ? { name: gName, role: up ? 'District Governor-elect' : 'District Governor', term: y.label, bio: `${gName} ${up ? 'will lead' : past ? 'led' : 'leads'} Rotary District ${c.num} in ${y.label}.`, photo: portrait(media(g!.profilePhoto), gName) }
         : was?.dg;
       R.dignitaries.byYear[y.label] = {
-        president: president ?? tba(i ? 'President-elect' : 'President', `Rotary International ${y.label}`),
-        dg: dg ?? tba(i ? 'District Governor-elect' : 'District Governor', y.label)
+        president: president ?? tba(up ? 'President-elect' : 'President', `Rotary International ${y.label}`),
+        dg: dg ?? tba(up ? 'District Governor-elect' : 'District Governor', y.label)
       };
     });
   },
@@ -432,7 +450,7 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
       }));
       const club: Bulletin[] = bulletins.filter(r => shown(r) && inYear(r, y)).sort(newest).map(bulletinOf);
       /* the homepage shows the latest few, as designed; the Newsletters page shows the whole year */
-      R.press.byYear[y.label] = { gml: home ? gml.slice(0, 3) : gml, bulletins: home ? club.slice(0, 8) : club, total: club.length, status: i ? 'upcoming' : 'in-progress' };
+      R.press.byYear[y.label] = { gml: home ? gml.slice(0, 3) : gml, bulletins: home ? club.slice(0, 8) : club, total: club.length, status: y.label > c.cur ? 'upcoming' : y.label === c.cur ? 'in-progress' : 'complete' };
     });
   },
 
@@ -702,6 +720,7 @@ async function snapshot(page: PageKey | 'home', why: string): Promise<void> {
       item = (index[page] as string[] | undefined)?.includes(id) ? await get(`${page}/${encodeURIComponent(id)}.json`) : null;
     }
     merge(R as unknown as Row, patch);
+    setLogo(LOGOS[DEFAULT.num] ?? '');
     if (item !== undefined) (P as unknown as Record<string, Row>)[page].item = item;
     /* a dead file on the media host shows the theme's initials plate, not a broken image */
     addEventListener('error', e => {
@@ -712,6 +731,26 @@ async function snapshot(page: PageKey | 'home', why: string): Promise<void> {
   } catch (e) {
     info(`${why}; no saved data (${(e as Error).message}): sample data`);
   } finally { clearTimeout(stop); }
+}
+
+/* the year menu: a year not loaded yet is fetched when chosen (its Snapshot report can take a minute), then joins
+   the loaded years in date order, so the 12-year trends grow with it */
+let live: { ctx: Ctx; page: PageKey | 'home' } | null = null;
+const YEAR_JOBS = ['snapshot', 'dignitaries', 'press'];
+export async function loadYear(label: string): Promise<void> {
+  if (!live || R.years.list.includes(label)) return;
+  const { ctx, page } = live, y = ctx.all.find(x => x.label === label);
+  if (!y) return;
+  const c: Ctx = { ...ctx, years: [y] };
+  signal = undefined;                                   /* the first load's requests were cut off; these are new */
+  until = performance.now() + 120000;
+  const names = YEAR_JOBS.filter(n => PAGE_JOBS[page].includes(n));
+  const done = await Promise.all(names.map(n => JOBS[n](c, page).catch(e => { info(`${label}: ${n} failed (${(e as Error)?.message ?? e})`); return null; })));
+  for (const n of ORDER) done[names.indexOf(n)]?.();
+  R.snapshot.byYear[label] ??= { projects: 0, hours: 0, amount: 0, beneficiaries: 0, clubs: 0, members: 0 };
+  R.press.byYear[label] ??= { gml: [], bulletins: [], total: 0, status: 'complete' };
+  R.dignitaries.byYear[label] ??= { president: tba('President', `Rotary International ${label}`), dg: tba('District Governor', label) };
+  R.years.list = [...R.years.list, label].sort();
 }
 
 export async function loadLive(page: PageKey | 'home'): Promise<void> {
@@ -732,7 +771,7 @@ export async function loadLive(page: PageKey | 'home'): Promise<void> {
     return snapshot(page, `no live data (${(e as Error).message})`);
   }
   const ctx = c;
-  const names = ['contact', 'social', ...PAGE_JOBS[page]];
+  const names = ['contact', 'social', 'logo', ...PAGE_JOBS[page]];
   const ready = new Map<string, Apply>(), failed: string[] = [];
   await Promise.race([Promise.all(names.map(n => JOBS[n](ctx, page).then(a => void ready.set(n, a), e => void failed.push(`${n} (${(e as Error)?.message ?? e})`)))), deadline]);
   ctrl.abort();                                                /* nothing is written after this point */
@@ -746,7 +785,8 @@ export async function loadLive(page: PageKey | 'home'): Promise<void> {
     R.press.byYear[y.label] ??= { gml: [], bulletins: [], total: 0, status: 'upcoming' };
     R.dignitaries.byYear[y.label] ??= { president: tba('President', `Rotary International ${y.label}`), dg: tba('District Governor', y.label) };
   }
-  Object.assign(R.years, { list: ctx.years.map(y => y.label), current: ctx.years[0].label });
+  Object.assign(R.years, { list: ctx.years.map(y => y.label), current: ctx.years[0].label, options: ctx.all.map(y => y.label) });
+  live = { ctx, page };
 
   /* a dead file on the media host shows the theme's initials plate, not a broken image */
   addEventListener('error', e => {

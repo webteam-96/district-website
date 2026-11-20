@@ -4,6 +4,7 @@ import PillNav from '../../rb/PillNav/PillNav';
 import StarBorder from '../../rb/StarBorder/StarBorder';
 import { useTheme, type Theme } from './theme';
 import { STATIC } from '../../shared/inner';
+import { loadYear } from '../../shared/live';
 
 /* Sun / moon switch: the icon shows the theme you'll switch to. */
 export function ThemeToggle({ theme, onTheme }: { theme: Theme; onTheme: () => void }) {
@@ -23,11 +24,12 @@ const isExternal = (href = '') => EXTERNAL.has(href);
 /* ---------- Year selector: button + listbox (↑ ↓ Home End Enter Esc) ---------- */
 export function YearSelect({ year, onYear, compact = false }: { year: string; onYear: (y: string) => void; compact?: boolean }) {
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(R.years.list.indexOf(year));
+  const [active, setActive] = useState((R.years.options ?? R.years.list).indexOf(year));
+  const [busy, setBusy] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const id = useId();
-  const years = R.years.list;
+  const years = R.years.options ?? R.years.list;   /* live: every year the API offers */
 
   useEffect(() => {
     if (!open) return;
@@ -44,10 +46,14 @@ export function YearSelect({ year, onYear, compact = false }: { year: string; on
     list.current?.querySelector<HTMLElement>(`[data-i="${active}"]`)?.scrollIntoView({ block: 'nearest' });
   }, [active, open]);
 
+  /* a year not loaded yet is fetched first; the menu says so meanwhile */
   const choose = (i: number) => {
-    onYear(years[i]);
+    const y = years[i];
     setOpen(false);
     btn.current?.focus();
+    if (R.years.list.includes(y)) { onYear(y); return; }
+    setBusy(true);
+    loadYear(y).catch(() => undefined).then(() => { setBusy(false); if (R.years.list.includes(y)) onYear(y); });
   };
   const onListKey = (e: KeyboardEvent) => {
     const k = e.key;
@@ -77,7 +83,7 @@ export function YearSelect({ year, onYear, compact = false }: { year: string; on
         onClick={() => setOpen(o => !o)}
         onKeyDown={e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); setOpen(true); } }}
       >
-        <span className="year__value">{year}</span>
+        <span className="year__value" aria-live="polite">{busy ? 'Loading…' : year}</span>
         <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
       {open && (

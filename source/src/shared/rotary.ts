@@ -18,7 +18,7 @@ export interface Rotary {
   brand: { blue: string; gold: string; logo: string; logoReversed: string; wheel: string; logoAlt: string; wheelSvg: { viewBox: string; outer: string; transform: string; d: string } };
   photos: Record<string, Photo>;
   contact: { label: string; email: string; phone: string; phoneDisplay: string; tel: string };
-  years: { label: string; list: string[]; current: string };
+  years: { label: string; list: string[]; current: string; options?: string[] };   /* list: the years with data; options: the menu (live: every API year) */
   nav: NavItem[];
   ctas: { join: Link & { external?: boolean }; admin: Link & { external?: boolean } };
   hero: { title: string; autoplayMs: number; slides: { photo: Photo; caption: string }[]; ads?: { image: Photo; href: string | null }[] };

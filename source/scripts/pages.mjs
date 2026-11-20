@@ -81,7 +81,7 @@ for (const theme of themes) {
       .replace(/<title>[^<]*<\/title>/, `<title>${p.title} · ${ROT.site.name} — ${name}</title>`)
       .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${p.lead}">`)
       .replace('<body>', `<body data-page="${p.key}">`);
-    writeFileSync(resolve(OUT, theme, p.file), html);
+    writeFileSync(resolve(OUT, theme, p.file + ".html"), html);   /* links have no .html; the host maps /ether/about to about.html */
   }
 
   /* ---- 2 · static HTML ---- */
@@ -134,7 +134,7 @@ ${body}
 </body>
 </html>
 `;
-    writeFileSync(resolve(dir, p.file), html);
+    writeFileSync(resolve(dir, p.file + ".html"), html);
   }
   rmSync(tmp, { recursive: true, force: true });
   console.log(`${theme}: ${pages.length} React pages, ${pages.length} HTML pages`);

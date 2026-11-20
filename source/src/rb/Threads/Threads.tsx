@@ -391,9 +391,9 @@ const Threads = ({
       gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
     };
 
-    const resize = () => {
-      const width = Math.max(1, container.clientWidth);
-      const height = Math.max(1, container.clientHeight);
+    const resize = (w?: number, h?: number) => {   /* ROW: the observer passes the size, so no page layout is forced */
+      const width = Math.max(1, w ?? container.clientWidth);
+      const height = Math.max(1, h ?? container.clientHeight);
       const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
       const longest = Math.max(width, height) * baseDpr;
       const dpr = longest > MAX_RENDER_DIM ? (baseDpr * MAX_RENDER_DIM) / longest : baseDpr;
@@ -532,7 +532,14 @@ const Threads = ({
       wake();
     };
 
-    const resizeObserver = new ResizeObserver(resize);
+    /* ROW: once a frame at most, and only when the size really changed (a long page re-fired this hundreds of times) */
+    let sizeFrame = 0;
+    const resizeObserver = new ResizeObserver(entries => {
+      const r = entries[entries.length - 1].contentRect;
+      if (Math.round(r.width) === Math.round(state.width) && Math.round(r.height) === Math.round(state.height)) return;
+      cancelAnimationFrame(sizeFrame);
+      sizeFrame = requestAnimationFrame(() => resize(r.width, r.height));
+    });
     resizeObserver.observe(container);
     const intersection = new IntersectionObserver(entries => {
       visible = entries.some(entry => entry.isIntersecting);
@@ -557,6 +564,7 @@ const Threads = ({
       cancelAnimationFrame(raf);
       wakeRef.current = null;
       resizeObserver.disconnect();
+      cancelAnimationFrame(sizeFrame);
       intersection.disconnect();
       window.removeEventListener('pointermove', onPointerMove);
       document.documentElement.removeEventListener('pointerleave', onPointerLeave);

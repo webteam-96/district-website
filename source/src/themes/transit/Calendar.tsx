@@ -3,6 +3,7 @@ import MonthPicker from '../../shared/MonthPicker';
 import { Title } from './Sections';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
 import { eventHref } from '../../shared/detail';
+import { Slide } from '../ether/Chrome';
 
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
@@ -82,6 +83,7 @@ export default function Calendar() {
         </div>
       </div>
 
+      <Slide>
       <div ref={line} className="droute" style={{ ['--n' as string]: count, ['--p' as string]: (sel.getDate() - 0.5) / count }}>
         <ol className="droute__stops">
           {Array.from({ length: count }, (_, i) => {
@@ -102,6 +104,7 @@ export default function Calendar() {
           })}
         </ol>
       </div>
+      </Slide>
 
       <div className="cal__stage">
         <p key={selected} className="cal__big">

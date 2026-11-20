@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { R, initials, longDate, monthLabel, parseISO, shortDate, monthMatrix, toISO, weekdayName, type Bulletin, type CalEntry, type Photo } from '../../shared/rotary';
-import { startSmoothScroll } from '../../shared/smooth';
+import { lenis, startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
   calMonths, todayMonthKey, monthEntries, pressYears, AdminContent, type PageKey, type Project, projNo
@@ -118,9 +118,11 @@ const Card = ({ m, g }: { m: Member; g: string }) => (
     <span className={`tx-card__photo${m.photo ? '' : ' is-ini'}`} aria-hidden="true">
       {m.photo ? <img src={m.photo.src} alt="" width={m.photo.w} height={m.photo.h} loading="lazy" /> : <b>{m.initials || m.name.charAt(0)}</b>}
     </span>
-    <h3>{m.name}</h3>
-    {m.role && <p className="tx-card__role">{m.role}</p>}
-    {m.club && <p className="tx-card__club">{clubName(m.club)}</p>}
+    <div className="tx-card__text">
+      <h3>{m.name}</h3>
+      {m.role && <p className="tx-card__role">{m.role}</p>}
+      {m.club && <p className="tx-card__club">{clubName(m.club)}</p>}
+    </div>
   </li>
 );
 const PlatHead = ({ title, n }: { title: string; n: number }) => <h2 className="tx-plat__head"><span>{title}</span><b data-f-group-count>{n}</b></h2>;
@@ -373,7 +375,7 @@ function Cell({ d, list }: { d: Date; list: CalEntry[] | null }) {
   const events = list.filter(e => e.type === 'club' || e.type === 'district');
   const greets = (['birthday', 'anniversary'] as const).map(k => ({ k, l: list.filter(e => e.type === k) })).filter(g => g.l.length);
   return (
-    <div className={`tx-cell${list.length ? ' has' : ''}`} aria-current={today ? 'date' : undefined}>
+    <div className={`tx-cell${list.length ? ' has' : ''}`} id={`d-${toISO(d)}`} aria-current={today ? 'date' : undefined}>
       <p className="tx-cell__d">
         <b>{d.getDate()}</b><span>{weekdayName(d).slice(0, 3)}</span>
         {today && <em>{C.todayTag}</em>}
@@ -398,6 +400,26 @@ function Cell({ d, list }: { d: Date; list: CalEntry[] | null }) {
   );
 }
 
+/* phones and tablets: a day in the pick grid lands on its row, correcting while the rows above it draw */
+const jumpToDay = (e: { target: EventTarget; preventDefault(): void; stopPropagation(): void }) => {
+  const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#d-"]');
+  const el = a && document.getElementById(a.getAttribute('href')!.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if (!el.offsetParent) return;   /* the day is filtered out */
+  let n = 0, still = 0;
+  const land = () => {
+    const off = el.getBoundingClientRect().top - 90;
+    still = Math.abs(off) < 2 ? still + 1 : 0;
+    if (still < 3 && ++n < 40) {
+      if (Math.abs(off) >= 2) { const top = window.scrollY + off; if (lenis) lenis.scrollTo(top, { immediate: true, force: true }); else window.scrollTo(0, top); }
+      window.setTimeout(land, 80);
+    }
+  };
+  land();
+};
+
 function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boolean }) {
   const C = R.calendar;
   const days = monthEntries(m.date);
@@ -421,6 +443,20 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
         </div>
       )}
       <p className="tx-empty" data-f-empty hidden={all.length > 0}>{P.calendar.emptyMonth}</p>
+      {all.length > 0 && (
+        <nav className="tx-pick" aria-label={`Days of ${m.label}`} onClick={jumpToDay}>
+          {C.weekdays.map(w => <span key={w} className="tx-pick__wd" aria-hidden="true">{w.slice(0, 1)}</span>)}
+          {shown.map(d => {
+            const iso = toISO(d);
+            if (d.getMonth() !== mo) return <span key={iso} className="tx-pick__d is-out" aria-hidden="true" />;
+            const list = by.get(iso) ?? [];
+            const cls = `tx-pick__d${iso === C.today ? ' is-today' : ''}`;
+            return list.length
+              ? <a key={iso} className={cls} href={`#d-${iso}`} aria-label={longDate(d)}>{d.getDate()}<i aria-hidden="true">{[...new Set(list.map(x => x.type))].map(t => <i key={t} style={css({ '--tc': TYPE_C[t] })} />)}</i></a>
+              : <span key={iso} className={`${cls} is-empty`}>{d.getDate()}</span>;
+          })}
+        </nav>
+      )}
       <div className="tx-wall" data-rv>
         {C.weekdays.map(w => <span key={w} className="tx-wd" aria-hidden="true">{w}</span>)}
         {shown.map(d => <Cell key={toISO(d)} d={d} list={d.getMonth() === mo ? by.get(toISO(d)) ?? [] : null} />)}
@@ -977,7 +1013,7 @@ export default function Inner({ page }: { page: PageKey }) {
   return (
     <ThemeCtx.Provider value={theme}>
       <TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} />
-      <Header />
+      <Header top={<TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} menu />} />
       <Body page={page} year={year} />
       <Footer />
     </ThemeCtx.Provider>

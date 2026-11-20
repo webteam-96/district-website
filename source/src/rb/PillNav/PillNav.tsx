@@ -47,6 +47,8 @@ export interface PillNavProps {
   intro?: boolean;
   collapse?: 'auto' | 'always' | 'never';
   onMenuToggle?: (open: boolean) => void;
+  /* extra content shown at the top of the collapsed menu panel */
+  panelTop?: ReactNode;
   ariaLabel?: string;
   className?: string;
   style?: CSSProperties;
@@ -226,6 +228,7 @@ const PillNav = ({
   intro = true,
   collapse = 'auto',
   onMenuToggle,
+  panelTop,
   ariaLabel = 'Main',
   className = '',
   style
@@ -884,7 +887,8 @@ const PillNav = ({
       )}
 
       {collapsed && panelShown && (
-        <div ref={panelRef} id={panelId} className={[PANEL, SURFACE].join(' ')}>
+        <div ref={panelRef} id={panelId} className={[PANEL, SURFACE].join(' ')} data-lenis-prevent>
+          {panelTop && <div className="pill-nav__top">{panelTop}</div>}
           <ul className={MENU}>
             {items.map((item, index) => (
               <li key={`${item.label}-${index}`}>

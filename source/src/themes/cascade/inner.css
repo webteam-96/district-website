@@ -1116,3 +1116,62 @@ body[data-page] { --share-bg: #fff; --share-ink: #24082b; --share-hover: rgba(25
   .ci-gal__big img, .ci-gal__big::before { transition: none; }
   main.cin [data-filter] .ci-cap [data-item] { animation: none; }
 }
+
+/* responsive sweep 2026-11-19 */
+/* Club Finder: the meeting-day chips fit a 320px phone */
+@media (max-width: 400px) {
+  .ci-days { gap: 3px; }
+  .ci-dchip { flex: 1 1 0; min-width: 0; padding: 0 2px; font-size: 13.5px; }
+}
+
+/* cascade phone pass 2026-11-19 */
+@media (max-width: 760px) {
+  /* committee: every chip shows, wrapped (no swipe row, no fade, no bleed) */
+  .ci-roster .ci-chips.ci-swipe { flex-wrap: wrap; overflow: visible; margin: -4px 0 22px; padding-inline: 0; -webkit-mask-image: none; mask-image: none; animation: none; }
+  .ci-roster .ci-chips.ci-swipe .ci-chip { max-width: 100%; white-space: normal; text-align: left; }
+  /* committee + club leadership: one card per row, photo left, text right (the lead card keeps its own row) */
+  :is(.ci-roster, .ci-exec--board) .ci-pgrid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  :is(.ci-roster, .ci-exec--board) .ci-pcard:not(.ci-pcard--lead) { flex-direction: row; align-items: center; gap: 16px; }
+  :is(.ci-roster, .ci-exec--board) .ci-pcard:not(.ci-pcard--lead) .ci-pcard__photo { flex: none; width: 80px; margin: 0 6px 6px 0; }
+  :is(.ci-roster, .ci-exec--board) .ci-pcard:not(.ci-pcard--lead) .ci-pcard__photo::before { inset: 6px -6px -6px 6px; border-radius: 14px; }
+  :is(.ci-roster, .ci-exec--board) .ci-pcard:not(.ci-pcard--lead) .ci-pcard__photo :is(img, span) { border-radius: 14px; font-size: 26px; }
+  :is(.ci-roster, .ci-exec--board) .ci-pcard:not(.ci-pcard--lead) .ci-pcard__text { flex: 1; min-width: 0; padding-top: 0; }
+  /* projects: every avenue tab shows, wrapped, in the header's flow (no slider) */
+  .ci-head--tabs:has(> .ci-tabs[role='group']) { padding-bottom: calc(var(--rad) + 16px); }
+  .ci-head--tabs > .ci-tabs.ci-swipe[role='group'] { position: relative; bottom: auto; flex-wrap: wrap; align-items: stretch; gap: 6px; margin-top: 16px; padding-top: 0; overflow: visible; -webkit-mask-image: none; mask-image: none; animation: none; }
+  .ci-head--tabs > .ci-tabs[role='group'] > .ci-tab, .ci-head--tabs > .ci-tabs[role='group'] > .ci-tab[aria-pressed='true'] { flex: 0 1 auto; max-width: 100%; height: auto; min-height: 42px; padding: 6px 12px; border-radius: 12px; white-space: normal; text-align: center; }
+  .ci-head--tabs > .ci-tabs[role='group'] > .ci-tab[aria-pressed='true'] { box-shadow: inset 0 0 0 2px var(--coral); }
+  :root[data-theme='dark'] .ci-head--tabs > .ci-tabs[role='group'] > .ci-tab[aria-pressed='true'] { box-shadow: inset 0 0 0 2px var(--apricot); }
+  .ci-head--tabs > .ci-tabs[role='group'] > .ci-tab:focus-visible { border-radius: 12px; }
+}
+
+/* cascade phone pass 2, 2026-11-20 */
+@media (max-width: 760px) {
+  /* club finder: every letter shows, wrapped; the bar sits under the head instead of sticking */
+  .ci-head--az { padding-bottom: calc(var(--rad) + 8px); }
+  .ci-az { position: relative; top: auto; margin-top: 0; }
+  .ci-az .ci-tabs.ci-swipe { flex-wrap: wrap; justify-content: flex-start; gap: 6px; height: auto; padding: 14px var(--gutter) 4px; margin-inline: auto; overflow: visible; -webkit-mask-image: none; mask-image: none; animation: none; }
+  .ci-az .ci-tab--az { flex: 0 0 auto; min-width: 42px; height: 42px; border-radius: 12px; font-size: 17px; }
+  /* club page: the counters as separate tiles */
+  .ci-totals--ramp { gap: 8px; overflow: visible; border-radius: 0; }
+  .ci-totals--ramp > li:nth-child(n) { height: auto; min-height: 68px; gap: 4px; padding: 12px 14px; border-radius: 16px; box-shadow: 0 10px 22px -14px rgba(36, 8, 43, 0.55); }
+  .ci-totals--ramp b { font-size: 24px; }
+  .ci-totals--ramp span { font-size: 13px; opacity: 0.92; }
+  .ci-totals--ramp > li:first-child:nth-last-child(odd) { flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 10px; min-height: 56px; }
+  /* club page members: one card a row, photo beside the name */
+  .ci-roll .ci-pgrid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .ci-roll .ci-pcard { flex-direction: row; align-items: center; gap: 16px; }
+  .ci-roll .ci-pcard .ci-pcard__photo { flex: none; width: 80px; margin: 0 6px 6px 0; }
+  .ci-roll .ci-pcard .ci-pcard__photo::before { inset: 6px -6px -6px 6px; border-radius: 14px; }
+  .ci-roll .ci-pcard .ci-pcard__photo :is(img, span) { border-radius: 14px; font-size: 26px; }
+  .ci-roll .ci-pcard .ci-pcard__text { flex: 1; min-width: 0; padding-top: 0; }
+  /* club page Projects / Newsletters / Events: all show, wrapped */
+  .ci-tabs--sheet { flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+  .ci-tabs--sheet .ci-tab { flex: 1 1 auto; min-width: max-content; }
+  /* calendar: the month as a 7-column day grid to pick a day from */
+  .ci-ribbon { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 4px 0 18px; }
+  .ci-ribbon > :first-child { grid-column-start: var(--start, 1); }
+  .ci-ribbon .tick { min-width: 0; }
+  /* calendar: Club Events / Birthdays / Anniversaries all show, wrapped */
+  .ci-types.ci-swipe { flex-wrap: wrap; margin-inline: 0; padding-inline: 0; overflow: visible; -webkit-mask-image: none; mask-image: none; animation: none; }
+}

@@ -473,3 +473,15 @@ ul, ol { padding: 0; list-style: none; }
 
 /* the wheel carries on to the page when this list has nothing more to scroll (the scroll library blocks that by default) */
 .dayp__scroll[data-lenis-prevent] { overscroll-behavior: auto; }
+
+/* orbit phone pass 2026-11-19: the top strip's copy inside the phone menu */
+.strip--menu { display: none; }
+@media (max-width: 760px) {
+  .strip:not(.strip--menu) { display: none; }
+  .mmenu__strip { margin: -12px 0 22px; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .mmenu__strip .strip--menu { display: block; background: none; }
+  .strip--menu .wrap { padding: 0; }
+  .strip--menu .strip__row { min-height: 0; padding: 0; gap: 12px 10px; }
+  .strip--menu .strip__ctas { order: -1; }
+  .strip--menu .strip__join, .strip--menu .strip__admin { min-height: 46px; }
+}

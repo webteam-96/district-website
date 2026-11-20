@@ -379,6 +379,9 @@ ul, ol { padding: 0; list-style: none; }
   .notes { grid-template-columns: minmax(0, 1fr); }
   .board { height: auto; max-height: 420px; }
   .tick { flex-basis: 38px; }
+  /* client: on a phone the month's days show as a week grid, all of them, nothing cut off to swipe to */
+  .cal .ticks { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; overflow: visible; }
+  .cal .tick { min-width: 0; }
   .folder__day { display: none; }
   .fsocial a { width: 56px; height: 56px; }
   .foot .sheet__in::before { background: rgba(26, 6, 32, 0.88); }
@@ -393,3 +396,18 @@ ul, ol { padding: 0; list-style: none; }
 
 /* month and year picker: colours (shared/month-picker.css) */
 .mp-pop { --mp-accent: var(--wine); --mp-on-accent: #fff; }
+
+/* cascade phone pass 2026-11-19 */
+/* the top strip's copy inside the phone menu */
+.strip--menu { display: none; }
+@media (max-width: 760px) {
+  .strip:not(.strip--menu) { display: none; }
+  .mmenu__strip { margin: -8px 0 18px; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .mmenu__strip .strip--menu { display: block; background: none; color: #fff; }
+  .strip--menu .wrap { padding: 0; }
+  .strip--menu .strip__row { min-height: 0; padding: 0; gap: 12px 10px; }
+  .strip--menu .strip__ctas { order: -1; gap: 8px; }
+  .strip--menu .strip__join, .strip--menu .strip__admin { min-height: 46px; }
+  .strip--menu .mode { flex: none; width: 46px; height: 46px; }
+  .strip--menu .year__btn, .strip--menu .strip__link { min-height: 44px; }
+}

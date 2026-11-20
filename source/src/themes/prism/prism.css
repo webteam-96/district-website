@@ -509,3 +509,33 @@ ul, ol { padding: 0; list-style: none; }
 .head__brand { justify-self: start; }
 .hnav--right ul { justify-content: flex-end; }
 @media (max-width: 1100px) { .head__row { grid-template-columns: auto minmax(0, 1fr) auto; } }
+
+/* prism phone pass 2026-11-19 */
+/* arrows for the sideways week board (Slide from the Ether chrome) */
+.arrows { position: relative; }
+.arrows__btn { position: absolute; top: 50%; z-index: 3; translate: 0 -50%; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line-2); background: var(--surface); color: var(--ink); box-shadow: 0 10px 24px rgba(10, 24, 51, 0.18); cursor: pointer; transition: opacity 0.2s, background 0.2s, color 0.2s; }
+.arrows__btn--prev { left: -6px; }
+.arrows__btn--next { right: -6px; }
+.arrows__btn:hover:not(:disabled) { background: var(--blue); border-color: var(--blue); color: #fff; }
+.arrows__btn:disabled { opacity: 0; pointer-events: none; }
+/* the top strip's copy inside the phone menu */
+.strip--menu { display: none; }
+@media (max-width: 760px) {
+  .strip:not(.strip--menu) { display: none; }
+  .mmenu__strip { margin: -12px 0 22px; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .mmenu__strip .strip--menu { display: block; background: none; }
+  .strip--menu .wrap { padding: 0; }
+  .strip--menu .strip__row { min-height: 0; padding: 0; gap: 12px 10px; }
+  .strip--menu .strip__ctas { order: -1; }
+  .strip--menu .strip__join, .strip--menu .strip__admin { min-height: 46px; }
+  .arrows__btn { width: 36px; height: 36px; }
+  .arrows__btn--prev { left: -4px; }
+  .arrows__btn--next { right: -4px; }
+}
+
+/* prism phone pass 2: the calendar's filters all show, wrapped (no swipe row) */
+@media (max-width: 760px) {
+  .chips { flex-wrap: wrap; gap: 4px; overflow: visible; border-radius: 22px; }
+  .chips__pill { display: none; }
+  .chip[aria-pressed='true'] { background: linear-gradient(135deg, var(--azure), var(--blue)); box-shadow: 0 8px 20px rgba(0, 103, 200, 0.3); }
+}

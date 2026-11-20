@@ -78,6 +78,14 @@ function Card({ icon, label, accent, children }: { icon: React.ReactNode; label:
 export default function Footer() {
   const f = R.footer;
   const theme = useTheme();
+  /* the back-to-top button floats once the page is scrolled */
+  const [up, setUp] = useState(false);
+  useEffect(() => {
+    const on = () => setUp(window.scrollY > 600);
+    on();
+    window.addEventListener('scroll', on, { passive: true });
+    return () => window.removeEventListener('scroll', on);
+  }, []);
   const [cols, setCols] = useState(() => (window.innerWidth < 600 ? 1 : window.innerWidth < 1000 ? 2 : 4));
   useEffect(() => {
     const on = () => setCols(window.innerWidth < 600 ? 1 : window.innerWidth < 1000 ? 2 : 4);
@@ -179,8 +187,8 @@ export default function Footer() {
         <div className="foot__bar">
           {f.copyright && <p>{f.copyright}</p>}
           {f.poweredBy && <p>{f.poweredBy.lead} {f.poweredBy.href ? <a className="foot__by" href={f.poweredBy.href} target="_blank" rel="noopener"><b>{f.poweredBy.name}</b></a> : <b>{f.poweredBy.name}</b>}</p>}
-          <a href="#top" className="foot__top" onClick={toTop}>
-            Back to top
+          <a href="#top" className={`foot__top ${up ? 'is-up' : ''}`} onClick={toTop} aria-label="Back to top">
+            <span className="foot__toplabel">Back to top</span>
             <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </a>
         </div>

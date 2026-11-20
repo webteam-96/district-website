@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { R, initials, longDate, monthLabel, parseISO, shortDate, toISO, weekdayName, type CalEntry, type Photo } from '../../shared/rotary';
-import { startSmoothScroll } from '../../shared/smooth';
+import { lenis, startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
   calMonths, todayMonthKey, monthEntries, entriesByDate, pressYears, AdminContent, type PageKey, type Project, projNo
@@ -459,6 +459,26 @@ function DayPage({ iso, list, today = false }: { iso: string; list: CalEntry[]; 
   );
 }
 
+/* Tapping a day in the picker: off-screen days only get their real height once drawn, so land, let them draw,
+   and land again until the day sits under the header. */
+const jumpToDay = (e: { target: EventTarget; preventDefault(): void; stopPropagation(): void }) => {
+  const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#d"]');
+  const el = a && document.getElementById(a.getAttribute('href')!.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  e.stopPropagation();
+  let n = 0, still = 0;
+  const land = () => {
+    const off = el.getBoundingClientRect().top - 96;
+    still = Math.abs(off) < 2 ? still + 1 : 0;
+    if (still < 3 && ++n < 40) {
+      if (Math.abs(off) >= 2) { const top = window.scrollY + off; if (lenis) lenis.scrollTo(top, { immediate: true, force: true }); else window.scrollTo(0, top); }
+      window.setTimeout(land, 80);
+    }
+  };
+  land();
+};
+
 function MonthPanel({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boolean }) {
   const C = R.calendar;
   const days = monthEntries(m.date);
@@ -477,7 +497,7 @@ function MonthPanel({ m, open }: { m: ReturnType<typeof calMonths>[number]; open
         <h2 className="px-h2 px-cal__title"><HL text={m.label} /></h2>
         {total > 0 && <Chips attr="type" all="All" label="Show" items={C.types.map(t => ({ v: t.key, label: t.group, n: count(t.key), cls: `px-t--${t.key}` }))} />}
       </header>
-      <ol className="px-ruler" style={css({ '--days': dim })} aria-label={`Days of ${m.label}`} data-rv>
+      <ol className="px-ruler" onClick={jumpToDay} style={css({ '--days': dim, '--start': new Date(y, mo, 1).getDay() + 1 })} aria-label={`Days of ${m.label}`} data-rv>
         {Array.from({ length: dim }, (_, i) => {
           const date = new Date(y, mo, i + 1), iso = toISO(date), list = byIso.get(iso);
           const isToday = iso === C.today;
@@ -1129,7 +1149,7 @@ export default function Inner({ page }: { page: PageKey }) {
   return (
     <ThemeCtx.Provider value={theme}>
       <TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} />
-      <Header />
+      <Header top={<TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} menu />} />
       <Body page={page} year={year} />
       <Footer />
     </ThemeCtx.Provider>

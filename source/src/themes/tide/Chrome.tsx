@@ -11,10 +11,10 @@ const Brand = (p: { className: string; children: React.ReactNode }) => (R.nav[0]
 const sw = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
 /* 1 · Top strip: contact, year, Join / Admin, theme */
-export function TopStrip({ year, onYear, theme, onTheme, inner = false }: { year: string; onYear: (y: string) => void; theme: Theme; onTheme: () => void; inner?: boolean }) {
+export function TopStrip({ year, onYear, theme, onTheme, inner = false, menu = false }: { year: string; onYear: (y: string) => void; theme: Theme; onTheme: () => void; inner?: boolean; menu?: boolean }) {
   const c = R.contact;
   return (
-    <div className={`strip${inner ? ' strip--in' : ''}`}>
+    <div className={`strip${inner ? ' strip--in' : ''}${menu ? ' strip--menu' : ''}`}>
       <div className="wrap strip__row">
         <p className="strip__contact" aria-label={c.label}>
           <a href={`mailto:${c.email}`} className="strip__link">
@@ -39,7 +39,7 @@ export function TopStrip({ year, onYear, theme, onTheme, inner = false }: { year
 }
 
 /* inner: the inner pages mark the current page here too (aria-current + the menu's wave) */
-function MobileMenu({ open, onClose, inner = false }: { open: boolean; onClose: () => void; inner?: boolean }) {
+function MobileMenu({ open, onClose, inner = false, top }: { open: boolean; onClose: () => void; inner?: boolean; top?: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -66,6 +66,7 @@ function MobileMenu({ open, onClose, inner = false }: { open: boolean; onClose: 
           <img src={R.brand.logoReversed} alt="" width="392" height="148" />
           <button type="button" className="mmenu__close" onClick={onClose}>Close <span aria-hidden="true">✕</span></button>
         </div>
+        {top && <div className="mmenu__strip">{top}</div>}
         <ul className="mmenu__list">
           {R.nav.map((n, i) => (
             <li key={n.key} style={{ ['--i' as string]: i }}>
@@ -82,7 +83,8 @@ function MobileMenu({ open, onClose, inner = false }: { open: boolean; onClose: 
 }
 
 /* 2 · Header: logo on the left, menu on the right; a wave draws itself under the item you point at. */
-export function Header({ inner = false }: { inner?: boolean }) {
+/* top: a copy of the top strip shown inside the phone menu (the page's own strip hides on a phone) */
+export function Header({ inner = false, top }: { inner?: boolean; top?: React.ReactNode }) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);
@@ -110,7 +112,7 @@ export function Header({ inner = false }: { inner?: boolean }) {
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M4 8h16M4 16h16" /></svg>
         </button>
       </div>
-      {toBody(<MobileMenu open={open} onClose={close} inner={inner} />)}
+      {toBody(<MobileMenu open={open} onClose={close} inner={inner} top={top} />)}
     </header>
   );
 }

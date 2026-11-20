@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useId, useRef, useState, type AnchorHTMLAttributes, type KeyboardEvent } from 'react';
+import { forwardRef, useEffect, useId, useRef, useState, type AnchorHTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
 import { R, reducedMotion } from '../../shared/rotary';
 import PillNav from '../../rb/PillNav/PillNav';
 import StarBorder from '../../rb/StarBorder/StarBorder';
@@ -113,10 +113,10 @@ export function YearSelect({ year, onYear, compact = false }: { year: string; on
 }
 
 /* ---------- 1 · Utility bar ---------- */
-export function UtilityBar({ year, onYear, theme, onTheme }: { year: string; onYear: (y: string) => void; theme: Theme; onTheme: () => void }) {
+export function UtilityBar({ year, onYear, theme, onTheme, menu = false }: { year: string; onYear: (y: string) => void; theme: Theme; onTheme: () => void; menu?: boolean }) {
   const c = R.contact;
   return (
-    <div className="utility">
+    <div className={menu ? 'utility utility--menu' : 'utility'}>
       <div className="wrap utility__row">
         <p className="utility__contact" aria-label={c.label}>
           <a href={`mailto:${c.email}`} className="utility__link">
@@ -208,12 +208,13 @@ function StaticHeader() {
   );
 }
 
-export function Header() {
+/* top: the utility bar, repeated at the top of the phone menu */
+export function Header({ top }: { top?: ReactNode }) {
   if (STATIC) return <StaticHeader />;
-  return <LiveHeader />;
+  return <LiveHeader top={top} />;
 }
 
-function LiveHeader() {
+function LiveHeader({ top }: { top?: ReactNode }) {
   const theme = useTheme();
   const [stuck, setStuck] = useState(false);
   useEffect(() => {
@@ -250,9 +251,39 @@ function LiveHeader() {
           size="md"
           ariaLabel="Main"
           className="header__nav"
+          panelTop={top}
         />
       </div>
     </header>
+  );
+}
+
+/* ---------- Slide: arrow buttons for a sideways-scrolling row (the row is the only child).
+   They show only while the row is wider than its box, and each one dims at its end. ---------- */
+export function Slide({ children, label = 'days' }: { children: ReactNode; label?: string }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [st, setSt] = useState({ on: false, start: true, end: false });
+  useEffect(() => {
+    const row = box.current?.firstElementChild as HTMLElement | null;
+    if (!row) return;
+    const on = () => setSt({ on: row.scrollWidth > row.clientWidth + 4, start: row.scrollLeft < 4, end: row.scrollLeft + row.clientWidth > row.scrollWidth - 4 });
+    on();
+    row.addEventListener('scroll', on, { passive: true });
+    const ro = new ResizeObserver(on);
+    ro.observe(row);
+    return () => { row.removeEventListener('scroll', on); ro.disconnect(); };
+  }, []);
+  const go = (d: number) => { const row = box.current?.firstElementChild as HTMLElement | null; row?.scrollBy({ left: d * row.clientWidth * 0.8, behavior: 'smooth' }); };
+  const arrow = (d: number) => (
+    <button type="button" className={`arrows__btn arrows__btn--${d < 0 ? 'prev' : 'next'}`} aria-label={`${d < 0 ? 'Earlier' : 'Later'} ${label}`} disabled={d < 0 ? st.start : st.end} onClick={() => go(d)}>
+      <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d={d < 0 ? 'M12 4 6 10l6 6' : 'm8 4 6 6-6 6'} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    </button>
+  );
+  return (
+    <div ref={box} className="arrows" data-scroll={st.on ? '' : undefined}>
+      {children}
+      {st.on && <>{arrow(-1)}{arrow(1)}</>}
+    </div>
   );
 }
 

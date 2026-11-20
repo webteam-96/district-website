@@ -329,7 +329,10 @@ function Service() {
                 <h2 className="kx-chap__title kx-stretch"><a href={projectHref(p)}>{p.title}</a></h2>
                 <Ph className="kx-chap__img" photo={p.photo} group={`p-${p.id}`} eager={i === 0} />
                 <p className="kx-chap__sum">{p.summary}</p>
-                <Share p={p} />
+                <div className="kx-chap__acts">
+                  <a className="btn-go kx-chap__go" href={projectHref(p)} aria-label={`Read more: ${p.title}`}>Read more{I.go}</a>
+                  <Share p={p} />
+                </div>
               </div>
             </li>
           ))}
@@ -1011,7 +1014,7 @@ export default function Inner({ page }: { page: PageKey }) {
   return (
     <ThemeCtx.Provider value={theme}>
       <TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} />
-      <Header />
+      <Header top={<TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} menu />} />
       <Body page={page} year={year} />
       <Footer />
     </ThemeCtx.Provider>

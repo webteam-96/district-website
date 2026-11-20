@@ -904,6 +904,8 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
   .tx-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; scroll-snap-type: x proximity; margin-inline: calc(var(--gutter) * -1); padding: 4px var(--gutter) 10px; scroll-padding-inline: var(--gutter); }
   .tx-chips::-webkit-scrollbar { display: none; }
   .tx-chips > * { flex: none; scroll-snap-align: start; }
+  /* client: on the calendar every filter shows, on as many lines as it needs (no cut-off swipe row) */
+  .tx-main--calendar .tx-chips { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding: 4px 0 10px; }
   .tx-search { gap: 8px; padding: 0 14px; }
   .tx-search input::placeholder { font-size: 15px; }
   .tx-bar, .tx-tools { display: grid; gap: 2px; margin-bottom: 10px; }
@@ -1051,3 +1053,52 @@ body[data-page] .visits__ghost--static i::before { content: ''; position: absolu
 /* District Committee (client, 18 Nov 2026): no timeline line down the committee list; a chosen committee shows all of it */
 .tx-stop::before { display: none; }
 [data-filter][data-f-group] .tx-all { display: none; }
+
+/* responsive sweep 2026-11-19 */
+/* calendar month grid: a day's groups stay inside their cell on tablets */
+.tx-cell__list, .tx-gmore ul { grid-template-columns: minmax(0, 1fr); }
+.tx-gr, .tx-gmore, .tx-gmore summary { min-width: 0; }
+@media (max-width: 1180px) {
+  .tx-gmore summary { gap: 4px; padding-inline: 6px; font-size: 13px; }
+  .tx-gmore summary::after { display: none; }
+  .tx-gr { font-size: 13px; }
+}
+/* newsletters: the two tabs share a small phone's width */
+@media (max-width: 420px) {
+  .tx-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tx-tab { min-width: 0; gap: 6px; padding: 0 6px 0 12px; font-size: 15px; }
+}
+
+/* transit phone pass 2026-11-19 */
+.tx-card__text { display: contents; }
+@media (max-width: 760px) {
+  /* committee: every filter shows, wrapped (no swipe row) */
+  .tx-com .tx-rail { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding: 4px 0 10px; }
+  .tx-com .tx-stop { flex: 0 1 auto; max-width: 100%; white-space: normal; text-align: left; }
+  /* committee members: one card a row, photo left, text right */
+  .tx-roster .tx-cards { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .tx-cards > .tx-card { flex-direction: row; align-items: center; gap: 14px; }
+  .tx-cards > .tx-card .tx-card__photo { flex: none; width: 80px; margin: 0 0 5px 5px; }
+  .tx-cards > .tx-card .tx-card__photo b { font-size: 1.7rem; }
+  .tx-cards > .tx-card .tx-card__text { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+  /* club leadership: one card a row, bigger photo left */
+  .tx-main .tx-leaders .tx-rows { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .tx-main .tx-leaders .tx-row { grid-template-columns: 76px minmax(0, 1fr); grid-template-areas: 'av text'; gap: 14px; padding: 10px; background: color-mix(in srgb, var(--gc) 7%, var(--surface)); border-radius: 16px; }
+  .tx-main .tx-leaders .tx-av { width: 76px; height: 76px; font-size: 1.4rem; }
+  /* projects: every avenue shows, wrapped (no swipe row) */
+  .tx-main--projects .tx-chips { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding: 4px 0 10px; }
+  .tx-main--projects .tx-chips > * { flex: 0 1 auto; max-width: 100%; white-space: normal; text-align: left; }
+}
+
+/* transit calendar page: a day picker on phones and tablets (the month wall is a list there) */
+.tx-pick { display: none; }
+@media (max-width: 1023px) {
+  .tx-pick { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 0 0 16px; padding: 10px; border-radius: 20px; background: var(--surface, #fff); box-shadow: 0 10px 26px -18px rgba(20, 30, 80, 0.4); }
+  .tx-pick__wd { padding-bottom: 2px; text-align: center; font-size: 12px; font-weight: 800; color: var(--ink-3, #667); }
+  .tx-pick__d { display: grid; justify-items: center; align-content: center; gap: 3px; min-height: 46px; border-radius: 12px; background: var(--p-cal, #eef1fb); color: var(--ink); font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; }
+  .tx-pick__d i { display: flex; gap: 2px; height: 5px; }
+  .tx-pick__d i i { width: 5px; height: 5px; border-radius: 50%; background: var(--tc); }
+  .tx-pick__d.is-empty { opacity: 0.4; }
+  .tx-pick__d.is-out { background: none; }
+  .tx-pick__d.is-today { background: var(--violet, #7b2fbe); color: #fff; }
+}

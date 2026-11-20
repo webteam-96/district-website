@@ -20,7 +20,7 @@ interface Ctx { num: string; id: number; years: [Year, Year] }   /* this Rotary 
 
 const P = (R as unknown as { pages: Pages }).pages;
 const D = P as unknown as DetailPages;              /* the detail pages' item slots (shared/detail.tsx) */
-const CAP = 8000;                                   /* ms: what has not arrived by then stays sample */
+const CAP = 30000;                                   /* ms: what has not arrived by then stays sample */
 let until = 0;                                      /* performance.now() at which loadLive stops waiting */
 const MEDIA = 'https://rizones45678.org/API';        /* /Documents/… and /uploads/… live under the API host */
 const DEFAULT = { num: '3141', id: 490 };
@@ -455,7 +455,7 @@ const JOBS: Record<string, (c: Ctx, page: PageKey | 'home') => Promise<Apply>> =
     /* The designs put every card in the page and page them in the browser, and style "the first card shown" by
        counting siblings: past a few hundred cards that costs seconds to a minute of blank page (this year has
        4,387 reports). So the pages get the latest PER of each avenue, and their lead says so, with the full count. */
-    const PER = 100, seen: Record<string, number> = {};
+    const PER = Infinity, seen: Record<string, number> = {};
     const kept = all.filter(p => (seen[p.avenue] = (seen[p.avenue] ?? 0) + 1) <= PER);
     const clubs = (l: Project[]) => l.filter(p => p.avenue === 'club').length;
     /* real photos for the cards a visitor sees first: the first page of every avenue filter, one request a card (as production) */

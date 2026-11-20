@@ -34,7 +34,7 @@ export default function App() {
   return (
     <ThemeCtx.Provider value={theme}>
       <TopStrip year={year} onYear={changeYear} theme={theme} onTheme={toggleTheme} />
-      <Header />
+      <Header top={<TopStrip year={year} onYear={changeYear} theme={theme} onTheme={toggleTheme} menu />} />
       <main id="main" className="stack">
         <Hero />
         <About />

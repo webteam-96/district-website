@@ -53,3 +53,10 @@ body:is([data-page='project'], [data-page='event'], [data-page='projects'], [dat
 .share-menu > [data-to='whatsapp'] svg { color: #25d366; }
 .share-menu > [data-to='facebook'] svg { color: #1877f2; }
 .share-menu > [data-to='linkedin'] svg { color: #0a66c2; }
+
+/* ROW: long lists (Club Projects has 3,000+ cards). The browser skips the layout and painting of cards that are
+   off screen, so a page full of cards opens fast and every layout read (menus, resize) stays cheap. */
+[data-filter] [data-item] { content-visibility: auto; contain-intrinsic-size: auto 420px; }
+/* ROW: Club Projects / Club Service hold 3,000+ cards. Until shared/inner.js has filtered them once (it shows the
+   first page and hides the rest), they stay out of the first layout, which otherwise takes many seconds. */
+body:is([data-page='projects'], [data-page='service']) [data-filter]:not([data-f-on]) [data-item] { display: none !important; }

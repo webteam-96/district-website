@@ -3,6 +3,7 @@ import MonthPicker from '../../shared/MonthPicker';
 import { R, initials, longDate, monthLabel, parseISO, toISO, weekdayName, type CalEntry } from '../../shared/rotary';
 import { eventHref } from '../../shared/detail';
 import { Title } from './Sections';
+import { Slide } from '../ether/Chrome';
 
 type Tab = 'all' | CalEntry['type'];
 const C = R.calendar;
@@ -127,6 +128,7 @@ export default function Calendar() {
           </div>
         </div>
 
+        <Slide>
         <div ref={board} className="wboard" role="grid" aria-labelledby="cal-week" onKeyDown={onKey}>
           <div role="row" className="wboard__row">
             {days.map((d, i) => {
@@ -163,6 +165,7 @@ export default function Calendar() {
             })}
           </div>
         </div>
+        </Slide>
 
         <div className="dayview" key={`${selected}-${tab}`}>
           <div className="dayview__date">

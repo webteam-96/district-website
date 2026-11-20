@@ -564,3 +564,76 @@ ul, ol { padding: 0; list-style: none; }
 
 /* the wheel carries on to the page when this list has nothing more to scroll (the scroll library blocks that by default) */
 .col__alist .animated-list__viewport { overscroll-behavior: auto; }
+
+/* responsive sweep 2026-11-19 */
+/* home calendar: the filters wrap on a phone instead of a cut-off swipe row */
+@media (max-width: 760px) {
+  .cal__tabs { overflow-x: clip; overflow-y: visible; }   /* the goo canvas keeps its desktop width; clip it */
+  .cal__tabs .gooey-nav { width: auto; max-width: 100%; border-radius: 24px; }
+  .cal__tabs .gooey-nav__list { flex-wrap: wrap; }
+}
+/* 320-360px phones: the top bar's buttons and the calendar's month bar fit the screen */
+@media (max-width: 380px) {
+  .utility__ctas { gap: 6px; }
+  .utility .btn-join, .utility .btn-ghost { padding-inline: 12px; }
+  .cal__month { flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+}
+
+/* ether phone pass 2026-11-19 */
+/* arrows for the sideways day rows (home calendar, calendar page) */
+.arrows { position: relative; }
+.arrows__btn { position: absolute; top: 50%; z-index: 3; translate: 0 -50%; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-2); background: rgba(9, 20, 50, 0.92); color: var(--ink); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.2s, background 0.2s, color 0.2s, border-color 0.2s; }
+.arrows__btn--prev { left: -8px; }
+.arrows__btn--next { right: -8px; }
+.arrows__btn:hover:not(:disabled) { background: var(--gold); border-color: var(--gold); color: #1a1200; }
+.arrows__btn:disabled { opacity: 0; pointer-events: none; }
+:root[data-theme="light"] .arrows__btn { background: #ffffff; color: #0c204a; border-color: rgba(12, 32, 74, 0.14); box-shadow: 0 10px 24px rgba(12, 32, 74, 0.16); }
+
+/* back to top: floats at the bottom right once the page is scrolled */
+.foot__top { position: fixed; right: 20px; bottom: 20px; z-index: 45; margin: 0; min-height: 46px; background: rgba(9, 20, 50, 0.9); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); opacity: 0; translate: 0 14px; pointer-events: none; transition: opacity 0.3s var(--ease), translate 0.3s var(--ease), background 0.25s; }
+.foot__top.is-up { opacity: 1; translate: 0 0; pointer-events: auto; }
+.foot__top:hover { background: var(--gold); border-color: var(--gold); color: #1a1200; }
+:root[data-theme="light"] .foot__top { background: rgba(255, 255, 255, 0.94); box-shadow: 0 12px 30px rgba(12, 32, 74, 0.16); }
+:root[data-theme="light"] .foot__top:hover { background: var(--gold); }
+
+/* the utility bar's copy inside the phone menu */
+.utility--menu { display: none; }
+
+@media (max-width: 760px) {
+  /* phone menu: the top bar moves into the menu, which opens as a full-width sheet */
+  .utility:not(.utility--menu) { display: none; }
+  .header .pill-nav { position: static; }
+  .header .pill-nav__panel { --pn-strong: #f3f6fc; --pn-row-hover: rgba(255, 255, 255, 0.08); top: 12px; left: var(--gutter); right: var(--gutter); max-height: calc(100dvh - 12px - 12px); overflow-y: auto; overscroll-behavior: contain; padding: 64px 10px 10px; border-radius: 26px; background: rgba(6, 13, 34, 0.97); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+  .header .pill-nav__panel::before { content: 'Menu'; position: absolute; top: 0; left: 20px; height: 44px; display: flex; align-items: center; font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #8ea0c4; }
+  :root[data-theme="light"] .header .pill-nav__panel { background: rgba(10, 42, 102, 0.98); box-shadow: 0 30px 80px rgba(12, 32, 74, 0.35); }
+  .pill-nav__top { margin: 0 4px 10px; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+  .pill-nav__top .utility--menu { display: block; background: none; border: 0; color: #b4bfd6; }
+  .utility--menu .wrap { padding: 0; }
+  .utility--menu .utility__row { min-height: 0; padding: 0; gap: 12px 10px; }
+  .utility--menu .utility__ctas { order: -1; gap: 8px; }
+  .utility--menu .btn-join, .utility--menu .btn-ghost, .utility--menu .mode { min-height: 46px; }
+  .utility--menu .mode { width: 46px; height: 46px; }
+  .utility--menu .utility__contact { gap: 16px; }
+  .header .pill-nav__menu { gap: 4px; }
+  .header .pill-nav__row { justify-content: space-between; height: 52px; padding: 0 18px; border-radius: 16px; background: rgba(255, 255, 255, 0.04); font-size: 17px; font-weight: 600; }
+  .header .pill-nav__row:not([target])::after { content: ''; flex: none; width: 8px; height: 8px; margin-right: 4px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; rotate: 45deg; opacity: 0.45; }
+  .header .pill-nav__row[aria-current] { background: var(--pn-pill); color: var(--pn-pill-ink); }
+  .header .pill-nav__row[aria-current]::after { opacity: 0.8; }
+
+  /* less space between the home sections */
+  .snap { padding: 20px 0 44px; }
+  .dig, .cal { padding: 44px 0; }
+  .press { padding: 44px 0 52px; }
+  .section-head { margin-bottom: 24px; }
+
+  /* home newsletters: one per row */
+  .club__grid { grid-template-columns: minmax(0, 1fr); }
+  .paper { min-height: 210px; }
+
+  /* back to top: a round button on a phone */
+  .foot__top { right: 14px; bottom: 14px; width: 48px; height: 48px; padding: 0; justify-content: center; }
+  .foot__toplabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .arrows__btn { width: 36px; height: 36px; }
+  .arrows__btn--prev { left: -4px; }
+  .arrows__btn--next { right: -4px; }
+}

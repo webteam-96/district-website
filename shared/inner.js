@@ -187,6 +187,7 @@ window.RInner = (function () {
         if (count) count.textContent = matched.toLocaleString('en-IN');   /* 1,000 like the page's own figures */
         if (empty) empty.hidden = matched !== 0;
         if (more) more.hidden = matched <= limit;
+        box.setAttribute('data-f-on', '');   /* ROW: filtered once; until then CSS keeps long lists out of the first layout */
         box.dispatchEvent(new CustomEvent('rinner:filter', { detail: matched, bubbles: true }));
       };
 

@@ -9,7 +9,7 @@ import {
   D, clubProfile, projectDetail, eventDetail, dignitaryProfile, paras, useDocTitle,
   clubHref, projectHref, eventHref, dignitaryHref, eventId
 } from '../../shared/detail';
-import { Header, UtilityBar } from './Chrome';
+import { Header, Slide, UtilityBar } from './Chrome';
 import Footer from './Footer';
 import { ThemeCtx, readTheme, saveTheme, type Theme } from './theme';
 
@@ -346,7 +346,6 @@ function CalendarPage() {
   const C = R.calendar;
   const months = calMonths();
   const open = todayMonthKey();
-  const today = parseISO(C.today);
   return (
     <div className="calroot" data-tabs>
       <PageHead k="calendar">
@@ -375,6 +374,7 @@ function CalendarPage() {
               <div key={m.key} className="mpanel" data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!isNow} data-filter>
                 <h2 className="sr-only">{m.label}</h2>
                 <div className="dstrip glass" data-rv>
+                  <Slide>
                   <div className="dstrip__days" role="group" aria-label="Day">
                     <button type="button" className="dday dday--all" data-f-chip="day" data-v="" aria-pressed="true" disabled={!total}><i>All</i><b>{num(total)}</b></button>
                     {Array.from({ length: dim }, (_, i) => {
@@ -393,6 +393,7 @@ function CalendarPage() {
                       );
                     })}
                   </div>
+                  </Slide>
                   {total > 0 && (
                     <div className="dstrip__types">
                       <div className="gchips" role="group" aria-label="Show">
@@ -401,8 +402,6 @@ function CalendarPage() {
                           <button key={l.t.key} type="button" className="gchip" data-f-chip="type" data-v={l.t.key} aria-pressed="false"><i className={`mark mark--${l.t.key}`} aria-hidden="true" />{l.t.group}<b>{num(l.items.length)}</b></button>
                         ))}
                       </div>
-                      {isNow && <p className="dstrip__today"><b>{today.getDate()}</b><span>{longDate(today)}</span></p>}
-                      <p className="dstrip__n" aria-live="polite"><b data-f-count>{num(total)}</b> entries</p>
                     </div>
                   )}
                 </div>
@@ -951,7 +950,7 @@ export default function Inner({ page }: { page: PageKey }) {
   return (
     <ThemeCtx.Provider value={theme}>
       <UtilityBar year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} />
-      <Header />
+      <Header top={<UtilityBar year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} menu />} />
       <Body page={page} year={year} />
       <Footer />
     </ThemeCtx.Provider>

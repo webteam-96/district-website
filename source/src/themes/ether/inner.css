@@ -1063,3 +1063,56 @@
 @media (prefers-reduced-motion: reduce) {
   .phead__fluid i, .foot__threads { animation: none; }
 }
+
+/* responsive sweep 2026-11-19 */
+/* newsletters: the two tabs share the width on small phones */
+@media (max-width: 420px) {
+  .ndock__tabs { width: 100%; max-width: 100%; }
+  .ntab { flex: 1 1 0; min-width: 0; height: auto; min-height: 44px; padding: 6px 10px; white-space: normal; text-align: center; }
+}
+
+/* ether phone pass 2026-11-19 */
+@media (max-width: 760px) {
+  .psec { padding-block: 28px 36px; }
+
+  /* every filter shows, wrapped: no sideways swipe rows */
+  .gchips { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding: 6px; border-radius: 22px; border-inline: 1px solid var(--line); }
+  .gchips::after, .cstage__chips::after, .fconsole__days::after { display: none; }
+  .dstrip__types .gchips { margin-inline: 0; padding-left: 6px; }
+  .cstage__chips { flex-wrap: wrap; overflow: visible; margin-inline: 0; padding: 0; }
+  .fconsole__days { flex-wrap: wrap; overflow: visible; margin: 12px 0 0; padding: 0; }
+  .ctabs__bar { flex-wrap: wrap; border-radius: 22px; }
+  .ctabs__bar .ntab { flex: 1 1 auto; min-width: max-content; min-height: 44px; padding: 0 14px; white-space: nowrap; }
+
+  /* committee and club leadership: one card per row, photo beside the name */
+  .cgrid, .cgrid--6 { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .ccard { display: grid; grid-template-columns: 88px minmax(0, 1fr); grid-template-rows: 1fr auto auto auto 1fr; column-gap: 14px; padding: 8px 12px 8px 8px; }
+  .ccard__photo { grid-column: 1; grid-row: 1 / 6; width: 88px; margin: 0; border-radius: 12px; }
+  .ccard__name, .ccard__role, .ccard__club { grid-column: 2; padding-inline: 0; }
+  .ccard__name { grid-row: 2; }
+  .ccard__role { grid-row: 3; }
+  .ccard__club { grid-row: 4; }
+  .ccard__plate { font-size: 32px; -webkit-text-stroke-width: 1.2px; }
+}
+
+/* calendar page refresh 2026-11-19: quiet day tiles (no blue fill), the chosen day in gold */
+.dday { background: rgba(255, 255, 255, 0.035); border-color: var(--line); }
+.dday.is-today { background: transparent; border-color: rgba(247, 168, 27, 0.75); box-shadow: inset 0 0 0 1px rgba(247, 168, 27, 0.35); }
+.dday[aria-pressed='true'], .dday[aria-pressed='true']:hover { color: #1a1200; border-color: var(--gold); background: var(--gold); box-shadow: 0 12px 28px -10px rgba(247, 168, 27, 0.6); translate: 0 -2px; }
+.dday[aria-pressed='true'] > i, .dday[aria-pressed='true'] > b { color: #1a1200; }
+.dday[aria-pressed='true'] .dday__dots .mark { outline: 1px solid rgba(26, 18, 0, 0.35); }
+:root[data-theme='light'] .dday { background: #ffffff; border-color: rgba(12, 32, 74, 0.12); }
+:root[data-theme='light'] .dday.is-today { background: #ffffff; }
+:root[data-theme='light'] .dday[aria-pressed='true'], :root[data-theme='light'] .dday[aria-pressed='true']:hover { background: var(--gold); }
+
+/* phone: all twelve months show as a 6 x 2 grid, no swipe row */
+@media (max-width: 760px) {
+  .mline { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; margin-inline: 0; padding: 5px; overflow: visible; border-radius: 22px; border-inline: 1px solid var(--line); }
+  .mtab, .mtab[aria-selected='true'] { flex-direction: column; gap: 1px; height: 48px; min-width: 0; padding: 0; border-radius: 16px; white-space: normal; line-height: 1.1; }
+  .mtab span, .mtab[aria-selected='true'] span { display: block; font-size: 11.5px; font-weight: 500; opacity: 0.75; }
+  .mtab[data-tab$='-01'] { margin-left: 0; }
+  .mtab[data-tab$='-01']::before { display: none; }
+  .mtab.is-now::after { display: none; }
+  /* About: the sheet starts below the header instead of under it */
+  .psec--doc { margin-top: 0; padding-top: 14px; }
+}

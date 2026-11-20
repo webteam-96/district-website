@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Rotary District 3141 homepage themes (React + React Bits). Builds into ../<theme>/ as static pages that open from file:// or any server.",
   "scripts": {
+    "dev": "vite --port 5173",
     "build:ether": "vite build --mode ether",
     "watch:ether": "vite build --mode ether --watch",
     "build:prism": "vite build --mode prism",

@@ -507,3 +507,38 @@ ul, ol { padding: 0; list-style: none; }
 .dcard__list[data-lenis-prevent] { overscroll-behavior: auto; }
 
 .scrub__month .mp-btn { white-space: nowrap; }
+
+/* responsive sweep 2026-11-19 */
+/* home calendar on a small phone: "Today" goes under the month instead of off the screen */
+@media (max-width: 380px) {
+  .scrub__month { flex-wrap: wrap; row-gap: 6px; }
+  .scrub__month p { font-size: 15px; }
+  .scrub__month { gap: 0; }
+  .scrub__month .scrub__mbtn { width: 30px; min-width: 30px; }
+  .scrub__month::after { content: ""; order: 4; flex-basis: 100%; }
+  .scrub__month .tbtn--today { order: 5; }
+}
+
+/* tide phone pass 2026-11-19 */
+/* the top strip moves into the phone menu: a copy renders there (strip--menu) and the page's own one hides */
+.strip--menu { display: none; }
+@media (max-width: 760px) {
+  .strip:not(.strip--menu) { display: none; }
+  .mmenu__top { margin-bottom: 18px; }
+  .mmenu__strip { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.16); }
+  .mmenu__strip .strip--menu { display: block; background: none; color: #fff; }
+  .mmenu__strip .wrap { width: auto; padding-inline: 0; }
+  .mmenu__strip .strip__row { gap: 10px 8px; min-height: 0; padding-block: 0; }
+  /* Join and Admin first, side by side; then contact; then year with the theme toggle */
+  .mmenu__strip .strip__ctas { display: contents; }
+  .mmenu__strip .strip__join { order: -2; }
+  .mmenu__strip .strip__admin { order: -1; }
+  .mmenu__strip :is(.strip__join, .strip__admin) { flex: 1 1 calc(50% - 4px); min-width: 0; min-height: 46px; padding-inline: 10px; text-align: center; }
+  .mmenu__strip .strip__contact { flex: 1 1 100%; flex-wrap: wrap; gap: 4px 16px; }
+  .mmenu__strip .strip__contact:empty { display: none; }
+  .mmenu__strip .strip__link { min-height: 44px; }
+  .mmenu__strip .strip__year { margin-left: 0; }
+  .mmenu__strip .year__btn { min-height: 46px; }
+  .mmenu__strip .year__list { right: auto; left: 0; }
+  .mmenu__strip .mode { width: 46px; height: 46px; margin-left: auto; }
+}

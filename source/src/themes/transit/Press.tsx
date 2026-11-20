@@ -3,6 +3,7 @@ import { R, shortDate } from '../../shared/rotary';
 import { useSideScrub } from './motion';
 import type { PdfDoc } from '../../shared/PdfModal';
 import { Title } from './Sections';
+import { Slide } from '../ether/Chrome';
 
 const P = R.press;
 const summary = (vals: Record<string, string | number>) => R.fmt.fill(P.club.footer, vals).split(' on the {link}')[0] + '.';
@@ -29,7 +30,8 @@ export default function Press({ year, switching, onPreview }: { year: string; sw
           </div>
         )}
       </header>
-      <ul className="pruns" key={year}>
+      <Slide key={year} label="newsletters">
+      <ul className="pruns">
         <li className="pslot">
           <div className="pcard pcard--gml">
             <h3 className="pcard__title">{P.gml.title}</h3>
@@ -60,6 +62,7 @@ export default function Press({ year, switching, onPreview }: { year: string; sw
         ))}
         {!switching && !bulletins.length && <li className="pslot"><p className="pcard pcard__none">{R.fmt.fill(P.club.empty, { year })}</p></li>}
       </ul>
+      </Slide>
     </section>
   );
 }

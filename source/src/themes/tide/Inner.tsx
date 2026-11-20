@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { R, initials, longDate, monthLabel, parseISO, shortDate, weekdayName, type CalEntry, type Photo } from '../../shared/rotary';
-import { startSmoothScroll } from '../../shared/smooth';
+import { lenis, startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
   calMonths, todayMonthKey, monthEntries, pressYears, AdminContent, type PageKey, type Project, projNo
@@ -422,8 +422,8 @@ const Names = ({ kind, list }: { kind: 'birthday' | 'anniversary'; list: CalEntr
 );
 
 /* an event as a ticket; in the today card the stub shows the time, in the month list the date */
-const Ticket = ({ e, stub }: { e: CalEntry; stub: ReactNode }) => (
-  <li className={`tp-tk tp-ev tp-ev--${e.type}`} data-item data-type={e.type}>
+const Ticket = ({ e, stub, id }: { e: CalEntry; stub: ReactNode; id?: string }) => (
+  <li id={id} className={`tp-tk tp-ev tp-ev--${e.type}`} data-item data-type={e.type}>
     <span className="tp-tk__stub">{stub}</span>
     <div className="tp-tk__main">
       <p className="tp-ev__type">{typeLabel(e.type)}</p>
@@ -438,7 +438,7 @@ function TodayCard({ list }: { list: CalEntry[] }) {
   const d = parseISO(C.today);
   const types = C.types.filter(t => list.some(e => e.type === t.key));
   return (
-    <section className="tp-today" aria-label={`${C.todayTag}, ${longDate(d)}`} data-rv>
+    <section className="tp-today" id={`d-${C.today}`} aria-label={`${C.todayTag}, ${longDate(d)}`} data-rv>
       <div className="tp-today__date" data-glow>
         <time dateTime={C.today} aria-current="date">
           <b>{d.getDate()}</b>
@@ -468,6 +468,26 @@ function TodayCard({ list }: { list: CalEntry[] }) {
   );
 }
 
+/* phones and tablets: a day in the pick grid lands on that date, correcting while the parts above it draw */
+const jumpToDay = (e: { target: EventTarget; preventDefault(): void; stopPropagation(): void }) => {
+  const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
+  const el = a && document.getElementById(a.getAttribute('href')!.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if (!el.offsetParent) return;   /* filtered out */
+  let n = 0, still = 0;
+  const land = () => {
+    const off = el.getBoundingClientRect().top - 90;
+    still = Math.abs(off) < 2 ? still + 1 : 0;
+    if (still < 3 && ++n < 40) {
+      if (Math.abs(off) >= 2) { const top = window.scrollY + off; if (lenis) lenis.scrollTo(top, { immediate: true, force: true }); else window.scrollTo(0, top); }
+      window.setTimeout(land, 80);
+    }
+  };
+  land();
+};
+
 function CalendarPage() {
   const months = calMonths();
   const open = todayMonthKey();
@@ -480,7 +500,7 @@ function CalendarPage() {
     const rest = days.filter(x => !(isNow && x.iso === C.today));
     const events = rest.flatMap(x => x.list.filter(EVENT).map(e => ({ e, date: x.date })));
     const ledger = rest.map(x => ({ ...x, list: x.list.filter(e => !EVENT(e)) })).filter(x => x.list.length);
-    return { m, isNow, all, today, events, ledger };
+    return { m, isNow, all, today, events, ledger, days };
   });
   const pad = (
     <div className="tp-pad" role="tablist" aria-label={P.calendar.monthLabel}>
@@ -502,7 +522,7 @@ function CalendarPage() {
       <PageHead k="calendar" dock={pad} />
       <section className="tp-body tp-cal">
         <div className="wrap">
-          {data.map(({ m, isNow, all, today, events, ledger }) => (
+          {data.map(({ m, isNow, all, today, events, ledger, days }) => (
             <div key={m.key} className={`tp-cal__p${all.length ? '' : ' is-empty'}`} data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!isNow} data-filter>
               <header className="tp-cal__bar" data-rv>
                 <h2>{m.label}</h2>
@@ -517,12 +537,25 @@ function CalendarPage() {
                   </div>
                 )}
               </header>
+              {all.length > 0 && (
+                <nav className="tp-pick" aria-label={`Days of ${m.label}`} onClick={jumpToDay} style={{ ['--start' as string]: new Date(m.date.getFullYear(), m.date.getMonth(), 1).getDay() + 1 } as CSSProperties}>
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((w, i) => <span key={i} className="tp-pick__wd" aria-hidden="true">{w}</span>)}
+                  {days.map(x => {
+                    const isT = x.iso === C.today;
+                    const href = isT ? `#d-${x.iso}` : x.list.some(EVENT) ? `#ev-${x.iso}` : `#d-${x.iso}`;
+                    const cls = `tp-pick__d${isT ? ' is-today' : ''}`;
+                    return x.list.length || isT
+                      ? <a key={x.iso} className={cls} href={href} aria-label={longDate(x.date)}>{x.date.getDate()}<i aria-hidden="true">{C.types.filter(t => x.list.some(e => e.type === t.key)).map(t => <i key={t.key} className={`dot dot--${t.key}`} />)}</i></a>
+                      : <span key={x.iso} className={`${cls} is-empty`}>{x.date.getDate()}</span>;
+                  })}
+                </nav>
+              )}
               {isNow && <TodayCard list={today} />}
               {events.length > 0 && (
                 <section className="tp-cal__sec" data-f-group data-rv>
                   <GroupHead title="Events" n={events.length} />
                   <ul className="tp-evts">
-                    {events.map(({ e, date }, i) => <Ticket key={i} e={e} stub={<><b>{date.getDate()}</b><small>{weekdayName(date).slice(0, 3)}</small></>} />)}
+                    {events.map(({ e, date }, i) => <Ticket key={i} e={e} id={i && events[i - 1].date.getDate() === date.getDate() ? undefined : `ev-${e.date}`} stub={<><b>{date.getDate()}</b><small>{weekdayName(date).slice(0, 3)}</small></>} />)}
                   </ul>
                 </section>
               )}
@@ -534,7 +567,7 @@ function CalendarPage() {
                       const b = x.list.filter(e => e.type === 'birthday');
                       const a = x.list.filter(e => e.type === 'anniversary');
                       return (
-                        <li key={x.iso} className="tp-led__day" data-f-group>
+                        <li key={x.iso} id={`d-${x.iso}`} className="tp-led__day" data-f-group>
                           <time className="tp-led__date" dateTime={x.iso}><b>{x.date.getDate()}</b><span>{weekdayName(x.date).slice(0, 3)}</span></time>
                           <div className="tp-led__names">
                             {b.length > 0 && <Names kind="birthday" list={b} />}
@@ -1049,7 +1082,7 @@ export default function Inner({ page }: { page: PageKey }) {
   return (
     <ThemeCtx.Provider value={theme}>
       <TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} inner />
-      <Header inner />
+      <Header inner top={<TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} inner menu />} />
       <Body page={page} year={year} />
       <Footer inner />
     </ThemeCtx.Provider>

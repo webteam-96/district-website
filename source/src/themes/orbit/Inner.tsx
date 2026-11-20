@@ -10,6 +10,7 @@ import {
   dignitaryHref, eventId, useDocTitle
 } from '../../shared/detail';
 import { Header, TopStrip } from './Chrome';
+import { Slide } from '../ether/Chrome';
 import Footer from './Footer';
 import { ThemeCtx, readTheme, saveTheme, type Theme } from './theme';
 import { useReveal } from './reveal';
@@ -492,12 +493,14 @@ function MonthPanel({ m, open }: { m: Month; open: boolean }) {
           {C.types.map(t => <Chip key={t.key} attr="type" v={t.key}><i className={`dot dot--${t.key}`} aria-hidden="true" />{t.group}<b>{num(typeCount(t.key))}</b></Chip>)}
         </div>
         {days.length > 0 && (
+          <Slide>
           <nav className="oi-dayrail" aria-label={m.label} data-lenis-prevent>
             {here && (todayDay
               ? <a className="oi-dayrail__today" href={`#d-${C.today}`} aria-current="date">{C.todayTag}<b>{today.getDate()}</b></a>
               : <span className="oi-dayrail__today" aria-current="date">{C.todayTag}<b>{today.getDate()}</b></span>)}
             {days.filter(d => d !== todayDay).map(d => <a key={d.iso} href={`#d-${d.iso}`} aria-label={longDate(d.date)}>{d.date.getDate()}</a>)}
           </nav>
+          </Slide>
         )}
         {days.length > 0 && <ol className="oi-daylist">{ordered.map(d => <DayCard key={d.iso} d={d} today={d === todayDay} />)}</ol>}
         <Empty text={P.calendar.emptyMonth} show={!total} />
@@ -919,12 +922,10 @@ function ProjectPage() {
                 <div className="oi-cover__img">
                   <Zoom ph={cover} group={`p-${p.id}`} cls="oi-cover__zoom" eager />
                   <span className="oi-tab">{avenueLabel(p.avenue)}</span>
-                </div>
-                {/* the date disc sits under the photo, beside its caption, so nothing covers the photo */}
-                <div className="oi-cover__foot">
-                  {cover.alt && <figcaption>{cover.alt}</figcaption>}
+                  {/* client: the date disc on the photo's top-right corner */}
                   <p className="oi-hub oi-cover__date"><b>{t.d}</b><span>{t.m} {t.y}</span></p>
                 </div>
+                {cover.alt && <div className="oi-cover__foot"><figcaption>{cover.alt}</figcaption></div>}
               </figure>
               {rest.length > 0 && (
                 <div className="oi-pbody__photos">
@@ -1098,7 +1099,7 @@ export default function Inner({ page }: { page: PageKey }) {
   return (
     <ThemeCtx.Provider value={theme}>
       <TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} />
-      <Header />
+      <Header top={<TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} menu />} />
       <Body page={page} year={year} />
       <Footer />
     </ThemeCtx.Provider>

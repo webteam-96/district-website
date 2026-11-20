@@ -521,3 +521,30 @@ ul, ol { padding: 0; list-style: none; }
 
 /* month and year picker: colours (shared/month-picker.css) */
 .mp-pop { --mp-accent: #0067c8; --mp-on-accent: #fff; }
+
+/* transit phone pass 2026-11-19 */
+/* the top strip's copy inside the phone menu (menu panel is royal in both themes, same as the strip) */
+.strip--menu { display: none; }
+@media (max-width: 760px) {
+  .strip:not(.strip--menu) { display: none; }
+  .mmenu__strip { margin: -8px 0 18px; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .mmenu__strip .strip--menu { display: block; background: none; }
+  .strip--menu .wrap { padding: 0; }
+  .strip--menu .strip__row { min-height: 0; padding: 0; gap: 12px 10px; }
+  .strip--menu .strip__ctas { order: -1; flex-wrap: wrap; }
+  .strip--menu .strip__contact { flex-wrap: wrap; }
+  .strip--menu :is(.strip__join, .strip__admin, .strip__link, .year__btn) { min-height: 46px; }
+  .strip--menu .mode { width: 46px; height: 46px; }
+}
+
+/* transit phone pass 2, 2026-11-20: arrows on the home sliders (the day route, the newsletters).
+   On the sideways desktop page the wrapper steps out of the layout. */
+.arrows { position: relative; min-width: 0; max-width: 100%; }
+.arrows__btn { position: absolute; top: 50%; z-index: 3; translate: 0 -50%; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--surface, #fff); color: var(--ink); box-shadow: 0 8px 20px rgba(20, 30, 80, 0.22); cursor: pointer; transition: opacity 0.2s; }
+.arrows__btn--prev { left: 4px; }
+.arrows__btn--next { right: 4px; }
+.arrows__btn:disabled { opacity: 0; pointer-events: none; }
+@media (min-width: 1024px) and (min-height: 560px) {
+  .arrows { display: contents; }
+  .arrows__btn { display: none; }
+}

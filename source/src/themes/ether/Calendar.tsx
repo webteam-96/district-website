@@ -8,6 +8,7 @@ import AnimatedList from '../../rb/AnimatedList/AnimatedList';
 import SpotlightCard from '../../rb/SpotlightCard/SpotlightCard';
 import BlurText from '../../rb/BlurText/BlurText';
 import { useTheme } from './theme';
+import { Slide } from './Chrome';
 
 type Tab = 'all' | CalEntry['type'];
 
@@ -124,6 +125,7 @@ export default function Calendar() {
         </div>
 
         <div className="cal__stripwrap">
+          <Slide>
           <div
             ref={strip}
             className="cal__strip"
@@ -162,6 +164,7 @@ export default function Calendar() {
               );
             })}
           </div>
+          </Slide>
           <ul className="cal__legend" aria-label="Legend">
             {C.types.map(t => <li key={t.key}><i className={`mark mark--${t.key}`} aria-hidden="true" />{t.label}</li>)}
           </ul>

@@ -113,7 +113,7 @@ export const paras = (t: string) => String(t || '').replace(/\r\n?/g, '\n').spli
 });
 
 /* ---------- ids and links ---------- */
-const file = (k: DetailKey) => P.list.find(p => p.key === k)?.file ?? `${k}.html`;
+const file = (k: DetailKey) => P.list.find(p => p.key === k)?.file ?? k;
 const enc = encodeURIComponent;
 export const eventId = (e: CalEntry) => String(e.id ?? `${e.date}-${slug(e.title ?? '')}`);
 export const clubHref = (id: string | number) => `${file('club')}?id=${enc(String(id))}`;

@@ -373,6 +373,11 @@ body[data-page] { --share-bg: var(--surface); --share-ink: var(--ink); --share-h
 .oi-story__titles { min-width: 0; padding-top: 16px; }
 .oi-story__club { font-size: 15px; }
 .oi-story__title { margin-top: 4px; font: 700 24px/1.18 var(--f-display); letter-spacing: -0.035em; text-wrap: balance; }
+/* client: the title runs the card's full width, like the description; the club name stays beside the date disc */
+.oi-story__head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+.oi-story__titles { display: contents; }
+.oi-story__club { align-self: start; padding-top: 16px; }
+.oi-story__title { grid-column: 1 / -1; margin-top: 14px; text-wrap: pretty; }
 .oi-story__sum { max-width: 62ch; margin-top: 14px; font-size: 17px; line-height: 1.6; color: var(--ink-2); }
 .oi-story__acts { margin-top: 20px; }
 
@@ -677,7 +682,8 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
 .oi-cover__img img { width: 100%; height: 100%; border-radius: 22px; background: var(--surface-2); object-fit: cover; object-position: center 30%; }
 .oi-cover__img .oi-tab { left: 24px; top: auto; bottom: 100%; border-radius: 12px 12px 0 0; box-shadow: none; }
 .oi-cover__foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-top: 14px; }
-.oi-cover__date { --s: 96px; flex: none; margin-left: auto; gap: 2px; box-shadow: 0 0 0 4px var(--gold), 0 16px 34px rgba(23, 16, 63, 0.28); }
+.oi-cover__date { --s: 96px; position: absolute; z-index: 3; top: -18px; right: -12px; gap: 2px; pointer-events: none; box-shadow: 0 0 0 4px var(--gold), 0 16px 34px rgba(23, 16, 63, 0.28); }
+@media (max-width: 640px) { .oi-cover__date { --s: 76px; top: -14px; right: -8px; } .oi-cover__date b { font-size: 26px !important; } }
 .oi-cover__date b { font-size: 32px; line-height: 1; }
 .oi-cover figcaption { min-width: 0; padding-left: 14px; border-left: 2px solid var(--gold); font-size: 14px; line-height: 1.5; color: var(--ink-3); }
 .oi-pbody__text { min-width: 0; padding-top: 4px; }
@@ -1054,3 +1060,32 @@ a.oi-dhub:hover { box-shadow: 0 0 0 5px var(--gold), 0 0 0 14px color-mix(in srg
 
 /* District Committee (client, 18 Nov 2026): a committee chosen with its tile shows all its members, no Show all */
 .oi-scope[data-f-group] :is(.oi-lane, .oi-execs) > .oi-all { display: none; }
+
+/* responsive sweep 2026-11-19 */
+@media (max-width: 760px) {
+  /* calendar: every filter shows, wrapped (no cut-off swipe row) */
+  .oi-cal .oi-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; mask-image: none; -webkit-mask-image: none; }
+  /* club page tabs (Projects / Newsletters / Events) share the width */
+  .oi-ntabs { width: 100%; flex-wrap: wrap; border-radius: 24px; }
+  .oi-ntab { flex: 1 1 auto; padding: 0 12px; gap: 6px; }
+}
+
+/* orbit phone pass 2026-11-19 */
+/* calendar day rail: arrows (Slide from the Ether chrome) */
+.arrows { position: relative; min-width: 0; max-width: 100%; }
+.arrows__btn { position: absolute; top: 50%; z-index: 3; translate: 0 -50%; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--line-2); background: var(--surface); color: var(--ink); box-shadow: 0 8px 20px rgba(23, 16, 63, 0.2); cursor: pointer; transition: opacity 0.2s; }
+.arrows__btn--prev { left: -6px; }
+.arrows__btn--next { right: -6px; }
+.arrows__btn:disabled { opacity: 0; pointer-events: none; }
+@media (max-width: 760px) {
+  /* the Share button keeps its word (the 44px round rule above made it overlap "All projects") */
+  .oi-share--word { width: auto; }
+  /* every filter shows, wrapped: no swipe rows */
+  .oi-chips, .oi-index { flex-wrap: wrap; overflow: visible; margin: 0 0 16px; padding: 0; -webkit-mask-image: none; mask-image: none; }
+  /* committee + club leadership: one card a row, the photo beside the name */
+  .oi-exec, .oi-lane__list, .oi-ldr-grid, .oi-cbody.is-solo .oi-ldr-grid { --cols: 1; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .oi-xcard, .oi-lane .oi-mem { flex-direction: row; align-items: center; gap: 16px; padding: 12px 14px; text-align: left; }
+  .oi-lane .oi-mem { padding: 0; }
+  .oi-xcard .oi-hub, .oi-lane .oi-mem .oi-hub { --s: 72px; flex: none; font-size: 22px; }
+  .oi-xcard > div, .oi-lane .oi-mem > div { width: auto; flex: 1 1 auto; }
+}

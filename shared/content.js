@@ -27,11 +27,11 @@ window.ROTARY = (function () {
   var DIG = IMG + 'dignitaries/';
   var LIVE = 'https://rid3141.rotaryindia.org';
   /* Inner pages sit beside each theme's index.html, so these work from every theme folder. */
-  var PAGE = { home: 'index.html', about: 'about.html', committee: 'district-committee.html', finder: 'club-finder.html',
-               projects: 'club-projects.html', service: 'club-service.html', calendar: 'calendar.html',
-               newsletters: 'newsletters.html', contact: 'contact.html',
+  var PAGE = { home: './', about: 'about', committee: 'district-committee', finder: 'club-finder',
+               projects: 'club-projects', service: 'club-service', calendar: 'calendar',
+               newsletters: 'newsletters', contact: 'contact.html',
                /* detail pages: one item each, picked by ?id= (source/src/shared/detail.tsx) */
-               club: 'club.html', project: 'project.html', event: 'event.html', dignitary: 'dignitary.html' };
+               club: 'club', project: 'project', event: 'event', dignitary: 'dignitary' };
   var PDF = '../shared/newsletter-placeholder.pdf';
 
   /* ---------- formatting: Indian digit grouping (6,42,815 · ₹54.59 Cr) ---------- */

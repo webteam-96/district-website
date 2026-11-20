@@ -12,10 +12,10 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
 const sw = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
 /* ---------- 1 · Top strip: contact, year, Join / Admin, theme ---------- */
-export function TopStrip({ year, onYear, theme, onTheme }: { year: string; onYear: (y: string) => void; theme: Theme; onTheme: () => void }) {
+export function TopStrip({ year, onYear, theme, onTheme, menu = false }: { year: string; onYear: (y: string) => void; theme: Theme; onTheme: () => void; menu?: boolean }) {
   const c = R.contact;
   return (
-    <div className="strip">
+    <div className={menu ? 'strip strip--menu' : 'strip'}>
       <div className="wrap strip__row">
         <p className="strip__contact" aria-label={c.label}>
           <a href={`mailto:${c.email}`} className="strip__link">
@@ -40,7 +40,7 @@ export function TopStrip({ year, onYear, theme, onTheme }: { year: string; onYea
 }
 
 /* ---------- full-screen phone menu: coloured layers slide in, links stagger up ---------- */
-function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+function MobileMenu({ open, onClose, top }: { open: boolean; onClose: () => void; top?: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -67,6 +67,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
           <img src={R.brand.logoReversed} alt="" width="392" height="148" />
           <button type="button" className="mmenu__close" onClick={onClose}>Close <span aria-hidden="true">✕</span></button>
         </div>
+        {top && <div className="mmenu__strip">{top}</div>}
         <ol className="mmenu__list">
           {R.nav.map((n, i) => (
             <li key={n.key} style={{ ['--i' as string]: i }}>
@@ -82,8 +83,8 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   );
 }
 
-/* ---------- 2 · Header: logo + menu ---------- */
-export function Header() {
+/* ---------- 2 · Header: logo + menu (top: the top strip, repeated in the phone menu) ---------- */
+export function Header({ top }: { top?: React.ReactNode }) {
   const theme = useTheme();
   const [stuck, setStuck] = useState(false);
   const [open, setOpen] = useState(false);
@@ -114,7 +115,7 @@ export function Header() {
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path {...sw} d="M4 8h16M4 16h16" /></svg>
         </button>
       </div>
-      {toBody(<MobileMenu open={open} onClose={close} />)}
+      {toBody(<MobileMenu open={open} onClose={close} top={top} />)}
     </header>
   );
 }

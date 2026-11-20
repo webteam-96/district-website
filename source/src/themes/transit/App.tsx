@@ -40,7 +40,7 @@ export default function App() {
     <ThemeCtx.Provider value={theme}>
       <div className="chrome">
         <TopStrip year={year} onYear={changeYear} theme={theme} onTheme={toggleTheme} />
-        <Header />
+        <Header top={<TopStrip year={year} onYear={changeYear} theme={theme} onTheme={toggleTheme} menu />} />
       </div>
       <div className="line">
         <main id="main">

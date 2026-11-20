@@ -36,7 +36,7 @@ export default function App() {
     <ThemeCtx.Provider value={theme}>
       <ClickSpark sparkColor={['#00ADBB', '#D41367', '#0067C8', '#F7A81B']} sparkCount={9} sparkRadius={24} sparkSize={10} duration={500} glow={0.4}>
         <TopStrip year={year} onYear={changeYear} theme={theme} onTheme={toggleTheme} />
-        <Header />
+        <Header top={<TopStrip year={year} onYear={changeYear} theme={theme} onTheme={toggleTheme} menu />} />
         <main id="main">
           <Hero />
           <About />

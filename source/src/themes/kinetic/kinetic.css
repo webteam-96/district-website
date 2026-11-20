@@ -400,3 +400,16 @@ ul, ol { padding: 0; list-style: none; }
 
 /* month and year picker: colours (shared/month-picker.css) */
 .mp-pop { --mp-ink: var(--on); --mp-ink-2: var(--on-2); --mp-accent: #d9400e; --mp-on-accent: #fff; }
+
+/* kinetic phone pass 2026-11-19 */
+/* the top strip's copy inside the phone menu (the panel is navy in both themes, like the strip) */
+.strip--menu { display: none; }
+@media (max-width: 760px) {
+  .strip:not(.strip--menu) { display: none; }
+  .mmenu__strip { margin: -8px 0 20px; padding-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .mmenu__strip .strip--menu { display: block; background: none; }
+  .strip--menu .wrap { padding: 0; }
+  .strip--menu .strip__row { min-height: 0; padding: 0; gap: 12px 10px; }
+  .strip--menu .strip__ctas { order: -1; }
+  .strip--menu .strip__join, .strip--menu .strip__admin { min-height: 46px; }
+}

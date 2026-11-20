@@ -1023,3 +1023,35 @@ body[data-page] .visits__tile::after { content: ''; position: absolute; left: 0;
 .px-wtile:hover { border-color: var(--azure); }
 .px-wtile[aria-pressed='true'] { border-color: transparent; background: linear-gradient(135deg, var(--azure), var(--blue)); color: #fff; }
 .px-wtile[aria-pressed='true'] :is(.px-wtile__d, .px-wtile__u) { color: #fff; }
+
+/* responsive sweep 2026-11-19 */
+/* a long avenue name wraps inside its tag instead of running off a small phone */
+.px-tag { max-width: 100%; white-space: normal; line-height: 1.25; }
+
+/* prism phone pass 2026-11-19 */
+@media (max-width: 700px) {
+  /* every filter shows, wrapped: no swipe rows */
+  .px-chips { flex-wrap: wrap; margin-inline: 0; padding: 0; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+  .px-week { flex-wrap: wrap; margin: 0 0 16px; padding: 0; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+  /* committee: one card a row, the photo beside the name */
+  .px-mcards, .px-mcards--exec, .px-spot[hidden] + .px-mcards--exec { grid-template-columns: minmax(0, 1fr); }
+  .px-mcard { display: grid; grid-template-columns: 88px minmax(0, 1fr); grid-template-rows: 1fr auto auto auto 1fr; column-gap: 14px; padding: 8px 12px 8px 8px; }
+  .px-mcard__photo { grid-column: 1; grid-row: 1 / 6; margin: 0; border-radius: 12px; }
+  .px-mcard__name, .px-mcard__role, .px-mcard__club { grid-column: 2; padding: 0; }
+  .px-mcard__name { grid-row: 2; font-size: 17px; }
+  .px-mcard__role { grid-row: 3; }
+  .px-mcard__club { grid-row: 4; }
+  .px-mcard__mono { font-size: 1.9rem; }
+}
+
+/* prism calendar page: on phones and tablets the day picker shows as a month grid (it was hidden) */
+@media (max-width: 1100px) {
+  .px-ruler { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 18px; }
+  .px-ruler > li:first-child { grid-column-start: var(--start, 1); }
+  .px-rtile { height: 58px; }
+}
+@media (max-width: 400px) {
+  .px-ruler { gap: 4px; }
+  .px-rtile { height: 52px; border-radius: 10px; }
+  .px-rtile > b { font-size: 15px; }
+}

@@ -40,7 +40,7 @@ export default function App() {
     <ClickSpark sparkColor={theme === 'light' ? ['#F7A81B', '#0067C8', '#FF5C93'] : ['#F7A81B', '#36B3FF', '#FFFFFF']} sparkCount={10} sparkRadius={26} sparkSize={11} duration={520} glow={0.6}>
       <Preloader />
       <UtilityBar year={year} onYear={changeYear} theme={theme} onTheme={toggleTheme} />
-      <Header />
+      <Header top={<UtilityBar year={year} onYear={changeYear} theme={theme} onTheme={toggleTheme} menu />} />
       <main id="main">
         <Hero />
         <Snapshot year={year} />

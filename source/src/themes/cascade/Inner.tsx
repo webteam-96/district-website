@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { R, initials, longDate, monthLabel, parseISO, shortDate, toISO, weekdayName, type CalEntry, type Photo } from '../../shared/rotary';
-import { startSmoothScroll } from '../../shared/smooth';
+import { lenis, startSmoothScroll } from '../../shared/smooth';
 import {
   P, pageInfo, useBehaviours, committee, clubs, avenueLabel, projectsOf, totals, num, clubName,
   calMonths, todayMonthKey, monthEntries, typesOf, pressYears, AdminContent, type PageKey, type Project, projNo
@@ -164,7 +164,7 @@ function Committee() {
           )}
 
           {/* every other committee: a folder in a pile; the first opens, a search or a chip opens what it needs */}
-          <div className="ci-folds">
+          <div className="ci-folds" onClick={oneFold}>
             {rest.map((g, i) => (
               <section key={g.key} className="ci-fold ci-t" style={tone(i + 1, groups.length)} data-f-group aria-labelledby={`ci-f-${g.key}`}>
                 <details className="ci-fold__sw" open={i === 0}>
@@ -444,7 +444,7 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
       </div>
       {all.length > 0 && (
         <>
-          <div className="ticks ci-ribbon">
+          <div className="ticks ci-ribbon" onClick={jumpToDay} style={{ ['--start' as string]: new Date(y, mo, 1).getDay() + 1 } as CSSProperties}>
             {Array.from({ length }, (_, i) => {
               const date = new Date(y, mo, i + 1);
               const iso = toISO(date);
@@ -484,6 +484,34 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
     </section>
   );
 }
+
+/* phones: opening one committee folder closes the others (a tap on its tab only, so a search can still open several) */
+const oneFold = (e: { target: EventTarget }) => {
+  const sum = (e.target as HTMLElement).closest('summary');
+  const d = sum?.parentElement as HTMLDetailsElement | null;
+  if (!d || d.open || !window.matchMedia('(max-width: 760px)').matches) return;
+  d.closest('.ci-folds')?.querySelectorAll<HTMLDetailsElement>('details[open]').forEach(o => { if (o !== d) o.open = false; });
+};
+
+/* a day in the month grid: open its folder if it is one, then land on it and correct while the days above it draw */
+const jumpToDay = (e: { target: EventTarget; preventDefault(): void; stopPropagation(): void }) => {
+  const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#d-"]');
+  const el = a && document.getElementById(a.getAttribute('href')!.slice(1));
+  if (!el) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if (el instanceof HTMLDetailsElement) el.open = true;
+  let n = 0, still = 0;
+  const land = () => {
+    const off = el.getBoundingClientRect().top - 90;
+    still = Math.abs(off) < 2 ? still + 1 : 0;
+    if (still < 3 && ++n < 40) {
+      if (Math.abs(off) >= 2) { const top = window.scrollY + off; if (lenis) lenis.scrollTo(top, { immediate: true, force: true }); else window.scrollTo(0, top); }
+      window.setTimeout(land, 80);
+    }
+  };
+  land();
+};
 
 function CalendarPage() {
   const months = calMonths();
@@ -989,7 +1017,7 @@ export default function Inner({ page }: { page: PageKey }) {
   return (
     <ThemeCtx.Provider value={theme}>
       <TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} />
-      <Header />
+      <Header top={<TopStrip year={year} onYear={setYear} theme={theme} onTheme={toggleTheme} menu />} />
       <Body page={page} year={year} />
       <Footer />
     </ThemeCtx.Provider>

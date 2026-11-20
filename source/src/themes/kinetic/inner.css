@@ -259,7 +259,9 @@
 .kx-avn__n { display: grid; place-items: center; flex: none; width: auto; min-width: 50px; padding-inline: 13px;   /* ROW: grows for 4-digit counts */ aspect-ratio: 1 / 1.1547; background: var(--b-ink); color: var(--b); clip-path: var(--kx-hex); font: 800 18px/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .kx-projs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; }
 /* three projects an avenue, the rest on request; a search shows every match */
-[data-filter]:has([data-f-search]:placeholder-shown) .kx-avn:has(.kx-all input:not(:checked)) .kx-proj:nth-child(n + 4 of [data-item]:not([hidden])) { display: none; }
+[data-filter]:not([data-f-avenue]):has([data-f-search]:placeholder-shown) .kx-avn:has(.kx-all input:not(:checked)) .kx-proj:nth-child(n + 4 of [data-item]:not([hidden])) { display: none; }
+/* an avenue chosen: its projects show a page at a time ('Show more projects'), so no per-avenue 'Show all' */
+[data-filter][data-f-avenue] .kx-avn .kx-all, [data-filter]:has([data-f-search]:not(:placeholder-shown)) .kx-avn .kx-all { display: none; }
 .kx-avn:not(:has(.kx-proj:nth-child(4 of [data-item]:not([hidden])))) .kx-all,
 [data-filter]:has([data-f-search]:not(:placeholder-shown)) .kx-all { display: none; }
 .kx-all { position: relative; margin: 22px auto 0; display: flex; width: max-content; background: var(--b-ink); color: var(--b); cursor: pointer; }

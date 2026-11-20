@@ -156,7 +156,10 @@ window.RInner = (function () {
       var count = box.querySelector('[data-f-count]');
       var empty = box.querySelector('[data-f-empty]');
       var groups = $$(box, '[data-f-group]');
-      var size = parseInt(box.getAttribute('data-page-size') || '0', 10) || Infinity;
+      var size0 = parseInt(box.getAttribute('data-page-size') || '0', 10) || Infinity;
+      /* data-page-size-filtered: once a chip or a search narrows the list, it shows that many, then "show more" */
+      var fsize = parseInt(box.getAttribute('data-page-size-filtered') || '0', 10) || 0;
+      var size = size0;
       var limit = size;
       var chosen = {};
       chips.forEach(function (c) { if (c.getAttribute('aria-pressed') === 'true') chosen[c.getAttribute('data-f-chip')] = c.getAttribute('data-v'); });
@@ -166,6 +169,10 @@ window.RInner = (function () {
         var want = {};
         selects.forEach(function (s) { if (s.value) want[s.getAttribute('data-f')] = s.value; });
         for (var k in chosen) if (chosen[k]) want[k] = chosen[k];
+        if (fsize) {
+          var nsize = q || Object.keys(want).length ? fsize : size0;
+          if (nsize !== size) { size = nsize; limit = size; }
+        }
         var shown = 0, matched = 0;
         items.forEach(function (it) {
           var ok = !q || (it.getAttribute('data-q') || it.textContent).toLowerCase().indexOf(q) !== -1;

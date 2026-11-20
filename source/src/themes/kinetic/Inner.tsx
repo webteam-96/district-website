@@ -280,7 +280,7 @@ function Projects() {
   /* the avenues in their usual order, then any the data adds */
   const keys = [...new Set([...x.avenues.filter(a => a.key !== 'club').map(a => a.key), ...list.map(p => p.avenue)])];
   return (
-    <div data-filter>
+    <div data-filter data-page-size-filtered="12">
       <Head
         k="projects"
         figs={totalFigs(totals(list))}
@@ -306,6 +306,8 @@ function Projects() {
             ) : null;
           })}
           <Empty text={x.empty} />
+          {/* a chosen avenue (or a search) lists every match, a page at a time */}
+          <More label="Show more projects" />
         </div>
       </section>
     </div>

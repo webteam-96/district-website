@@ -145,7 +145,9 @@ window.RInner = (function () {
 
   /* ---------- filter + search + show more ---------- */
   function filters(root) {
-    $$(root, '[data-filter]').forEach(function (box) {
+    var boxes = $$(root, '[data-filter]');
+    if (root.matches && root.matches('[data-filter]')) boxes.unshift(root);   /* a panel built later binds itself */
+    boxes.forEach(function (box) {
       var items = $$(box, '[data-item]');
       var search = box.querySelector('[data-f-search]');
       var selects = $$(box, 'select[data-f]');

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Later } from '../../shared/inner';
 import { R, monthMatrix, shortDate, longDate, monthLabel, parseISO, toISO, initials, monogram, type CalEntry, type Photo } from '../../shared/rotary';
 import { startSmoothScroll } from '../../shared/smooth';
 import {
@@ -362,6 +363,7 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
   const typeLabel = (k: string) => C.types.find(t => t.key === k)?.label ?? k;
   return (
     <div className="kx-mp" data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!open} data-filter>
+      <Later open={open}>
       <div className="kx-mp__head">
         <h2 className="kx-mp__title kx-stretch">{m.label}</h2>
         {all.length > 0 && (
@@ -418,6 +420,7 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
         </div>
       )}
       <p className="kx-empty" data-f-empty hidden={all.length > 0}>{P.calendar.emptyMonth}</p>
+      </Later>
     </div>
   );
 }
@@ -1010,6 +1013,8 @@ export default function Inner({ page }: { page: PageKey }) {
   const [theme, setTheme] = useState<Theme>(readTheme);
   useEffect(() => { saveTheme(theme); }, [theme]);
   useEffect(() => { startSmoothScroll({ allowNestedScroll: true, lerp: 0.09 }); }, []);
+  /* inner pages mark <html> once: a body:has(main.kx) rule made every change restyle the whole page */
+  useEffect(() => { document.documentElement.classList.add('kx-inner'); }, []);
   const toggleTheme = useCallback(() => setTheme(t => (t === 'light' ? 'dark' : 'light')), []);
   return (
     <ThemeCtx.Provider value={theme}>

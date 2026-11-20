@@ -4,7 +4,7 @@ import Threads from '../../rb/Threads/Threads';
 import MagicBento, { type MagicBentoItem } from '../../rb/MagicBento/MagicBento';
 import SplitFlapText from '../../rb/SplitFlapText/SplitFlapText';
 import { scrollToId } from '../../shared/smooth';
-import { useTheme } from './theme';
+import { PHONE, useTheme } from './theme';
 import { STATIC } from '../../shared/inner';
 
 /* Rotary-wide links and social open in a new tab; the district's own pages do not. */
@@ -151,7 +151,7 @@ export default function Footer() {
   return (
     <footer className="foot">
       <div className="foot__bg" aria-hidden="true">
-        {STATIC ? <StaticThreads /> : !reducedMotion() && (
+        {STATIC || PHONE ? <StaticThreads /> : !reducedMotion() && (
           <Threads
             key={theme}
             color={theme === 'light' ? '#F0A000' : '#F7A81B'}
@@ -174,7 +174,7 @@ export default function Footer() {
           radius={26}
           theme={theme}
           glowColor={theme === 'light' ? '#0067C8' : '#2EA8FF'}
-          enableStars
+          enableStars={!PHONE}
           particleCount={10}
           enableTilt={false}
           enableMagnetism={false}

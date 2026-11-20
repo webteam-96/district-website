@@ -13,6 +13,7 @@ import { Header, TopStrip } from './Chrome';
 import Footer from './Footer';
 import { ThemeCtx, readTheme, saveTheme, type Theme } from './theme';
 import './inner.css';
+import { Later } from '../../shared/inner';
 
 /* CASCADE inner pages. Every page is a short pile of rounded sheets, as on the homepage: a compact
    warm-paper head (title, lead, breadcrumb, the page's key figure or control on the right), two ramp
@@ -429,6 +430,7 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
 
   return (
     <section className="ci-month" data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!open} data-filter>
+      <Later open={open}>
       <div className="ci-month__head">
         <h2>{m.label}</h2>
         {all.length > 0 && (
@@ -481,6 +483,7 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
         </>
       )}
       <div className="ci-blank" data-f-empty hidden={all.length > 0}><b>{m.label}</b><span>{P.calendar.emptyMonth}</span></div>
+      </Later>
     </section>
   );
 }

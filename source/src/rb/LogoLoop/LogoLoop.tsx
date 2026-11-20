@@ -673,7 +673,9 @@ const createEngine = (
       }
       if (!needItems) continue;
       const along = x - u;
-      const t = hidden
+      /* an item at rest gets no transform at all: a translate3d(0,0,0) left on each of hundreds of items makes each its own GPU layer */
+      const still = Math.abs(along) < 0.01 && Math.abs(y) < 0.01 && !rot;
+      const t = hidden || still
         ? ''
         : `${cfg.vertical ? `translate3d(${y.toFixed(2)}px, ${along.toFixed(2)}px, 0px)` : `translate3d(${along.toFixed(2)}px, ${y.toFixed(2)}px, 0px)`}${
             rot ? ` rotate(${(cfg.vertical ? -rot : rot).toFixed(2)}deg)` : ''
@@ -1092,7 +1094,7 @@ export const LogoLoop = memo<LogoLoopProps>(
     labels = 'none',
     draggable = true,
     scrollBoost = 0,
-    intro = true,
+    intro = false,   /* off: an entrance cut short by scrolling past froze every item mid-fade, each on its own GPU layer */
     renderItem,
     ariaLabel = 'Partner logos',
     className,

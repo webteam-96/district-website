@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Later } from '../../shared/inner';
 import { R, initials, longDate, monthLabel, parseISO, shortDate, toISO, weekdayName, type CalEntry, type Photo } from '../../shared/rotary';
 import { lenis, startSmoothScroll } from '../../shared/smooth';
 import {
@@ -493,6 +494,7 @@ function MonthPanel({ m, open }: { m: ReturnType<typeof calMonths>[number]; open
   const earlier = hasToday ? days.filter(d => d.iso < C.today) : [];
   return (
     <div className="px-cal" data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!open} data-filter>
+      <Later open={open}>
       <header className="px-cal__top" data-rv>
         <h2 className="px-h2 px-cal__title"><HL text={m.label} /></h2>
         {total > 0 && <Chips attr="type" all="All" label="Show" items={C.types.map(t => ({ v: t.key, label: t.group, n: count(t.key), cls: `px-t--${t.key}` }))} />}
@@ -533,6 +535,7 @@ function MonthPanel({ m, open }: { m: ReturnType<typeof calMonths>[number]; open
         <p className="px-day__stub"><b className="px-day__num">{m.short}</b><span className="px-day__mo">{y}</span></p>
         <div className="px-day__body"><span className="px-empty__ring" aria-hidden="true" /><p>{P.calendar.emptyMonth}</p></div>
       </div>
+      </Later>
     </div>
   );
 }

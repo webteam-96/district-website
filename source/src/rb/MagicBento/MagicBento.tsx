@@ -781,6 +781,9 @@ const MagicBento = ({
 
     const frame = (now: number) => {
       raf = 0;
+      /* while the page scrolls the cards hold still: re-lighting them every frame restyled whatever they hold
+         (a club strip of hundreds of names), which made scrolling stutter. They catch up when it stops. */
+      if (now - scrolledAt < 150) { if (visible) raf = requestAnimationFrame(frame); return; }
       const dt = Math.min(0.05, (now - last) / 1000 || 0);
       last = now;
       if (dirty) measure();
@@ -992,7 +995,9 @@ const MagicBento = ({
       card.click();
     };
 
+    let scrolledAt = -1e9;
     const onScroll = () => {
+      scrolledAt = performance.now();
       dirty = true;
       wake();
     };

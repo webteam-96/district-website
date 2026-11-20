@@ -3,7 +3,7 @@ import { R, reducedMotion } from '../../shared/rotary';
 import LiquidEther from '../../rb/LiquidEther/LiquidEther';
 import CardSwap, { Card, type CardSwapHandle } from '../../rb/CardSwap/CardSwap';
 import TiltedCard from '../../rb/TiltedCard/TiltedCard';
-import { useTheme } from './theme';
+import { PHONE, useTheme } from './theme';
 
 
 /* Card size from the deck column: the stack (4 cards, offset right/up) must fit inside it. */
@@ -51,7 +51,7 @@ export default function Hero() {
   return (
     <section id="top" className="hero" aria-label={h.title}>
       <div className="hero__fluid" aria-hidden="true">
-        {!calm && (
+        {!calm && !PHONE && (
           <LiquidEther
             key={theme}
             lightMode={theme === 'light'}

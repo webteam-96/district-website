@@ -6,7 +6,7 @@ import CountUp from '../../rb/CountUp/CountUp';
 import LogoLoop from '../../rb/LogoLoop/LogoLoop';
 import ProfileCard from '../../rb/ProfileCard/ProfileCard';
 import BlurText from '../../rb/BlurText/BlurText';
-import { useTheme } from './theme';
+import { PHONE, useTheme } from './theme';
 
 /* ---------- 4 · District Snapshot: a magic bento of six live numbers ---------- */
 const ACCENT: Record<StatDef['key'], string> = {
@@ -123,7 +123,7 @@ export function Snapshot({ year }: { year: string }) {
           radius={26}
           theme={theme}
           glowColor={theme === 'light' ? '#0067C8' : '#2EA8FF'}
-          enableStars
+          enableStars={!PHONE}
           particleCount={14}
           enableTilt
           enableMagnetism={false}

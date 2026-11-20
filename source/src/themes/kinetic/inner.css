@@ -428,8 +428,8 @@
 .kx-chap__in:has(.kx-chap__title a:focus-visible), .kx-issue:has(h3 a:focus-visible) { outline: 3px solid #d9400e; outline-offset: 4px; }
 .kx-chap__title a:focus-visible, .kx-issue h3 a:focus-visible { outline: none; }
 /* photos that open full size (the shared lightbox), and Share (the shared menu): Kinetic's colours for both */
-body:has(main.kx) { --lb-bg: rgba(5, 7, 46, 0.95); }
-:root[data-theme='dark'] body:has(main.kx) { --share-bg: #141845; --share-ink: #eef0ff; --share-hover: #1e2358; --share-ring: rgba(255, 255, 255, 0.16); }
+html.kx-inner body { --lb-bg: rgba(5, 7, 46, 0.95); }
+:root.kx-inner[data-theme='dark'] body { --share-bg: #141845; --share-ink: #eef0ff; --share-hover: #1e2358; --share-ring: rgba(255, 255, 255, 0.16); }
 .kx-proj__img, .kx-chap__img { position: relative; z-index: 1; display: block; overflow: hidden; }
 .kx-proj__img > img, .kx-chap__img > img { width: 100%; height: 100%; object-fit: cover; }
 .kx-cover > a, .kx-shot a { display: block; }
@@ -645,7 +645,7 @@ a.kx-pill:hover { background: #d9400e; color: #ffffff; scale: 1.04; }
    the screen (or in a full-page capture) is already in its finished state; the start state appears while the
    element's top edge is at the bottom of the screen. */
 @supports (animation-timeline: view()) {
-  body:has(main.kx) .head__bar { animation: kx-bar linear both; animation-timeline: scroll(root); }
+  html.kx-inner body .head__bar { animation: kx-bar linear both; animation-timeline: scroll(root); }
   /* the footer's district name stretches as the page ends, as on the homepage */
   .kx ~ .foot .mark { animation: kx-mark linear forwards; animation-timeline: view(); animation-range: entry 0% entry 100%; }
   /* the rest moves with the scroll on wider screens only: on a phone the reveals carry the motion */
@@ -906,7 +906,7 @@ a.kx-pill:hover { background: #d9400e; color: #ffffff; scale: 1.04; }
 
 @media (prefers-reduced-motion: reduce) {
   .kx-title, .kx-title > span, .kx-fig, .kx-stretch, .kx-issue__date b, .kx-prose :is(h1, h2),
-  .kx-mem, .kx-proj, .kx-chap__img, .kx-chap__nums .kx-fig, .kx-wk[open] .kx-day, .kx ~ .foot .mark, body:has(main.kx) .head__bar,
+  .kx-mem, .kx-proj, .kx-chap__img, .kx-chap__nums .kx-fig, .kx-wk[open] .kx-day, .kx ~ .foot .mark, html.kx-inner body .head__bar,
   .kx-mark, .kx-cover, .kx-tix, .kx-meet__photo, .kx-miss__comb i, .kx-shot { animation: none !important; }
   .rv-on .kx [data-rv]:not(.is-in) { opacity: 1; translate: none; }
 }

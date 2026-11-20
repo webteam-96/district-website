@@ -1,7 +1,7 @@
 /* Shared, design-free helpers for the inner pages. Every theme lays these pages out its own
    way; what they share is the data (content.js → R.pages), the page list, and the plain-JS
    behaviour in shared/inner.js (tabs, filters, reveal), which the plain-HTML pages use too. */
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { R, initials, parseISO, toISO, type CalEntry, type Photo } from './rotary';
 import './rte.css';
@@ -45,6 +45,30 @@ export function useBehaviours<T extends HTMLElement>() {
     return window.RInner.mount(ref.current);
   }, []);
   return ref;
+}
+
+/* A tab panel's contents, built when the panel is first shown: a calendar holds a year of days, and building all
+   twelve months at once took seconds on a phone. Once built, the panel gets its page behaviour (filters, reveal).
+   The plain-HTML pages build everything, as before. */
+export function Later({ open, children }: { open: boolean; children: ReactNode }) {
+  const mark = useRef<HTMLSpanElement>(null);
+  const panel = useRef<HTMLElement | null>(null);
+  const [on, setOn] = useState(open || STATIC);
+  const late = useRef(!on);
+  useEffect(() => {
+    if (on) return;
+    const el = mark.current?.closest<HTMLElement>('[data-panel]');
+    if (!el) { setOn(true); return; }
+    panel.current = el;
+    const mo = new MutationObserver(() => { if (!el.hidden) setOn(true); });
+    mo.observe(el, { attributes: true, attributeFilter: ['hidden'] });
+    return () => mo.disconnect();
+  }, [on]);
+  useEffect(() => {
+    if (!on || !late.current || !panel.current || !window.RInner) return;
+    return window.RInner.mount(panel.current);
+  }, [on]);
+  return on ? <>{children}</> : <span ref={mark} hidden />;
 }
 
 /* The mobile menu renders into <body>; when pages are rendered to static HTML there is no

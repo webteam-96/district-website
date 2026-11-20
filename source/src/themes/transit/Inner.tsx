@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Later } from '../../shared/inner';
 import { R, initials, longDate, monthLabel, parseISO, shortDate, monthMatrix, toISO, weekdayName, type Bulletin, type CalEntry, type Photo } from '../../shared/rotary';
 import { lenis, startSmoothScroll } from '../../shared/smooth';
 import {
@@ -430,6 +431,7 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
   const shown = Array.from({ length: 6 }, (_, w) => cells.slice(w * 7, w * 7 + 7)).filter(w => w.some(d => d.getMonth() === mo)).flat();
   return (
     <div className={`tx-mpanel${all.length ? '' : ' is-empty'}`} data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!open} data-filter>
+      <Later open={open}>
       {all.length > 0 && (
         <div className="tx-tools" data-rv>
           <div className="tx-chips" role="group" aria-label="Show" data-lenis-prevent>
@@ -461,6 +463,7 @@ function Month({ m, open }: { m: ReturnType<typeof calMonths>[number]; open: boo
         {C.weekdays.map(w => <span key={w} className="tx-wd" aria-hidden="true">{w}</span>)}
         {shown.map(d => <Cell key={toISO(d)} d={d} list={d.getMonth() === mo ? by.get(toISO(d)) ?? [] : null} />)}
       </div>
+      </Later>
     </div>
   );
 }

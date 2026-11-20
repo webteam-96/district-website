@@ -140,6 +140,11 @@ const SpotlightCard = ({
     let raf = 0;
     let last = 0;
     let alive = true;
+    /* the card's size, kept by a ResizeObserver: the ambient drift needs only that, so it no longer asks for the
+       card's position (a forced layout) every frame of every card */
+    let size = { width: root.offsetWidth, height: root.offsetHeight };
+    const sizer = new ResizeObserver(() => { size = { width: root.offsetWidth, height: root.offsetHeight }; });
+    sizer.observe(root);
 
     const gradient = (s: Settings, size: number, x: number, y: number, stops: string) => {
       if (s.shape === 'beam') {
@@ -179,7 +184,7 @@ const SpotlightCard = ({
       const s = settingsRef.current;
       const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
       last = now;
-      const rect = root.getBoundingClientRect();
+      const rect = focus || pointer.active ? root.getBoundingClientRect() : { left: 0, top: 0, width: size.width, height: size.height };
       let tx = state.x;
       let ty = state.y;
       let target = 0;
@@ -229,6 +234,7 @@ const SpotlightCard = ({
     wakeRef.current = wake;
 
     const onMove = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') return;   /* a finger scrolling the page is not a hover: following it ran every frame */
       pointer.x = event.clientX;
       pointer.y = event.clientY;
       pointer.active = true;
@@ -285,6 +291,7 @@ const SpotlightCard = ({
       alive = false;
       cancelAnimationFrame(raf);
       observer.disconnect();
+      sizer.disconnect();
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);

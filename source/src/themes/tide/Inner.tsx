@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Later } from '../../shared/inner';
 import { R, initials, longDate, monthLabel, parseISO, shortDate, weekdayName, type CalEntry, type Photo } from '../../shared/rotary';
 import { lenis, startSmoothScroll } from '../../shared/smooth';
 import {
@@ -524,6 +525,7 @@ function CalendarPage() {
         <div className="wrap">
           {data.map(({ m, isNow, all, today, events, ledger, days }) => (
             <div key={m.key} className={`tp-cal__p${all.length ? '' : ' is-empty'}`} data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!isNow} data-filter>
+              <Later open={isNow}>
               <header className="tp-cal__bar" data-rv>
                 <h2>{m.label}</h2>
                 {all.length > 0 && <Count total={all.length} noun="entries" />}
@@ -582,6 +584,7 @@ function CalendarPage() {
               <Empty text={P.calendar.emptyMonth} hidden={all.length > 0}>
                 {!isNow && <a className="tp-btn tp-btn--line" href={pageInfo('calendar').file}>{nowLabel}{I.go}</a>}
               </Empty>
+              </Later>
             </div>
           ))}
         </div>

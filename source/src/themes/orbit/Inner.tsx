@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Later } from '../../shared/inner';
 import { R, initials, longDate, parseISO, shortDate, toISO, weekdayName, type Bulletin, type CalEntry, type Photo } from '../../shared/rotary';
 import { startSmoothScroll } from '../../shared/smooth';
 import {
@@ -453,6 +454,7 @@ function MonthPanel({ m, open }: { m: Month; open: boolean }) {
   );
   return (
     <div className="oi-month" data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!open} data-filter>
+      <Later open={open}>
       <div className="oi-days oi-turn" data-rv>
         {days.map(d => {
           const c = lineCount(d.list);
@@ -505,6 +507,7 @@ function MonthPanel({ m, open }: { m: Month; open: boolean }) {
         {days.length > 0 && <ol className="oi-daylist">{ordered.map(d => <DayCard key={d.iso} d={d} today={d === todayDay} />)}</ol>}
         <Empty text={P.calendar.emptyMonth} show={!total} />
       </div>
+      </Later>
     </div>
   );
 }

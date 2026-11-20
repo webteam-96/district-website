@@ -3,6 +3,8 @@ import { createContext, useContext } from 'react';
 /* Ether ships dark by default with a light alternative; the choice is remembered.
    index.html applies the saved theme before first paint, so there is no flash. */
 export type Theme = 'dark' | 'light';
+/* phones skip the canvas effects (hero fluid, footer threads, card stars): they made scrolling stutter there */
+export const PHONE = typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches;
 export const ThemeCtx = createContext<Theme>('dark');
 export const useTheme = () => useContext(ThemeCtx);
 export const KEY = 'ether-theme';

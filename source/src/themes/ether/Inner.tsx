@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Later } from '../../shared/inner';
 import { R, initials, longDate, parseISO, shortDate, type Bulletin, type CalEntry, type Photo } from '../../shared/rotary';
 import { startSmoothScroll } from '../../shared/smooth';
 import {
@@ -372,6 +373,7 @@ function CalendarPage() {
             const lanes = C.types.map(t => ({ t, items: days.flatMap(d => d.list.filter(e => e.type === t.key).map(e => ({ e, d }))) }));
             return (
               <div key={m.key} className="mpanel" data-panel={m.key} role="tabpanel" aria-label={m.label} hidden={!isNow} data-filter>
+                <Later open={isNow}>
                 <h2 className="sr-only">{m.label}</h2>
                 <div className="dstrip glass" data-rv>
                   <Slide>
@@ -430,6 +432,7 @@ function CalendarPage() {
                   </div>
                 )}
                 <p className="gempty" data-f-empty hidden={total > 0}>{P.calendar.emptyMonth}</p>
+                </Later>
               </div>
             );
           })}

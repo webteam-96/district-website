@@ -1116,3 +1116,8 @@
   /* About: the sheet starts below the header instead of under it */
   .psec--doc { margin-top: 0; padding-top: 14px; }
 }
+
+/* calendar page: the four columns skip off-screen work as a whole, not row by row (1,400+ rows each needing its
+   own visibility check every frame made scrolling stutter) */
+.tlane__list [data-item] { content-visibility: visible; }
+.tlane__list { content-visibility: auto; contain-intrinsic-size: auto 480px; }

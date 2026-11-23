@@ -13,9 +13,31 @@
   ],
   "redirects": [
     {
-      "source": "/:theme(ether|prism|orbit|tide|transit|cascade|kinetic)",
+      "source": "/:theme(site|default|ether|prism|orbit|tide|transit|cascade|kinetic)",
       "destination": "/:theme/",
       "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/ApiProxy.ashx",
+      "destination": "https://rid3141.rotaryindia.org/ApiProxy.ashx"
+    },
+    {
+      "source": "/MediaProxy.ashx",
+      "destination": "https://rid3141.rotaryindia.org/MediaProxy.ashx"
+    },
+    {
+      "source": "/default/:path*",
+      "destination": "/default/index.html"
+    },
+    {
+      "source": "/theme-api/:path*",
+      "destination": "https://rizones45678.org/API/api/public/district/:path*"
+    },
+    {
+      "source": "/site/:path*",
+      "destination": "/site/index.html"
     }
   ]
 }

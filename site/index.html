@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rotary District 3141</title>
+<style>
+  html,body{margin:0;height:100%;background:#fff;color:#17458f;font:15px/1.5 system-ui,sans-serif}
+  body{display:grid;place-items:center}
+  p{margin:0;opacity:.7}
+</style>
+</head>
+<body>
+<p>Loading…</p>
+<script>
+/* Opens the theme chosen for this district in the rizones dashboard.
+   Order: ?theme=<key> (preview) → API by this site's host → API by district id → Default.
+   /theme-api/ is a same-origin proxy to https://rizones45678.org/API/api/public/district/
+   (vercel.json in production, vite.config.ts in dev): the API sends no CORS headers. */
+(function () {
+  var KEYS = ['default', 'ether', 'prism', 'orbit', 'tide', 'transit', 'cascade', 'kinetic'];
+  var DISTRICT_ID = 490;
+  var API = '/theme-api/';
+  var q = new URLSearchParams(location.search);
+  var preview = q.get('theme'); q.delete('theme');
+  var rest = location.pathname.replace(/^\/site\/?/, '');          /* /site/club-finder → club-finder */
+  var qs = q.toString();
+  var key = function (k) { k = String(k || '').trim().toLowerCase().replace(/\s+/g, '-'); return KEYS.indexOf(k) >= 0 ? k : null; };
+  var go = function (k) { location.replace('/' + (key(k) || 'default') + '/' + rest + (qs ? '?' + qs : '') + location.hash); };
+  var get = function (path) {
+    var c = 'AbortController' in window ? new AbortController() : null;
+    var t = c && setTimeout(function () { c.abort(); }, 5000);
+    return fetch(API + path, c ? { signal: c.signal } : {})
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { return j && key(j.themeKey); })
+      .catch(function () { return null; })
+      .finally(function () { clearTimeout(t); });
+  };
+  if (key(preview)) return go(preview);
+  get('theme?host=' + encodeURIComponent(location.hostname))
+    .then(function (k) { return k || get(DISTRICT_ID + '/theme'); })
+    .then(go);
+})();
+</script>
+</body>
+</html>

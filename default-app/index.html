@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/default/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/default/assets/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/default/assets/favicon/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/default/assets/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/default/assets/favicon/android-icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/default/assets/favicon/apple-icon-180x180.png" />
+    <title>Rotary District</title>
+    <meta
+      name="description"
+      content="Official Rotary District website — clubs, projects, events, district committee and awards."
+    />
+    <!-- Link preview (WhatsApp / Facebook / X / LinkedIn). Static, and generic on
+         purpose: the district is resolved from the rid<NNNN> subdomain in JS and
+         scrapers do not run JS, so these must hold for every district this one
+         shared build serves. og:image must be ABSOLUTE (Twitterbot and LinkedIn do not
+         resolve relative ones); the file is byte-identical on all 43 hosts, so the
+         default tenant’s host is used as the one canonical source. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Rotary District" />
+    <meta property="og:title" content="Rotary District" />
+    <meta
+      property="og:description"
+      content="Official Rotary District website — clubs, projects, events, district committee and awards."
+    />
+    <meta property="og:image" content="https://rid3011.rotaryindia.org/assets/img/banner-default.png" />
+    <meta property="og:image:width" content="1916" />
+    <meta property="og:image:height" content="1020" />
+    <meta property="og:image:alt" content="Rotary International" />
+    <meta name="twitter:image" content="https://rid3011.rotaryindia.org/assets/img/banner-default.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="flex min-h-screen flex-col page-texture">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

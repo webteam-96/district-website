@@ -8,7 +8,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
   One build per theme:  npx vite build --mode <theme>
   Output: ../<theme>/index.html + ../<theme>/assets/app.{js,css}
   The bundle is a classic IIFE script (no type="module", no crossorigin), so the
-  page also opens straight from file:// â€” Chrome blocks module scripts there.
+  page also opens straight from file:// — Chrome blocks module scripts there.
 */
 const classicScript = (): Plugin => ({
   name: 'classic-script',
@@ -54,14 +54,31 @@ const devPages = (): Plugin => ({
       const url = decodeURIComponent((req.url ?? '/').split('?')[0]);
       if (url === '/') {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.end(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rizones District website â€” themes</title>
-<body style="font:16px/1.5 system-ui,sans-serif;max-width:40rem;margin:3rem auto;padding:0 16px"><h1>Rizones District website â€” 7 themes</h1><ul>${
-          THEMES.map(t => `<li><a href="/${t}/">${t[0].toUpperCase() + t.slice(1)}</a></li>`).join('')}</ul></body>`);
+        return res.end(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rizones District website — themes</title>
+<body style="font:16px/1.5 system-ui,sans-serif;max-width:40rem;margin:3rem auto;padding:0 16px"><h1>Rizones District website — Default and 7 themes</h1><ul>${
+          ['default', ...THEMES].map(t => `<li><a href="/${t}/">${t[0].toUpperCase() + t.slice(1)}</a></li>`).join('')}</ul><p><a href="/site/">Site</a>: opens the theme chosen in the rizones dashboard</p></body>`);
       }
       /* /prism -> /prism/ for every theme (the pages' relative links need the slash) */
       if (THEMES.includes(url.slice(1))) {
         const q = (req.url ?? '').indexOf('?');
         res.statusCode = 301; res.setHeader('Location', url + '/' + (q >= 0 ? req.url!.slice(q) : '')); return res.end();
+      }
+      /* the Default theme (the current website, built by themes-sample/default-app into ../default): its files,
+         and its index.html for any of its pages (it routes in the browser) */
+      /* /site/: opens the theme chosen in the rizones dashboard (../site/index.html, see its comment) */
+      if (url === '/site') { res.statusCode = 301; res.setHeader('Location', '/site/' + ((req.url ?? '').includes('?') ? req.url!.slice(req.url!.indexOf('?')) : '')); return res.end(); }
+      if (url.startsWith('/site/')) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.end(readFileSync(resolve(__dirname, '..', 'site', 'index.html')));
+      }
+      if (url === '/default') { res.statusCode = 301; res.setHeader('Location', '/default/'); return res.end(); }
+      if (url.startsWith('/default/')) {
+        const dir = resolve(__dirname, '..', 'default');
+        const file = resolve(dir, url.slice('/default/'.length));
+        const hit = file.startsWith(dir) && existsSync(file) && extname(file) ? file : resolve(dir, 'index.html');
+        const more: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.ico': 'image/x-icon', '.gif': 'image/gif', '.woff2': 'font/woff2', '.mp4': 'video/mp4' };
+        res.setHeader('Content-Type', more[extname(hit).toLowerCase()] ?? TYPES[extname(hit).toLowerCase()] ?? 'application/octet-stream');
+        return res.end(readFileSync(hit));
       }
       const m = url.match(/^\/(shared|data)\/(.+)$/);
       if (m) {
@@ -88,7 +105,9 @@ export default defineConfig(({ mode }) => {
     base: './',
     publicDir: false,
     plugins: [react(), classicScript(), devPages()],
-    server: { proxy: { '/live-api': `http://127.0.0.1:${LIVE_PORT}`, '/live-media': `http://127.0.0.1:${LIVE_PORT}` } },
+    server: { proxy: { '/live-api': `http://127.0.0.1:${LIVE_PORT}`, '/live-media': `http://127.0.0.1:${LIVE_PORT}`,
+      /* public theme API, no key; same-origin because it sends no CORS headers */
+      '/theme-api': { target: 'https://rizones45678.org', changeOrigin: true, secure: true, rewrite: p => p.replace('/theme-api', '/API/api/public/district') } } },
     build: {
       outDir: resolve(__dirname, '..'),
       emptyOutDir: false,

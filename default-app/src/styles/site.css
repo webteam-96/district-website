@@ -1,0 +1,433 @@
+/* ==========================================================================
+   Rotary District 3011 — site.css
+   Verbatim custom CSS blocks ported from the React app's src/index.css.
+   Tailwind utilities are supplied separately (Tailwind config + Preflight).
+   Hex values, easings and timings are copied exactly — do NOT paraphrase.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  height: 100%;
+}
+
+/* Body must GROW with content (min-height), not be locked to a fixed 100% height.
+   It is a flex column, so a fixed height makes the browser shrink the children to
+   fit — squashing the fixed-height header/contact strip on inner pages. The home
+   page only escaped this because Lenis sets `html.lenis body { height: auto }`. */
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: #1a2b4a;
+}
+
+/* Light-blue page with a subtle dotted texture (matches the design background) */
+.page-texture {
+  background-color: #eef3fb;
+  background-image: radial-gradient(rgba(22, 66, 155, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Slim custom scrollbar used inside the list cards */
+.slim-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #c7d2e6 transparent;
+}
+.slim-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.slim-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+.slim-scroll::-webkit-scrollbar-thumb {
+  background: #c7d2e6;
+  border-radius: 9999px;
+}
+.slim-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a9b7ce;
+}
+
+/* Lenis smooth scrolling (see js/effects/smooth-scroll.js). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Header: white logo wedge. The clip-path lives on this white layer (never on
+   the logo content). The blue header shows wherever the wedge is clipped away,
+   so the diagonal is the white->blue transition on the left. */
+/* The wedge bottom edge is fixed to the header height (Site.Master h-[70px] /
+   md:h-20 = 70/80px). If you change the header height, recompute these paths or
+   blue shows through below the white wedge. */
+.logo-curve {
+  clip-path: path('M 0 0 H 180 C 232 18, 225 62, 255 80 L 0 80 Z');
+}
+@media (max-width: 767px) {
+  .logo-curve {
+    clip-path: path('M 0 0 H 150 C 195 16, 190 54, 214 70 L 0 70 Z');
+  }
+}
+
+/* Desktop nav "slot machine" hover: each letter is a 4-deep vertical reel of
+   the same letter. On hover the reel scrolls down through 3 rows and decelerates
+   to rest on an identical copy (so rest/end look seamless), staggered left->right
+   via an inline --d delay so the reels stop one after another — jackpot style. */
+.slot-text {
+  display: inline-flex;
+}
+.slot-col {
+  display: inline-block;
+  height: 1.15em;
+  overflow: hidden;
+  line-height: 1.15;
+}
+.slot-col > .slot-reel {
+  display: block;
+  transform: translateY(0);
+}
+.slot-col > .slot-reel > span {
+  display: block;
+  height: 1.15em;
+  line-height: 1.15;
+  white-space: pre;
+}
+.slot-link:hover .slot-reel,
+.slot-link:focus-visible .slot-reel {
+  animation: slot-spin 0.6s cubic-bezier(0.18, 0.7, 0.12, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes slot-spin {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-75%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slot-link:hover .slot-reel,
+  .slot-link:focus-visible .slot-reel {
+    animation: none;
+  }
+}
+
+/* --- Entrance animations --- */
+
+/* Cards fade + rise in on first paint. Stagger is set via inline
+   animation-delay where the cards are rendered. */
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.card-enter {
+  animation: card-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Committee filter dropdown panel springs open. */
+@keyframes dd-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.dd-panel {
+  transform-origin: top;
+  animation: dd-in 0.18s ease-out both;
+}
+
+/* List rows fade + rise as they scroll into view inside a card. Scroll-driven
+   where supported (Chrome 115+); elsewhere rows simply render in their final
+   visible state, so content is never hidden. */
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@supports (animation-timeline: view()) {
+  .row-animate {
+    animation: row-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 34%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  .card-enter,
+  .row-animate {
+    animation: none !important;
+  }
+}
+
+/* ===========================================================================
+   DOUBLE STAIRCASE PAGE TRANSITION
+   Eight full-height columns split into two interlocking staircases:
+   even columns = brand blue, enter from the TOP; odd columns = brand gold,
+   enter from the BOTTOM. A left-to-right per-column stagger (set inline via
+   animation-delay) gives the stepped staircase rhythm.
+
+   Timing here MUST match js/effects/staircase.js:
+     COLUMNS=8  SLIDE_MS=380 (--pt-slide)  STAGGER_MS=60 (inline)  HOLD_MS=90
+   Overlay z-index 3000 clears the sticky header (z-1000) and modals (z-2000).
+   =========================================================================== */
+.pt-overlay {
+  --pt-slide: 380ms;
+  --pt-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  overflow: hidden;
+  pointer-events: none;
+}
+.pt-overlay.pt-idle {
+  display: none;
+}
+.pt-col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  will-change: transform;
+}
+.pt-top {
+  transform: translateY(-100%);
+}
+.pt-bottom {
+  transform: translateY(100%);
+}
+.pt-blue {
+  background: #16429b;
+}
+.pt-gold {
+  background: #f5a623;
+}
+.pt-overlay[data-stage='cover'] .pt-top {
+  animation: pt-cover-top var(--pt-slide) var(--pt-ease) both;
+}
+.pt-overlay[data-stage='cover'] .pt-bottom {
+  animation: pt-cover-bottom var(--pt-slide) var(--pt-ease) both;
+}
+.pt-overlay[data-stage='reveal'] .pt-top {
+  animation: pt-reveal-top var(--pt-slide) var(--pt-ease) both;
+}
+.pt-overlay[data-stage='reveal'] .pt-bottom {
+  animation: pt-reveal-bottom var(--pt-slide) var(--pt-ease) both;
+}
+@keyframes pt-cover-top {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes pt-cover-bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes pt-reveal-top {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+@keyframes pt-reveal-bottom {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pt-overlay,
+  .pt-overlay.pt-active {
+    display: none !important;
+  }
+  .pt-col {
+    animation: none !important;
+  }
+}
+
+/* CircularGallery (Our Projects) — from React CircularGallery.css */
+.circular-gallery {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+}
+.circular-gallery:active {
+  cursor: grabbing;
+}
+.circular-gallery:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+/* About page — admin-authored HTML (dangerouslySetInnerHTML). Whatever the
+   admin pastes (Word nbsp runs, fixed-width tables, oversized media, inline
+   width styles) must wrap or scroll inside the column, never overflow it. */
+.about-content {
+  overflow-wrap: anywhere;
+  /* Hard boundary: whatever the rules below miss (inline width styles,
+     white-space:nowrap spans, absolutely-positioned strays) clips at the
+     column edge instead of widening the page. relative makes this the
+     containing block for abs-positioned children so they clip too. */
+  position: relative;
+  overflow-x: hidden;
+  overflow-x: clip; /* preferred: no scroll container; hidden is the fallback */
+}
+.about-content :where(img, video, iframe, embed, object, table) {
+  max-width: 100%;
+}
+.about-content img {
+  height: auto;
+}
+.about-content table {
+  display: block;
+  overflow-x: auto; /* wide tables scroll in place instead of pushing the page */
+}
+.about-content pre {
+  white-space: pre-wrap;
+}
+.about-content p {
+  margin-bottom: 1.1em;
+}
+/* The admin editor emits empty <p></p> spacers between paragraphs; without this
+   each one adds a phantom blank line of margin. */
+.about-content p:empty {
+  display: none;
+}
+
+/* ---- About typography: an editorial frame for arbitrary admin HTML. Most
+   districts store plain <p> runs, so the design has to come from type, not
+   markup: a lede + drop cap on the opening paragraph, and the site's gold-bar
+   heading motif applied to any h1–h3 the admin does paste in. All :where() so
+   specificity stays flat (matches the safety rules above). ---- */
+.about-content {
+  font-size: 16px;
+  line-height: 1.9;
+  color: #3d4c66; /* between ink and muted: long-read body */
+}
+.about-content > :where(p):first-of-type {
+  font-size: 18.5px;
+  line-height: 1.8;
+  color: #1a2b4a; /* ink — the lede carries the page's first impression */
+}
+.about-content > :where(p):first-of-type::first-letter {
+  float: left;
+  padding: 2px 12px 0 0;
+  font-size: 58px;
+  font-weight: 700;
+  line-height: 0.85;
+  color: #0b2b6b;
+}
+.about-content :where(h1, h2, h3) {
+  margin: 1.6em 0 0.6em;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #0b2b6b;
+}
+.about-content :where(h1) { font-size: 26px; }
+.about-content :where(h2) { font-size: 22px; }
+.about-content :where(h3) { font-size: 18px; }
+/* the same gold underline the section headings across the site carry */
+.about-content :where(h1, h2)::after {
+  content: '';
+  display: block;
+  width: 44px;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: 9999px;
+  background: #f5a623;
+}
+.about-content :where(a) {
+  color: #16429b;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(22, 66, 155, 0.3);
+  text-underline-offset: 3px;
+}
+.about-content :where(a):hover {
+  text-decoration-color: currentColor;
+}
+.about-content :where(ul, ol) {
+  margin: 0 0 1.1em;
+  padding-left: 1.4em;
+}
+.about-content :where(li) {
+  margin-bottom: 0.35em;
+}
+.about-content :where(li)::marker {
+  color: #f5a623;
+  font-weight: 700;
+}
+.about-content :where(blockquote) {
+  margin: 1.4em 0;
+  padding: 0.2em 0 0.2em 1.1em;
+  border-left: 3px solid #f5a623;
+  font-style: italic;
+  color: #1a2b4a;
+}
+.about-content :where(hr) {
+  margin: 2em auto;
+  width: 64px;
+  border: 0;
+  border-top: 3px solid #e8edf5;
+  border-radius: 9999px;
+}
+.about-content :where(img) {
+  border-radius: 12px;
+}
+@media (max-width: 640px) {
+  .about-content { font-size: 15px; }
+  .about-content > :where(p):first-of-type { font-size: 16.5px; }
+  .about-content > :where(p):first-of-type::first-letter { font-size: 46px; padding-right: 9px; }
+}

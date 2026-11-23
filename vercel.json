@@ -29,7 +29,7 @@
     },
     {
       "source": "/default/:path*",
-      "destination": "/default/index.html"
+      "destination": "/default/"
     },
     {
       "source": "/theme-api/:path*",
@@ -37,7 +37,7 @@
     },
     {
       "source": "/site/:path*",
-      "destination": "/site/index.html"
+      "destination": "/site/"
     }
   ]
 }
